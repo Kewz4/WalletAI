@@ -10,7 +10,7 @@ final class NotificationService {
         let center = UNUserNotificationCenter.current()
         let settings = await center.notificationSettings()
         guard settings.authorizationStatus == .notDetermined else { return }
-        try? await center.requestAuthorization(options: [.alert, .sound, .badge])
+        _ = try? await center.requestAuthorization(options: [.alert, .sound, .badge])
     }
 
     func checkBudgetAlerts(for categories: [Category]) async {
@@ -23,20 +23,16 @@ final class NotificationService {
             let spent = category.totalSpent()
             let progress = spent / budget
 
-            let threshold: Double
             let message: String
             let identifier: String
 
             if progress >= 1.0 {
-                threshold = 1.0
                 message = "You've exceeded your \(category.name) budget of \(budget.currencyFormatted())!"
                 identifier = "budget-over-\(category.id)"
             } else if progress >= 0.9 {
-                threshold = 0.9
                 message = "90% of your \(category.name) budget used. \((budget - spent).currencyFormatted()) remaining."
                 identifier = "budget-90-\(category.id)"
             } else if progress >= 0.75 {
-                threshold = 0.75
                 message = "75% of your \(category.name) budget used."
                 identifier = "budget-75-\(category.id)"
             } else {

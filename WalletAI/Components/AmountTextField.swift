@@ -15,10 +15,9 @@ struct AmountTextField: View {
             Spacer(minLength: 0)
 
             Text(symbol)
-                .font(.system(size: 30, weight: .semibold, design: .rounded))
+                .font(Font.system(size: 30, weight: .semibold, design: .rounded))
                 .foregroundStyle(.secondary)
                 .padding(.trailing, 3)
-                .alignmentGuide(.center) { d in d[VerticalAlignment.center] }
 
             TextField("0", text: $text)
                 .keyboardType(.decimalPad)

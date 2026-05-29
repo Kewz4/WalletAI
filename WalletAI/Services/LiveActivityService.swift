@@ -37,9 +37,10 @@ final class LiveActivityService {
     }
 
     func endCurrentActivity() {
-        Task {
-            await currentActivity?.end(nil, dismissalPolicy: .immediate)
-            currentActivity = nil
+        let activity = currentActivity
+        currentActivity = nil
+        Task.detached {
+            await activity?.end(nil, dismissalPolicy: .immediate)
         }
     }
 }

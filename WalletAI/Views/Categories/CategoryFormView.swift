@@ -95,7 +95,7 @@ struct CategoryFormView: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(name.isEmpty ? "Category Name" : name)
                     .font(.headline)
-                    .foregroundStyle(name.isEmpty ? .secondary : .primary)
+                    .foregroundStyle(name.isEmpty ? Color.secondary : Color.primary)
                 if hasBudget, let budget = Double(monthlyBudget), budget > 0 {
                     Text("\(budget.currencyFormatted()) / month")
                         .font(.subheadline)
@@ -113,7 +113,7 @@ struct CategoryFormView: View {
     private var nameField: some View {
         HStack {
             Image(systemName: "pencil")
-                .foregroundStyle(.walletPrimary)
+                .foregroundStyle(Color.walletPrimary)
             TextField("Category Name", text: $name)
                 .font(.body)
         }
@@ -219,8 +219,8 @@ struct CategoryFormView: View {
             }
             .frame(maxWidth: .infinity)
             .padding(18)
-            .glassEffect(.regular.tint(.walletPrimary).interactive(), in: .rect(cornerRadius: 16))
-            .foregroundStyle(.walletPrimary)
+            .glassEffect(.regular.tint(Color.walletPrimary).interactive(), in: .rect(cornerRadius: 16))
+            .foregroundStyle(Color.walletPrimary)
             .opacity(isValid ? 1.0 : 0.4)
         }
         .disabled(!isValid)

@@ -118,10 +118,10 @@ struct AddTransactionView: View {
                 .padding(.horizontal, 20)
                 .padding(.vertical, 10)
                 .glassEffect(
-                    isExpense ? .regular.tint(.red).interactive() : .regular.interactive(),
+                    isExpense ? .regular.tint(Color.red).interactive() : .regular.interactive(),
                     in: .capsule
                 )
-                .foregroundStyle(isExpense ? .red : .secondary)
+                .foregroundStyle(isExpense ? Color.red : Color.secondary)
 
                 Button("Income") {
                     withAnimation(.springy) { isExpense = false }
@@ -131,10 +131,10 @@ struct AddTransactionView: View {
                 .padding(.horizontal, 20)
                 .padding(.vertical, 10)
                 .glassEffect(
-                    !isExpense ? .regular.tint(.green).interactive() : .regular.interactive(),
+                    !isExpense ? .regular.tint(Color.green).interactive() : .regular.interactive(),
                     in: .capsule
                 )
-                .foregroundStyle(!isExpense ? .green : .secondary)
+                .foregroundStyle(!isExpense ? Color.green : Color.secondary)
             }
             .padding(4)
         }
@@ -146,7 +146,7 @@ struct AddTransactionView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 20)
                 .glassEffect(
-                    .regular.tint(isExpense ? .red : .green),
+                    .regular.tint(isExpense ? Color.red : Color.green),
                     in: .rect(cornerRadius: 20)
                 )
         }
@@ -157,7 +157,7 @@ struct AddTransactionView: View {
             HStack {
                 Image(systemName: "pencil")
                     .frame(width: 24)
-                    .foregroundStyle(.walletPrimary)
+                    .foregroundStyle(Color.walletPrimary)
                 TextField("Title", text: $title)
                     .font(.body)
                     .submitLabel(.next)
@@ -169,13 +169,13 @@ struct AddTransactionView: View {
             HStack {
                 Image(systemName: "tag.fill")
                     .frame(width: 24)
-                    .foregroundStyle(.walletPrimary)
+                    .foregroundStyle(Color.walletPrimary)
                 Button {
                     showCategoryPicker = true
                 } label: {
                     HStack {
                         Text(selectedCategory?.name ?? "Select Category")
-                            .foregroundStyle(selectedCategory == nil ? .secondary : .primary)
+                            .foregroundStyle(selectedCategory == nil ? Color.secondary : Color.primary)
                         Spacer()
                         Image(systemName: "chevron.right")
                             .font(.caption)
@@ -235,9 +235,9 @@ struct AddTransactionView: View {
             HStack {
                 Image(systemName: "calendar")
                     .frame(width: 24)
-                    .foregroundStyle(.walletPrimary)
+                    .foregroundStyle(Color.walletPrimary)
                 DatePicker("Date", selection: $date, displayedComponents: [.date, .hourAndMinute])
-                    .tint(.walletPrimary)
+                    .tint(Color.walletPrimary)
             }
             .padding(16)
         }
@@ -279,7 +279,7 @@ struct AddTransactionView: View {
         HStack(alignment: .top) {
             Image(systemName: "note.text")
                 .frame(width: 24)
-                .foregroundStyle(.walletPrimary)
+                .foregroundStyle(Color.walletPrimary)
             TextField("Notes (optional)", text: $notes, axis: .vertical)
                 .lineLimit(3...6)
         }
@@ -299,10 +299,10 @@ struct AddTransactionView: View {
             .frame(maxWidth: .infinity)
             .padding(18)
             .glassEffect(
-                .regular.tint(isExpense ? .red : .green).interactive(),
+                .regular.tint(isExpense ? Color.red : Color.green).interactive(),
                 in: .rect(cornerRadius: 16)
             )
-            .foregroundStyle(isExpense ? .red : .green)
+            .foregroundStyle(isExpense ? Color.red : Color.green)
             .opacity(isValid ? 1.0 : 0.4)
         }
         .disabled(!isValid)

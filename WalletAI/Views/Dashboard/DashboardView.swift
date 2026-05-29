@@ -57,12 +57,14 @@ struct DashboardView: View {
     }
 
     private var categoryBreakdown: [(category: String, amount: Double, color: Color)] {
-        Dictionary(grouping: filteredTransactions.filter { $0.isExpense }, by: { $0.category?.name ?? "Other" })
-            .mapValues { $0.reduce(0) { $0 + $1.amount } }
-            .sorted { $0.value > $1.value }
+        let expenses = filteredTransactions.filter { $0.isExpense }
+        let grouped = Dictionary(grouping: expenses) { $0.category?.name ?? "Other" }
+        let totals: [(String, Double)] = grouped.map { ($0.key, $0.value.reduce(0.0) { $0 + $1.amount }) }
+        return totals
+            .sorted { $0.1 > $1.1 }
             .prefix(6)
             .compactMap { key, val in
-                let color = categories.first { $0.name == key }?.color ?? .secondary
+                let color: Color = categories.first { $0.name == key }?.color ?? Color.secondary
                 return (key, val, color)
             }
     }
@@ -107,7 +109,7 @@ struct DashboardView: View {
                     } label: {
                         Image(systemName: "plus.circle.fill")
                             .font(.title2)
-                            .foregroundStyle(.walletPrimary)
+                            .foregroundStyle(Color.walletPrimary)
                     }
                 }
             }
@@ -136,7 +138,7 @@ struct DashboardView: View {
             }
         }
         .padding(24)
-        .glassEffect(.regular.tint(.walletPrimary).interactive(), in: .rect(cornerRadius: 24))
+        .glassEffect(.regular.tint(Color.walletPrimary).interactive(), in: .rect(cornerRadius: 24))
         .frame(maxWidth: .infinity)
     }
 
@@ -158,25 +160,28 @@ struct DashboardView: View {
     private var periodSelector: some View {
         GlassEffectContainer(spacing: 4) {
             HStack(spacing: 4) {
-                ForEach(Period.allCases, id: \.self) { period in
-                    Button(period.rawValue) {
-                        withAnimation(.springy) { selectedPeriod = period }
-                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                    }
-                    .font(.subheadline.weight(.semibold))
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 8)
-                    .glassEffect(
-                        selectedPeriod == period
-                            ? .regular.tint(.walletPrimary).interactive()
-                            : .regular.interactive(),
-                        in: .capsule
-                    )
-                    .foregroundStyle(selectedPeriod == period ? .walletPrimary : .secondary)
-                }
+                periodButton(.week)
+                periodButton(.month)
+                periodButton(.year)
             }
             .padding(4)
         }
+    }
+
+    private func periodButton(_ period: Period) -> some View {
+        let isSelected = selectedPeriod == period
+        return Button(period.rawValue) {
+            withAnimation(.springy) { selectedPeriod = period }
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        }
+        .font(.subheadline.weight(.semibold))
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+        .glassEffect(
+            isSelected ? .regular.tint(Color.walletPrimary).interactive() : .regular.interactive(),
+            in: .capsule
+        )
+        .foregroundStyle(isSelected ? Color.walletPrimary : Color.secondary)
     }
 
     private func budgetSection(budget: Budget) -> some View {
@@ -260,7 +265,7 @@ struct DashboardView: View {
                     TransactionListView()
                 }
                 .font(.subheadline)
-                .foregroundStyle(.walletPrimary)
+                .foregroundStyle(Color.walletPrimary)
             }
             .padding(.horizontal, 4)
 

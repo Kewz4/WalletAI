@@ -76,11 +76,13 @@ final class DeepSeekService {
         let totalIncome = transactions.filter { !$0.isExpense }.reduce(0) { $0 + $1.amount }
         let budgetInfo = budget.map { "Monthly budget: \($0.totalMonthlyLimit.currencyFormatted())" } ?? ""
 
-        let topCategories = Dictionary(grouping: transactions.filter { $0.isExpense }, by: { $0.category?.name ?? "Other" })
-            .mapValues { $0.reduce(0) { $0 + $1.amount } }
-            .sorted { $0.value > $1.value }
+        let expenses = transactions.filter { $0.isExpense }
+        let byCategory = Dictionary(grouping: expenses) { $0.category?.name ?? "Other" }
+        let categoryTotals: [(String, Double)] = byCategory.map { ($0.key, $0.value.reduce(0.0) { $0 + $1.amount }) }
+        let topCategories = categoryTotals
+            .sorted { $0.1 > $1.1 }
             .prefix(5)
-            .map { "\($0.key): \($0.value.currencyFormatted())" }
+            .map { "\($0.0): \($0.1.currencyFormatted())" }
             .joined(separator: ", ")
 
         return """

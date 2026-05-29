@@ -37,13 +37,13 @@ struct VoiceInputButton: View {
 
                     Image(systemName: isListening ? "stop.circle.fill" : "mic.fill")
                         .font(.system(size: 28, weight: .semibold))
-                        .foregroundStyle(isListening ? .red : .walletPrimary)
+                        .foregroundStyle(isListening ? Color.red : Color.walletPrimary)
                         .scaleEffect(isListening ? 1.1 : 1.0)
                         .animation(.springy, value: isListening)
                 }
                 .frame(width: 64, height: 64)
                 .glassEffect(
-                    .regular.tint(isListening ? .red : .walletPrimary).interactive(),
+                    .regular.tint(isListening ? Color.red : Color.walletPrimary).interactive(),
                     in: .circle
                 )
                 .glassEffectID("voiceBtn", in: namespace)

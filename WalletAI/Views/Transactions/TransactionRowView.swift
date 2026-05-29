@@ -32,7 +32,7 @@ struct TransactionRowView: View {
                         if transaction.source == .voice {
                             Image(systemName: "mic.fill")
                                 .font(.caption2)
-                                .foregroundStyle(.walletPrimary.opacity(0.7))
+                                .foregroundStyle(Color.walletPrimary.opacity(0.7))
                         } else if transaction.source == .applePay {
                             Image(systemName: "apple.logo")
                                 .font(.caption2)
@@ -51,7 +51,7 @@ struct TransactionRowView: View {
                 // Amount
                 Text(transaction.formattedAmount)
                     .font(.body.weight(.semibold).monospacedDigit())
-                    .foregroundStyle(transaction.isExpense ? .primary : .green)
+                    .foregroundStyle(transaction.isExpense ? Color.primary : Color.green)
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)

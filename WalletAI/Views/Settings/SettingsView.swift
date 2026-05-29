@@ -95,7 +95,7 @@ struct SettingsView: View {
                     showBudgetEdit = true
                 } label: {
                     Text(currentBudget?.totalMonthlyLimit.currencyFormatted(currency: preferredCurrency) ?? "Set limit")
-                        .foregroundStyle(.walletPrimary)
+                        .foregroundStyle(Color.walletPrimary)
                 }
             }
 
@@ -108,7 +108,7 @@ struct SettingsView: View {
                     }
                 }
                 .pickerStyle(.menu)
-                .tint(.walletPrimary)
+                .tint(Color.walletPrimary)
             }
         }
         .sheet(isPresented: $showBudgetEdit) {
@@ -123,7 +123,7 @@ struct SettingsView: View {
                     showAPIKey = true
                 } label: {
                     Text(deepSeekService.hasAPIKey ? "Configured ✓" : "Add Key")
-                        .foregroundStyle(deepSeekService.hasAPIKey ? .green : .walletPrimary)
+                        .foregroundStyle(deepSeekService.hasAPIKey ? Color.green : Color.walletPrimary)
                 }
             }
 
@@ -168,7 +168,7 @@ struct SettingsView: View {
         settingsSection(title: "Preferences", icon: "gearshape.fill", color: .secondary) {
             settingsRow(icon: "bell.fill", title: "Budget Alerts") {
                 Toggle("", isOn: $notificationsEnabled)
-                    .tint(.walletPrimary)
+                    .tint(Color.walletPrimary)
                     .labelsHidden()
             }
 
@@ -176,7 +176,7 @@ struct SettingsView: View {
 
             settingsRow(icon: "faceid", title: "Face ID Lock") {
                 Toggle("", isOn: $biometricEnabled)
-                    .tint(.walletPrimary)
+                    .tint(Color.walletPrimary)
                     .labelsHidden()
             }
         }
@@ -213,7 +213,7 @@ struct SettingsView: View {
         VStack(spacing: 8) {
             Image(systemName: "wallet.bifold.fill")
                 .font(.system(size: 36))
-                .foregroundStyle(.walletPrimary)
+                .foregroundStyle(Color.walletPrimary)
             Text("WalletAI")
                 .font(.headline)
             Text("Version 1.0.0")
@@ -248,7 +248,7 @@ struct SettingsView: View {
         HStack {
             Image(systemName: icon)
                 .frame(width: 24)
-                .foregroundStyle(.walletPrimary)
+                .foregroundStyle(Color.walletPrimary)
             Text(title)
                 .font(.body)
             Spacer()
@@ -306,8 +306,8 @@ struct BudgetEditSheet: View {
                 .font(.headline)
                 .frame(maxWidth: .infinity)
                 .padding(16)
-                .glassEffect(.regular.tint(.walletPrimary).interactive(), in: .rect(cornerRadius: 16))
-                .foregroundStyle(.walletPrimary)
+                .glassEffect(.regular.tint(Color.walletPrimary).interactive(), in: .rect(cornerRadius: 16))
+                .foregroundStyle(Color.walletPrimary)
                 .buttonStyle(.plain)
             }
             .padding(16)
@@ -380,7 +380,7 @@ struct ApplePaySetupView: View {
                 .font(.caption.bold())
                 .frame(width: 22, height: 22)
                 .background(Color.walletPrimary.opacity(0.15))
-                .foregroundStyle(.walletPrimary)
+                .foregroundStyle(Color.walletPrimary)
                 .clipShape(Circle())
             Text(LocalizedStringKey(text))
                 .font(.subheadline)

@@ -11,7 +11,7 @@ struct TransactionListView: View {
     @State private var filterType: FilterType = .all
     @State private var showVoiceInput = false
 
-    @StateObject private var speechService = SpeechRecognitionService()
+    @State private var speechService = SpeechRecognitionService()
 
     enum FilterType: String, CaseIterable {
         case all = "All"
@@ -34,13 +34,14 @@ struct TransactionListView: View {
             if Calendar.current.isDateInYesterday(t.date) { return "Yesterday" }
             return t.date.formatted(.dateTime.month(.wide).day().year())
         }
-        return byDate.sorted { lhs, rhs in
-            let order = ["Today", "Yesterday"]
-            let li = order.firstIndex(of: lhs.key) ?? Int.max
-            let ri = order.firstIndex(of: rhs.key) ?? Int.max
+        let pinnedOrder = ["Today", "Yesterday"]
+        let sorted = byDate.sorted { lhs, rhs in
+            let li = pinnedOrder.firstIndex(of: lhs.key) ?? Int.max
+            let ri = pinnedOrder.firstIndex(of: rhs.key) ?? Int.max
             if li != ri { return li < ri }
             return lhs.key > rhs.key
         }
+        return sorted.map { (key: $0.key, transactions: $0.value) }
     }
 
     var body: some View {
@@ -71,14 +72,14 @@ struct TransactionListView: View {
                             showVoiceInput = true
                         } label: {
                             Image(systemName: "mic.fill")
-                                .foregroundStyle(.walletPrimary)
+                                .foregroundStyle(Color.walletPrimary)
                         }
                         Button {
                             showAddTransaction = true
                         } label: {
                             Image(systemName: "plus.circle.fill")
                                 .font(.title2)
-                                .foregroundStyle(.walletPrimary)
+                                .foregroundStyle(Color.walletPrimary)
                         }
                     }
                 }
@@ -96,27 +97,30 @@ struct TransactionListView: View {
         ScrollView(.horizontal, showsIndicators: false) {
             GlassEffectContainer(spacing: 6) {
                 HStack(spacing: 6) {
-                    ForEach(FilterType.allCases, id: \.self) { type in
-                        Button(type.rawValue) {
-                            withAnimation(.springy) { filterType = type }
-                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                        }
-                        .font(.subheadline.weight(.semibold))
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 7)
-                        .glassEffect(
-                            filterType == type
-                                ? .regular.tint(.walletPrimary).interactive()
-                                : .regular.interactive(),
-                            in: .capsule
-                        )
-                        .foregroundStyle(filterType == type ? .walletPrimary : .secondary)
-                    }
+                    filterButton(.all)
+                    filterButton(.expenses)
+                    filterButton(.income)
                 }
                 .padding(4)
             }
         }
         .scrollClipDisabled()
+    }
+
+    private func filterButton(_ type: FilterType) -> some View {
+        let isSelected = filterType == type
+        return Button(type.rawValue) {
+            withAnimation(.springy) { filterType = type }
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        }
+        .font(.subheadline.weight(.semibold))
+        .padding(.horizontal, 14)
+        .padding(.vertical, 7)
+        .glassEffect(
+            isSelected ? .regular.tint(Color.walletPrimary).interactive() : .regular.interactive(),
+            in: .capsule
+        )
+        .foregroundStyle(isSelected ? Color.walletPrimary : Color.secondary)
     }
 
     private var emptyState: some View {

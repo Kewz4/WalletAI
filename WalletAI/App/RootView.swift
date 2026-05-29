@@ -64,7 +64,7 @@ struct RootView: View {
                         Label(Tab.settings.label, systemImage: Tab.settings.icon)
                     }
             }
-            .tint(.walletPrimary)
+            .tint(Color.walletPrimary)
         }
     }
 }

@@ -35,7 +35,7 @@ struct TransactionDetailView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Edit") { showEdit = true }
-                        .foregroundStyle(.walletPrimary)
+                        .foregroundStyle(Color.walletPrimary)
                 }
                 ToolbarItem(placement: .topBarLeading) {
                     Button("Done") { dismiss() }
@@ -63,7 +63,7 @@ struct TransactionDetailView: View {
 
             Text(transaction.formattedAmount)
                 .font(.system(size: 40, weight: .bold, design: .rounded))
-                .foregroundStyle(transaction.isExpense ? .primary : .green)
+                .foregroundStyle(transaction.isExpense ? Color.primary : Color.green)
 
             if let cat = transaction.category {
                 Text(cat.name)
@@ -98,7 +98,7 @@ struct TransactionDetailView: View {
         HStack(spacing: 14) {
             Image(systemName: icon)
                 .frame(width: 24)
-                .foregroundStyle(.walletPrimary)
+                .foregroundStyle(Color.walletPrimary)
             VStack(alignment: .leading, spacing: 2) {
                 Text(label)
                     .font(.caption)

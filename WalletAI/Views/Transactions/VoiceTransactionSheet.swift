@@ -101,7 +101,7 @@ struct VoiceTransactionSheet: View {
             } else {
                 Image(systemName: "waveform.path.ecg")
                     .font(.system(size: 48))
-                    .foregroundStyle(.walletPrimary.opacity(0.4))
+                    .foregroundStyle(Color.walletPrimary.opacity(0.4))
                     .transition(.scale.combined(with: .opacity))
             }
         }
@@ -127,7 +127,7 @@ struct VoiceTransactionSheet: View {
 
                 Text(tx.amount.currencyFormatted(currency: currency))
                     .font(.system(size: 36, weight: .bold, design: .rounded))
-                    .foregroundStyle(tx.isExpense ? .red : .green)
+                    .foregroundStyle(tx.isExpense ? Color.red : Color.green)
 
                 Text(tx.title)
                     .font(.headline)
@@ -180,10 +180,10 @@ struct VoiceTransactionSheet: View {
                 .frame(maxWidth: .infinity)
                 .padding(14)
                 .glassEffect(
-                    .regular.tint(tx.isExpense ? .red : .green).interactive(),
+                    .regular.tint(tx.isExpense ? Color.red : Color.green).interactive(),
                     in: .rect(cornerRadius: 14)
                 )
-                .foregroundStyle(tx.isExpense ? .red : .green)
+                .foregroundStyle(tx.isExpense ? Color.red : Color.green)
                 .font(.headline)
                 .buttonStyle(.plain)
             }

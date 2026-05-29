@@ -4,11 +4,24 @@ import Foundation
 // MARK: - Color Extensions
 
 extension Color {
-    static let walletPrimary   = Color("WalletPrimary",   bundle: nil)
-    static let walletSecondary = Color("WalletSecondary", bundle: nil)
-    static let walletAccent    = Color("WalletAccent",    bundle: nil)
+    static let walletPrimary    = Color("WalletPrimary",    bundle: nil)
+    static let walletSecondary  = Color("WalletSecondary",  bundle: nil)
+    static let walletAccent     = Color("WalletAccent",     bundle: nil)
     static let walletBackground = Color("WalletBackground", bundle: nil)
-    static let walletSurface   = Color("WalletSurface",   bundle: nil)
+    static let walletSurface    = Color("WalletSurface",    bundle: nil)
+}
+
+// Allows `.walletPrimary` in .foregroundStyle() / .tint() / .glassEffect().tint()
+// mirroring how SwiftUI exposes .red, .green, .blue on ShapeStyle.
+extension ShapeStyle where Self == Color {
+    static var walletPrimary:    Color { Color("WalletPrimary")    }
+    static var walletSecondary:  Color { Color("WalletSecondary")  }
+    static var walletAccent:     Color { Color("WalletAccent")     }
+    static var walletBackground: Color { Color("WalletBackground") }
+    static var walletSurface:    Color { Color("WalletSurface")    }
+}
+
+extension Color {
 
     init?(hex: String) {
         var hex = hex.trimmingCharacters(in: .whitespacesAndNewlines)

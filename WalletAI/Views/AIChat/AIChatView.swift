@@ -56,7 +56,7 @@ struct AIChatView: View {
                         Button("Biggest Expenses") { askQuickQuestion("What are my biggest expenses and how can I reduce them?") }
                     } label: {
                         Image(systemName: "ellipsis.circle.fill")
-                            .foregroundStyle(.walletPrimary)
+                            .foregroundStyle(Color.walletPrimary)
                     }
                 }
             }
@@ -81,7 +81,7 @@ struct AIChatView: View {
                     .frame(width: 80, height: 80)
                 Image(systemName: "sparkles")
                     .font(.system(size: 36, weight: .semibold))
-                    .foregroundStyle(.walletPrimary)
+                    .foregroundStyle(Color.walletPrimary)
             }
 
             VStack(spacing: 8) {
@@ -102,8 +102,8 @@ struct AIChatView: View {
                         .font(.headline)
                         .padding(16)
                         .frame(maxWidth: .infinity)
-                        .glassEffect(.regular.tint(.walletPrimary).interactive(), in: .rect(cornerRadius: 16))
-                        .foregroundStyle(.walletPrimary)
+                        .glassEffect(.regular.tint(Color.walletPrimary).interactive(), in: .rect(cornerRadius: 16))
+                        .foregroundStyle(Color.walletPrimary)
                 }
                 .buttonStyle(.plain)
             }
@@ -161,7 +161,7 @@ struct AIChatView: View {
                         .clipShape(Circle())
                 }
                 .disabled(deepSeekService.isLoading)
-                .glassEffect(.regular.tint(.walletPrimary).interactive(), in: .circle)
+                .glassEffect(.regular.tint(Color.walletPrimary).interactive(), in: .circle)
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
@@ -177,7 +177,7 @@ struct AIChatView: View {
                     .frame(width: 32, height: 32)
                 Image(systemName: "sparkles")
                     .font(.system(size: 14))
-                    .foregroundStyle(.walletPrimary)
+                    .foregroundStyle(Color.walletPrimary)
             }
 
             HStack(spacing: 4) {
@@ -287,7 +287,7 @@ struct MessageBubble: View {
                         .frame(width: 32, height: 32)
                     Image(systemName: "sparkles")
                         .font(.system(size: 14))
-                        .foregroundStyle(.walletPrimary)
+                        .foregroundStyle(Color.walletPrimary)
                 }
             }
 
@@ -298,7 +298,7 @@ struct MessageBubble: View {
                     .padding(.vertical, 10)
                     .glassEffect(
                         isUser
-                            ? .regular.tint(.walletPrimary).interactive()
+                            ? .regular.tint(Color.walletPrimary).interactive()
                             : .regular,
                         in: .rect(
                             topLeadingRadius: isUser ? 18 : 4,
@@ -307,7 +307,7 @@ struct MessageBubble: View {
                             topTrailingRadius: 18
                         )
                     )
-                    .foregroundStyle(isUser ? .walletPrimary : .primary)
+                    .foregroundStyle(isUser ? Color.walletPrimary : Color.primary)
 
                 Text(message.timestamp.formatted(.dateTime.hour().minute()))
                     .font(.caption2)
@@ -332,7 +332,7 @@ struct APIKeySetupView: View {
                 VStack(spacing: 12) {
                     Image(systemName: "key.fill")
                         .font(.system(size: 40))
-                        .foregroundStyle(.walletPrimary)
+                        .foregroundStyle(Color.walletPrimary)
                     Text("DeepSeek API Key")
                         .font(.title2.bold())
                     Text("Get a free API key at platform.deepseek.com — free tier includes generous monthly credits.")
@@ -356,8 +356,8 @@ struct APIKeySetupView: View {
                         .font(.headline)
                         .frame(maxWidth: .infinity)
                         .padding(16)
-                        .glassEffect(.regular.tint(.walletPrimary).interactive(), in: .rect(cornerRadius: 16))
-                        .foregroundStyle(.walletPrimary)
+                        .glassEffect(.regular.tint(Color.walletPrimary).interactive(), in: .rect(cornerRadius: 16))
+                        .foregroundStyle(Color.walletPrimary)
                 }
                 .disabled(key.isEmpty)
                 .opacity(key.isEmpty ? 0.4 : 1.0)

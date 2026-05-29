@@ -270,9 +270,10 @@ struct DashboardView: View {
             .padding(.horizontal, 4)
 
             VStack(spacing: 0) {
-                ForEach(filteredTransactions.sorted { $0.date > $1.date }.prefix(5)) { tx in
+                let recentTx = filteredTransactions.sorted(by: { $0.date > $1.date }).prefix(5)
+                ForEach(Array(recentTx)) { tx in
                     TransactionRowView(transaction: tx)
-                    if tx.id != filteredTransactions.sorted { $0.date > $1.date }.prefix(5).last?.id {
+                    if tx.id != recentTx.last?.id {
                         Divider().padding(.horizontal)
                     }
                 }

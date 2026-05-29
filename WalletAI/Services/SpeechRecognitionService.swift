@@ -36,7 +36,7 @@ final class SpeechRecognitionService: NSObject {
     }
 
     func startListening() async throws {
-        guard authorizationStatus == .authorized else {
+        if authorizationStatus != .authorized {
             let granted = await requestAuthorization()
             guard granted else {
                 error = "Speech recognition permission denied."

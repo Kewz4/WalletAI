@@ -2,6 +2,55 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+    <!-- App identity -->
+    <key>CFBundleName</key>
+    <string>WalletAI</string>
+    <key>CFBundleDisplayName</key>
+    <string>WalletAI</string>
+    <key>CFBundleIdentifier</key>
+    <string>com.walletai.app</string>
+    <key>CFBundleVersion</key>
+    <string>1</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.0.0</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleExecutable</key>
+    <string>$(EXECUTABLE_NAME)</string>
+    <key>CFBundleDevelopmentRegion</key>
+    <string>en</string>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+
+    <!-- App icon -->
+    <key>CFBundleIconName</key>
+    <string>AppIcon</string>
+    <key>CFBundleIcons</key>
+    <dict>
+        <key>CFBundlePrimaryIcon</key>
+        <dict>
+            <key>CFBundleIconFiles</key>
+            <array>
+                <string>AppIcon</string>
+            </array>
+            <key>CFBundleIconName</key>
+            <string>AppIcon</string>
+        </dict>
+    </dict>
+
+    <!-- Permissions -->
+    <key>NSMicrophoneUsageDescription</key>
+    <string>WalletAI uses the microphone to let you add expenses using your voice.</string>
+    <key>NSSpeechRecognitionUsageDescription</key>
+    <string>WalletAI uses speech recognition to convert your spoken expenses into transactions automatically.</string>
+    <key>NSFaceIDUsageDescription</key>
+    <string>WalletAI uses Face ID to protect your financial data.</string>
+    <key>NSCameraUsageDescription</key>
+    <string>WalletAI uses the camera to scan receipts.</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>WalletAI reads photos to import receipt images.</string>
+
+    <!-- URL scheme for Apple Pay Shortcuts automation -->
     <key>CFBundleURLTypes</key>
     <array>
         <dict>
@@ -13,12 +62,8 @@
             <string>com.walletai.app</string>
         </dict>
     </array>
-    <key>NSMicrophoneUsageDescription</key>
-    <string>WalletAI uses the microphone to let you add expenses using your voice.</string>
-    <key>NSSpeechRecognitionUsageDescription</key>
-    <string>WalletAI uses speech recognition to convert your spoken expenses into transactions automatically.</string>
-    <key>NSFaceIDUsageDescription</key>
-    <string>WalletAI uses Face ID to protect your financial data.</string>
+
+    <!-- Scene / lifecycle -->
     <key>UIApplicationSceneManifest</key>
     <dict>
         <key>UIApplicationSupportsMultipleScenes</key>
@@ -28,19 +73,55 @@
     </dict>
     <key>UILaunchScreen</key>
     <dict/>
+
+    <!-- Device / orientation -->
     <key>UIRequiredDeviceCapabilities</key>
     <array>
-        <string>armv7</string>
+        <string>arm64</string>
     </array>
     <key>UISupportedInterfaceOrientations</key>
     <array>
         <string>UIInterfaceOrientationPortrait</string>
     </array>
+    <key>UISupportedInterfaceOrientations~ipad</key>
+    <array>
+        <string>UIInterfaceOrientationPortrait</string>
+        <string>UIInterfaceOrientationPortraitUpsideDown</string>
+        <string>UIInterfaceOrientationLandscapeLeft</string>
+        <string>UIInterfaceOrientationLandscapeRight</string>
+    </array>
+
+    <!-- Appearance -->
     <key>UIUserInterfaceStyle</key>
     <string>Automatic</string>
+    <key>UIStatusBarStyle</key>
+    <string>UIStatusBarStyleDefault</string>
+
+    <!-- App Transport Security -->
+    <key>NSAppTransportSecurity</key>
+    <dict>
+        <key>NSAllowsArbitraryLoads</key>
+        <false/>
+        <key>NSExceptionDomains</key>
+        <dict>
+            <key>api.deepseek.com</key>
+            <dict>
+                <key>NSExceptionAllowsInsecureHTTPLoads</key>
+                <false/>
+                <key>NSIncludesSubdomains</key>
+                <true/>
+            </dict>
+        </dict>
+    </dict>
+
+    <!-- Queries for Shortcuts deep link -->
     <key>LSApplicationQueriesSchemes</key>
     <array>
         <string>shortcuts</string>
     </array>
+
+    <!-- App Store metadata -->
+    <key>ITSAppUsesNonExemptEncryption</key>
+    <false/>
 </dict>
 </plist>

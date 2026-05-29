@@ -26,80 +26,94 @@ jobs:
           xcodebuild -version
           xcodebuild -showsdks | grep iphoneos
 
-      # ── 3. Build for device (no archive, no signing) ───────────────────────
-      # We use `build` instead of `archive` so the .app lands in a predictable
-      # location under SYMROOT regardless of signing configuration.
-      - name: Build app
+      # ── 3. Wire up the app icon ────────────────────────────────────────────
+      # WalletAI.png lives at the repo root; copy it into the asset catalog.
+      - name: Add app icon
         run: |
+          ICONSET="WalletAI/Resources/Assets.xcassets/AppIcon.appiconset"
+          mkdir -p "$ICONSET"
+          if [ -f "WalletAI.png" ]; then
+            cp WalletAI.png "$ICONSET/AppIcon-1024.png"
+            echo "Icon copied ✓"
+          else
+            echo "WalletAI.png not found — build will use default icon"
+          fi
+
+      # ── 4. Build for real device (unsigned) ────────────────────────────────
+      # Key flags:
+      #   -sdk iphoneos          → target real device, not simulator
+      #   ONLY_ACTIVE_ARCH=NO    → compile arm64 even on an x86 runner
+      #   CODE_SIGNING_*         → skip all signing; Sideloadly will sign it
+      #   SKIP_INSTALL=NO        → include the .app in build output
+      - name: Build app (unsigned)
+        run: |
+          set -o pipefail
           xcodebuild build \
             -project WalletAI.xcodeproj \
             -scheme WalletAI \
             -configuration Release \
-            -destination "generic/platform=iOS" \
+            -sdk iphoneos \
             -derivedDataPath "$RUNNER_TEMP/DerivedData" \
             ONLY_ACTIVE_ARCH=NO \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
             SKIP_INSTALL=NO \
-            | tee "$RUNNER_TEMP/build.log" | xcpretty || \
-          xcodebuild build \
-            -project WalletAI.xcodeproj \
-            -scheme WalletAI \
-            -configuration Release \
-            -destination "generic/platform=iOS" \
-            -derivedDataPath "$RUNNER_TEMP/DerivedData" \
-            ONLY_ACTIVE_ARCH=NO \
-            CODE_SIGNING_ALLOWED=NO \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGN_IDENTITY="" \
-            SKIP_INSTALL=NO
+            2>&1 | tee "$RUNNER_TEMP/build.log"
 
-      # ── 4. Debug: show what was built ──────────────────────────────────────
+      # ── 5. Locate the .app bundle ──────────────────────────────────────────
       - name: Locate .app bundle
-        id: locate_app
+        id: locate
         run: |
-          echo "=== DerivedData tree (*.app only) ==="
-          find "$RUNNER_TEMP/DerivedData" -name "*.app" -not -path "*/SourcePackages/*" 2>/dev/null || true
+          BUILD_DIR="$RUNNER_TEMP/DerivedData/Build/Products/Release-iphoneos"
+          echo "Contents of Release-iphoneos:"
+          ls -la "$BUILD_DIR" 2>/dev/null || echo "(directory missing)"
 
-          APP_PATH=$(find "$RUNNER_TEMP/DerivedData/Build/Products" \
-            -name "*.app" \
-            -not -name "*Tests*" \
-            -not -path "*/SourcePackages/*" \
-            | head -1)
+          APP=$(find "$BUILD_DIR" -maxdepth 1 -name "*.app" | head -1)
 
-          if [ -z "$APP_PATH" ]; then
-            # Wider fallback search
-            APP_PATH=$(find "$RUNNER_TEMP/DerivedData" \
-              -name "WalletAI.app" \
+          # Wide fallback
+          if [ -z "$APP" ]; then
+            echo "Primary path empty — running wide search…"
+            find "$RUNNER_TEMP/DerivedData" -name "*.app" \
               -not -path "*/SourcePackages/*" \
-              | head -1)
+              -not -name "*Tests*" 2>/dev/null
+            APP=$(find "$RUNNER_TEMP/DerivedData" -name "WalletAI.app" \
+              -not -path "*/SourcePackages/*" | head -1)
           fi
 
-          echo "APP_PATH=$APP_PATH" >> $GITHUB_OUTPUT
-          echo "Found: $APP_PATH"
-
-          if [ -z "$APP_PATH" ]; then
-            echo "ERROR: .app not found. Dumping full DerivedData layout:"
-            find "$RUNNER_TEMP/DerivedData" -maxdepth 6 | head -80
+          if [ -z "$APP" ]; then
+            echo "ERROR: WalletAI.app not found. Full DerivedData layout:"
+            find "$RUNNER_TEMP/DerivedData" -maxdepth 7 | head -100
             exit 1
           fi
 
-      # ── 5. Package .app → .ipa ─────────────────────────────────────────────
+          echo "APP_PATH=$APP" >> "$GITHUB_OUTPUT"
+          echo "Found: $APP"
+          echo "Bundle size: $(du -sh "$APP" | cut -f1)"
+
+      # ── 6. Package .app → .ipa ─────────────────────────────────────────────
       - name: Package IPA
         run: |
-          APP_PATH="${{ steps.locate_app.outputs.APP_PATH }}"
-          echo "Packaging: $APP_PATH"
+          APP="${{ steps.locate.outputs.APP_PATH }}"
+          PAYLOAD="$RUNNER_TEMP/Payload"
 
-          mkdir -p "$RUNNER_TEMP/IPA/Payload"
-          cp -r "$APP_PATH" "$RUNNER_TEMP/IPA/Payload/"
+          mkdir -p "$PAYLOAD"
+          cp -r "$APP" "$PAYLOAD/"
 
-          cd "$RUNNER_TEMP/IPA"
-          zip -r "$RUNNER_TEMP/WalletAI.ipa" Payload
+          cd "$RUNNER_TEMP"
+          zip -r "WalletAI.ipa" Payload
 
-          echo "IPA size: $(du -sh "$RUNNER_TEMP/WalletAI.ipa" | cut -f1)"
+          SIZE=$(du -sh "WalletAI.ipa" | cut -f1)
+          echo "IPA size: $SIZE"
 
-      # ── 6. Upload IPA artifact ─────────────────────────────────────────────
+          # Sanity check — a real IPA is at least a few MB
+          BYTES=$(stat -f%z "WalletAI.ipa" 2>/dev/null || stat -c%s "WalletAI.ipa")
+          if [ "$BYTES" -lt 100000 ]; then
+            echo "ERROR: IPA is suspiciously small ($BYTES bytes). Packaging likely failed."
+            exit 1
+          fi
+
+      # ── 7. Upload IPA artifact ─────────────────────────────────────────────
       - name: Upload IPA
         uses: actions/upload-artifact@v4
         with:
@@ -108,7 +122,7 @@ jobs:
           retention-days: 30
           if-no-files-found: error
 
-      # ── 7. Upload build log on failure ─────────────────────────────────────
+      # ── 8. Upload build log on failure ─────────────────────────────────────
       - name: Upload build log (on failure)
         if: failure()
         uses: actions/upload-artifact@v4
@@ -118,10 +132,12 @@ jobs:
           retention-days: 7
           if-no-files-found: ignore
 
-      # ── 8. Job summary ─────────────────────────────────────────────────────
+      # ── 9. Job summary ─────────────────────────────────────────────────────
       - name: Write job summary
         if: success()
         run: |
+          BYTES=$(stat -f%z "$RUNNER_TEMP/WalletAI.ipa" 2>/dev/null || stat -c%s "$RUNNER_TEMP/WalletAI.ipa")
+          MB=$(echo "scale=1; $BYTES/1048576" | bc)
           echo "## WalletAI Build ✅" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| | |" >> $GITHUB_STEP_SUMMARY
@@ -130,10 +146,11 @@ jobs:
           echo "| Branch | \`${{ github.ref_name }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| Xcode | 26.3 |" >> $GITHUB_STEP_SUMMARY
           echo "| iOS Target | 26.0 |" >> $GITHUB_STEP_SUMMARY
+          echo "| IPA size | ${MB} MB |" >> $GITHUB_STEP_SUMMARY
           echo "| Signing | unsigned — ready for Sideloadly / AltStore |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Install steps" >> $GITHUB_STEP_SUMMARY
-          echo "1. Download **WalletAI-unsigned-\`${{ github.sha }}\`** from Artifacts below" >> $GITHUB_STEP_SUMMARY
+          echo "### How to install" >> $GITHUB_STEP_SUMMARY
+          echo "1. Download **WalletAI-unsigned** from Artifacts below" >> $GITHUB_STEP_SUMMARY
           echo "2. Unzip → get \`WalletAI.ipa\`" >> $GITHUB_STEP_SUMMARY
-          echo "3. **Sideloadly** (Windows/Mac) → drag IPA → sign with Apple ID → Start" >> $GITHUB_STEP_SUMMARY
-          echo "4. Or **AltStore** → My Apps → + → pick IPA" >> $GITHUB_STEP_SUMMARY
+          echo "3. **[Sideloadly](https://sideloadly.io)** (Windows/Mac) → drag IPA → Apple ID → Start" >> $GITHUB_STEP_SUMMARY
+          echo "4. Or **[AltStore](https://altstore.io)** → My Apps → + → pick IPA" >> $GITHUB_STEP_SUMMARY

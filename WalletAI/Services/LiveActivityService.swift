@@ -5,7 +5,7 @@ import Foundation
 final class LiveActivityService {
     static let shared = LiveActivityService()
 
-    private var currentActivity: Activity<WalletTransactionAttributes>?
+    nonisolated(unsafe) private var currentActivity: Activity<WalletTransactionAttributes>?
 
     func startActivity(for transaction: Transaction) {
         guard ActivityAuthorizationInfo().areActivitiesEnabled else { return }
@@ -39,9 +39,8 @@ final class LiveActivityService {
     func endCurrentActivity() {
         let activity = currentActivity
         currentActivity = nil
-        nonisolated(unsafe) let localActivity = activity
         Task.detached {
-            await localActivity?.end(nil, dismissalPolicy: .immediate)
+            await activity?.end(nil, dismissalPolicy: .immediate)
         }
     }
 }

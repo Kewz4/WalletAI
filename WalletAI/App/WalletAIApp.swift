@@ -25,6 +25,9 @@ struct WalletAIApp: App {
         WindowGroup {
             RootView()
                 .modelContainer(container)
+                .task {
+                    await NotificationService.shared.requestPermission()
+                }
         }
     }
 }

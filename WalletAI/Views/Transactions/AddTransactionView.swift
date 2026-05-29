@@ -102,6 +102,13 @@ struct AddTransactionView: View {
         )
         context.insert(tx)
         UINotificationFeedbackGenerator().notificationOccurred(.success)
+
+        // Live Activity + budget alerts
+        LiveActivityService.shared.startActivity(for: tx)
+        Task {
+            await NotificationService.shared.checkBudgetAlerts(for: Array(categories))
+        }
+
         dismiss()
     }
 
@@ -205,9 +212,8 @@ struct AddTransactionView: View {
                                 Circle()
                                     .fill(cat.color.opacity(selectedCategory?.id == cat.id ? 0.3 : 0.1))
                                     .frame(width: 44, height: 44)
-                                Image(systemName: cat.iconName)
-                                    .font(.system(size: 18))
-                                    .foregroundStyle(cat.color)
+                                Text(cat.iconName)
+                                    .font(.system(size: 20))
                             }
                             Text(cat.name)
                                 .font(.caption2)

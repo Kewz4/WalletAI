@@ -15,9 +15,8 @@ struct TransactionRowView: View {
                     Circle()
                         .fill(transaction.category?.color.opacity(0.15) ?? Color.secondary.opacity(0.1))
                         .frame(width: 44, height: 44)
-                    Image(systemName: transaction.category?.iconName ?? "dollarsign.circle.fill")
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundStyle(transaction.category?.color ?? .secondary)
+                    Text(transaction.category?.iconName ?? "💰")
+                        .font(.system(size: 20))
                 }
 
                 // Title + date

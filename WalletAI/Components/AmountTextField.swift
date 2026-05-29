@@ -6,15 +6,24 @@ struct AmountTextField: View {
     @State private var text: String = ""
     @FocusState private var isFocused: Bool
 
-    var body: some View {
-        HStack(alignment: .firstTextBaseline, spacing: 4) {
-            Text(Locale.current.currencySymbol ?? "$")
-                .font(.system(size: 28, weight: .medium, design: .rounded))
-                .foregroundStyle(.secondary)
+    private var symbol: String {
+        Locale.current.currencySymbol ?? "$"
+    }
 
-            TextField("0.00", text: $text)
+    var body: some View {
+        HStack(alignment: .center, spacing: 0) {
+            Spacer(minLength: 0)
+
+            Text(symbol)
+                .font(.system(size: 30, weight: .semibold, design: .rounded))
+                .foregroundStyle(.secondary)
+                .padding(.trailing, 3)
+                .alignmentGuide(.center) { d in d[VerticalAlignment.center] }
+
+            TextField("0", text: $text)
                 .keyboardType(.decimalPad)
-                .font(.system(size: 48, weight: .bold, design: .rounded))
+                .font(.system(size: 52, weight: .bold, design: .rounded))
+                .fixedSize()
                 .focused($isFocused)
                 .onChange(of: text) { _, newValue in
                     let filtered = newValue.filter { $0.isNumber || $0 == "." }
@@ -29,7 +38,9 @@ struct AmountTextField: View {
                 .onAppear {
                     text = amount == 0 ? "" : String(format: "%.2f", amount)
                 }
+
+            Spacer(minLength: 0)
         }
-        .multilineTextAlignment(.center)
+        .frame(maxWidth: .infinity)
     }
 }

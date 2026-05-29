@@ -51,17 +51,17 @@ final class Category {
 
 extension Category {
     static let defaultCategories: [(name: String, icon: String, color: String)] = [
-        ("Food & Drink",    "fork.knife",           "#FF6B6B"),
-        ("Transport",       "car.fill",             "#4ECDC4"),
-        ("Shopping",        "bag.fill",             "#45B7D1"),
-        ("Entertainment",   "popcorn.fill",         "#96CEB4"),
-        ("Health",          "heart.fill",           "#FF8B94"),
-        ("Housing",         "house.fill",           "#A8E6CF"),
-        ("Utilities",       "bolt.fill",            "#FFD93D"),
-        ("Travel",          "airplane",             "#6C5CE7"),
-        ("Education",       "book.fill",            "#00B894"),
-        ("Income",          "arrow.down.circle.fill","#55EFC4"),
-        ("Savings",         "banknote.fill",        "#FDCB6E"),
-        ("Other",           "ellipsis.circle.fill", "#B2BEC3"),
+        ("Food & Drink",    "🍕",  "#FF6B6B"),
+        ("Transport",       "🚗",  "#4ECDC4"),
+        ("Shopping",        "🛍️", "#45B7D1"),
+        ("Entertainment",   "🎬",  "#96CEB4"),
+        ("Health",          "🏥",  "#FF8B94"),
+        ("Housing",         "🏠",  "#A8E6CF"),
+        ("Utilities",       "⚡️", "#FFD93D"),
+        ("Travel",          "✈️", "#6C5CE7"),
+        ("Education",       "📚",  "#00B894"),
+        ("Income",          "💵",  "#55EFC4"),
+        ("Savings",         "🏦",  "#FDCB6E"),
+        ("Other",           "📌",  "#B2BEC3"),
     ]
 }

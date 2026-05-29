@@ -120,6 +120,12 @@
         <string>shortcuts</string>
     </array>
 
+    <!-- Live Activities -->
+    <key>NSSupportsLiveActivities</key>
+    <true/>
+    <key>NSSupportsLiveActivitiesFrequentUpdates</key>
+    <true/>
+
     <!-- App Store metadata -->
     <key>ITSAppUsesNonExemptEncryption</key>
     <false/>

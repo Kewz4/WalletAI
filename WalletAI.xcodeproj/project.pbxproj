@@ -37,7 +37,38 @@
 		A028 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F028 /* OnboardingView.swift */; };
 		A029 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F029 /* Assets.xcassets */; };
 		A030 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F030 /* Info.plist */; };
+		A031 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F031 /* NotificationService.swift */; };
+		A032 /* LiveActivityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F032 /* LiveActivityService.swift */; };
+		A033 /* WalletLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = F033 /* WalletLiveActivity.swift */; };
+		AW01 /* WalletAIWidgetsBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = FW01 /* WalletAIWidgetsBundle.swift */; };
+		AW02 /* WalletAILiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = FW02 /* WalletAILiveActivity.swift */; };
+		AW03 /* WalletLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = F033 /* WalletLiveActivity.swift */; };
+		AW04 /* WalletAIWidgets.appex in Embed Extensions */ = {isa = PBXBuildFile; fileRef = FWIA /* WalletAIWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		CPXY /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = PROJ /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = TWGT;
+			remoteInfo = WalletAIWidgets;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		BPEM /* Embed Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				AW04 /* WalletAIWidgets.appex in Embed Extensions */,
+			);
+			name = "Embed Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		F001 /* WalletAIApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletAIApp.swift; sourceTree = "<group>"; };
@@ -70,8 +101,15 @@
 		F028 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		F029 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F030 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		F031 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
+		F032 /* LiveActivityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityService.swift; sourceTree = "<group>"; };
+		F033 /* WalletLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletLiveActivity.swift; sourceTree = "<group>"; };
 		FENT /* WalletAI.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WalletAI.entitlements; sourceTree = "<group>"; };
 		FAPP /* WalletAI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WalletAI.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		FW01 /* WalletAIWidgetsBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletAIWidgetsBundle.swift; sourceTree = "<group>"; };
+		FW02 /* WalletAILiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletAILiveActivity.swift; sourceTree = "<group>"; };
+		FW03 /* WalletAIWidgets-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "WalletAIWidgets-Info.plist"; sourceTree = "<group>"; };
+		FWIA /* WalletAIWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = WalletAIWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -79,6 +117,7 @@
 			isa = PBXGroup;
 			children = (
 				GWAI /* WalletAI */,
+				GWGT /* WalletAIWidgets */,
 				GPROD /* Products */,
 			);
 			sourceTree = "<group>";
@@ -87,6 +126,7 @@
 			isa = PBXGroup;
 			children = (
 				FAPP /* WalletAI.app */,
+				FWIA /* WalletAIWidgets.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -105,6 +145,16 @@
 			path = WalletAI;
 			sourceTree = "<group>";
 		};
+		GWGT /* WalletAIWidgets */ = {
+			isa = PBXGroup;
+			children = (
+				FW01 /* WalletAIWidgetsBundle.swift */,
+				FW02 /* WalletAILiveActivity.swift */,
+				FW03 /* WalletAIWidgets-Info.plist */,
+			);
+			path = WalletAIWidgets;
+			sourceTree = "<group>";
+		};
 		GAPP /* App */ = {
 			isa = PBXGroup;
 			children = (
@@ -121,6 +171,7 @@
 				F004 /* Category.swift */,
 				F005 /* Budget.swift */,
 				F006 /* AIConversation.swift */,
+				F033 /* WalletLiveActivity.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -131,6 +182,8 @@
 				F010 /* SpeechRecognitionService.swift */,
 				F011 /* DeepSeekService.swift */,
 				F012 /* ApplePayObserver.swift */,
+				F031 /* NotificationService.swift */,
+				F032 /* LiveActivityService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -243,17 +296,44 @@
 				BPSC /* Sources */,
 				BPRS /* Resources */,
 				BPFM /* Frameworks */,
+				BPEM /* Embed Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				TDEP /* PBXTargetDependency */,
 			);
 			name = WalletAI;
 			productName = WalletAI;
 			productReference = FAPP /* WalletAI.app */;
 			productType = "com.apple.product-type.application";
 		};
+		TWGT /* WalletAIWidgets */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BCWLT /* Build configuration list for PBXNativeTarget "WalletAIWidgets" */;
+			buildPhases = (
+				BWSC /* Sources */,
+				BWRS /* Resources */,
+				BWFM /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = WalletAIWidgets;
+			productName = WalletAIWidgets;
+			productReference = FWIA /* WalletAIWidgets.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
+
+/* Begin PBXTargetDependency section */
+		TDEP /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = TWGT /* WalletAIWidgets */;
+			targetProxy = CPXY /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXProject section */
 		PROJ /* Project object */ = {
@@ -264,6 +344,9 @@
 				LastUpgradeCheck = 1600;
 				TargetAttributes = {
 					TAPP = {
+						CreatedOnToolsVersion = 16.0;
+					};
+					TWGT = {
 						CreatedOnToolsVersion = 16.0;
 					};
 				};
@@ -282,6 +365,7 @@
 			projectRoot = "";
 			targets = (
 				TAPP /* WalletAI */,
+				TWGT /* WalletAIWidgets */,
 			);
 		};
 /* End PBXProject section */
@@ -292,6 +376,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				A029 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BWRS /* Widget Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -330,6 +421,19 @@
 				A026 /* AIChatView.swift in Sources */,
 				A027 /* SettingsView.swift in Sources */,
 				A028 /* OnboardingView.swift in Sources */,
+				A031 /* NotificationService.swift in Sources */,
+				A032 /* LiveActivityService.swift in Sources */,
+				A033 /* WalletLiveActivity.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BWSC /* Widget Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AW01 /* WalletAIWidgetsBundle.swift in Sources */,
+				AW02 /* WalletAILiveActivity.swift in Sources */,
+				AW03 /* WalletLiveActivity.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -337,6 +441,13 @@
 
 /* Begin PBXFrameworksBuildPhase section */
 		BPFM /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BWFM /* Widget Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -437,7 +548,7 @@
 			};
 			name = Release;
 		};
-		BCATDB /* Debug */ = {
+		BCATDB /* App Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -463,7 +574,7 @@
 			};
 			name = Debug;
 		};
-		BCATRL /* Release */ = {
+		BCATRL /* App Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -489,6 +600,52 @@
 			};
 			name = Release;
 		};
+		BCWDB /* Widget Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = WalletAIWidgets/WalletAIWidgets-Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.walletai.app.widgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		BCWRL /* Widget Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = WalletAIWidgets/WalletAIWidgets-Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.walletai.app.widgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -504,8 +661,17 @@
 		BCLT /* Build configuration list for PBXNativeTarget "WalletAI" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				BCATDB /* Debug */,
-				BCATRL /* Release */,
+				BCATDB /* App Debug */,
+				BCATRL /* App Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BCWLT /* Build configuration list for PBXNativeTarget "WalletAIWidgets" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BCWDB /* Widget Debug */,
+				BCWRL /* Widget Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

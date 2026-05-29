@@ -139,9 +139,8 @@ struct CategoryCard: View {
                     Circle()
                         .fill(category.color.opacity(0.2))
                         .frame(width: 40, height: 40)
-                    Image(systemName: category.iconName)
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundStyle(category.color)
+                    Text(category.iconName)
+                        .font(.system(size: 20))
                 }
                 Spacer()
                 if category.isDefault {

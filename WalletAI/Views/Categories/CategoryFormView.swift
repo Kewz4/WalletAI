@@ -8,18 +8,21 @@ struct CategoryFormView: View {
     var category: Category? = nil
 
     @State private var name: String = ""
-    @State private var selectedIcon: String = "tag.fill"
+    @State private var selectedIcon: String = "📌"
     @State private var selectedColor: Color = .walletPrimary
     @State private var monthlyBudget: String = ""
     @State private var hasBudget: Bool = false
 
     let icons = [
-        "fork.knife", "car.fill", "bag.fill", "popcorn.fill", "heart.fill",
-        "house.fill", "bolt.fill", "airplane", "book.fill", "banknote.fill",
-        "cart.fill", "cup.and.saucer.fill", "gym.bag.fill", "gamecontroller.fill",
-        "music.note", "stethoscope", "wrench.fill", "pawprint.fill",
-        "gift.fill", "figure.walk", "creditcard.fill", "tag.fill",
-        "ellipsis.circle.fill", "dollarsign.circle.fill"
+        "🍕", "🍔", "🍜", "☕️", "🍺", "🛒",
+        "🚗", "🚌", "✈️", "🚂", "⛽️", "🚴",
+        "🛍️", "👗", "👟", "💄", "🎁", "🧴",
+        "🎬", "🎮", "🎵", "📺", "🎭", "🎪",
+        "🏥", "💊", "🏋️", "🧘", "🩺", "🦷",
+        "🏠", "🏢", "🛋️", "🔧", "⚡️", "💧",
+        "📚", "🎓", "✏️", "💻", "📱", "🔬",
+        "💵", "💳", "🏦", "📈", "💰", "🪙",
+        "🐾", "🌿", "⚽️", "🎨", "🗺️", "📌",
     ]
 
     let palette: [Color] = [
@@ -88,9 +91,8 @@ struct CategoryFormView: View {
                 Circle()
                     .fill(selectedColor.opacity(0.2))
                     .frame(width: 56, height: 56)
-                Image(systemName: selectedIcon)
-                    .font(.system(size: 24, weight: .semibold))
-                    .foregroundStyle(selectedColor)
+                Text(selectedIcon)
+                    .font(.system(size: 26))
             }
             VStack(alignment: .leading, spacing: 4) {
                 Text(name.isEmpty ? "Category Name" : name)
@@ -128,22 +130,23 @@ struct CategoryFormView: View {
                 .foregroundStyle(.secondary)
                 .padding(.horizontal, 4)
 
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 6), spacing: 12) {
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 6), spacing: 10) {
                 ForEach(icons, id: \.self) { icon in
                     Button {
                         withAnimation(.springy) { selectedIcon = icon }
                         UIImpactFeedbackGenerator(style: .light).impactOccurred()
                     } label: {
-                        Image(systemName: icon)
-                            .font(.system(size: 20))
+                        Text(icon)
+                            .font(.system(size: 22))
                             .frame(width: 44, height: 44)
-                            .glassEffect(
-                                selectedIcon == icon
-                                    ? .regular.tint(selectedColor).interactive()
-                                    : .regular.interactive(),
-                                in: .rect(cornerRadius: 12)
+                            .background(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .fill(selectedIcon == icon ? selectedColor.opacity(0.2) : Color.clear)
                             )
-                            .foregroundStyle(selectedIcon == icon ? selectedColor : .secondary)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .strokeBorder(selectedIcon == icon ? selectedColor : Color.clear, lineWidth: 2)
+                            )
                     }
                     .buttonStyle(.plain)
                 }
@@ -268,9 +271,8 @@ struct CategoryPickerView: View {
                                     Circle()
                                         .fill(cat.color.opacity(selected?.id == cat.id ? 0.3 : 0.1))
                                         .frame(width: 48, height: 48)
-                                    Image(systemName: cat.iconName)
-                                        .font(.system(size: 20))
-                                        .foregroundStyle(cat.color)
+                                    Text(cat.iconName)
+                                        .font(.system(size: 22))
                                 }
                                 Text(cat.name)
                                     .font(.caption)

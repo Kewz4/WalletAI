@@ -56,9 +56,8 @@ struct TransactionDetailView: View {
                 Circle()
                     .fill(transaction.category?.color.opacity(0.2) ?? Color.secondary.opacity(0.1))
                     .frame(width: 72, height: 72)
-                Image(systemName: transaction.category?.iconName ?? "dollarsign.circle.fill")
-                    .font(.system(size: 32, weight: .semibold))
-                    .foregroundStyle(transaction.category?.color ?? .secondary)
+                Text(transaction.category?.iconName ?? "💰")
+                    .font(.system(size: 32))
             }
 
             Text(transaction.formattedAmount)

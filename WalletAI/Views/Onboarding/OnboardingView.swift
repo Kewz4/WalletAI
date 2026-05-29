@@ -7,31 +7,31 @@ struct OnboardingView: View {
 
     let pages: [OnboardingPage] = [
         OnboardingPage(
-            icon: "wallet.bifold.fill",
+            emoji: "💼",
             title: "Welcome to WalletAI",
             subtitle: "Your intelligent expense tracker powered by AI. Track smarter, spend better.",
             color: Color(hex: "#6C5CE7")!
         ),
         OnboardingPage(
-            icon: "mic.fill",
+            emoji: "🎙️",
             title: "Voice-Powered Logging",
             subtitle: "Just say \"I spent $45 on groceries\" and WalletAI handles the rest. No typing needed.",
             color: Color(hex: "#00B894")!
         ),
         OnboardingPage(
-            icon: "sparkles",
+            emoji: "✨",
             title: "AI Financial Insights",
             subtitle: "DeepSeek AI analyzes your spending and gives you personalized tips to save more money.",
             color: Color(hex: "#FDCB6E")!
         ),
         OnboardingPage(
-            icon: "apple.logo",
+            emoji: "📲",
             title: "Apple Pay Integration",
             subtitle: "Set up a Shortcut to automatically log transactions every time you use Apple Pay.",
             color: Color(hex: "#FF6B6B")!
         ),
         OnboardingPage(
-            icon: "chart.pie.fill",
+            emoji: "📊",
             title: "Beautiful Analytics",
             subtitle: "See where your money goes with gorgeous charts and budget tracking, all in one place.",
             color: Color(hex: "#45B7D1")!
@@ -71,10 +71,8 @@ struct OnboardingView: View {
                     .frame(width: 140, height: 140)
                     .glassEffect(.regular.tint(page.color), in: .circle)
 
-                Image(systemName: page.icon)
-                    .font(.system(size: 56, weight: .semibold))
-                    .foregroundStyle(page.color)
-                    .symbolEffect(.bounce, value: currentPage)
+                Text(page.emoji)
+                    .font(.system(size: 64))
             }
 
             VStack(spacing: 16) {
@@ -116,17 +114,20 @@ struct OnboardingView: View {
                     withAnimation(.springy) { isComplete = true }
                 }
             } label: {
-                HStack {
+                HStack(spacing: 10) {
                     Text(currentPage == pages.count - 1 ? "Get Started" : "Next")
-                        .font(.headline)
-                    Image(systemName: currentPage == pages.count - 1 ? "checkmark.circle.fill" : "arrow.right.circle.fill")
+                        .font(.headline.bold())
+                    Text(currentPage == pages.count - 1 ? "✅" : "➡️")
+                        .font(.body)
                 }
                 .frame(maxWidth: .infinity)
                 .padding(18)
-                .glassEffect(
-                    .regular.tint(pages[currentPage].color).interactive(),
-                    in: .rect(cornerRadius: 20)
+                .background(pages[currentPage].color.opacity(0.15))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20)
+                        .strokeBorder(pages[currentPage].color.opacity(0.4), lineWidth: 1.5)
                 )
+                .clipShape(RoundedRectangle(cornerRadius: 20))
                 .foregroundStyle(pages[currentPage].color)
                 .animation(.springy, value: currentPage)
             }
@@ -146,7 +147,7 @@ struct OnboardingView: View {
 }
 
 struct OnboardingPage {
-    let icon: String
+    let emoji: String
     let title: String
     let subtitle: String
     let color: Color

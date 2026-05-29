@@ -37,9 +37,9 @@ final class ApplePayObserver {
 // MARK: - Background App Intent (runs without opening the app)
 
 struct LogApplePayTransactionIntent: AppIntent {
-    static var title: LocalizedStringResource = "Log Apple Pay Transaction"
-    static var description = IntentDescription("Silently log an Apple Pay purchase to WalletAI — no app launch needed")
-    static var openAppWhenRun: Bool = false
+    static let title: LocalizedStringResource = "Log Apple Pay Transaction"
+    static let description = IntentDescription("Silently log an Apple Pay purchase to WalletAI — no app launch needed")
+    static let openAppWhenRun: Bool = false
 
     @Parameter(title: "Amount", description: "Purchase amount")
     var amount: Double

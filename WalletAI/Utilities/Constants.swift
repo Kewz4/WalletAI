@@ -12,7 +12,8 @@ enum Constants {
         static let preferredCurrencyKey = "preferredCurrency"
         static let biometricEnabledKey = "biometricEnabled"
         static let notificationsEnabledKey = "notificationsEnabled"
-        static let themeKey = "appTheme"
+        static let themeKey        = "appTheme"
+        static let colorSchemeKey  = "appColorScheme"
     }
 
     enum Design {

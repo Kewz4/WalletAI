@@ -85,6 +85,7 @@ final class DeepSeekService {
             .map { "\($0.0): \($0.1.currencyFormatted())" }
             .joined(separator: ", ")
 
+        let personality = AppTheme.current.aiPersonality
         return """
         You are WalletAI, an intelligent personal finance assistant integrated into a mobile expense tracking app.
 
@@ -96,7 +97,7 @@ final class DeepSeekService {
         - Top spending categories: \(topCategories)
 
         You help users understand their spending, give financial insights, and suggest ways to save money.
-        Be concise, friendly, and proactive with insights. Format numbers clearly. Use bullet points for lists.
+        \(personality)
         When parsing voice input like "I spent $45 on groceries", confirm the transaction details before adding.
         """
     }

@@ -16,6 +16,7 @@
 		A007 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F007 /* Extensions.swift */; };
 		A008 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = F008 /* Constants.swift */; };
 		A009 /* SeedData.swift in Sources */ = {isa = PBXBuildFile; fileRef = F009 /* SeedData.swift */; };
+		A00A /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00A /* AppTheme.swift */; };
 		A010 /* SpeechRecognitionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F010 /* SpeechRecognitionService.swift */; };
 		A011 /* DeepSeekService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F011 /* DeepSeekService.swift */; };
 		A012 /* ApplePayObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = F012 /* ApplePayObserver.swift */; };
@@ -80,6 +81,7 @@
 		F007 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		F008 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		F009 /* SeedData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeedData.swift; sourceTree = "<group>"; };
+		F00A /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
 		F010 /* SpeechRecognitionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechRecognitionService.swift; sourceTree = "<group>"; };
 		F011 /* DeepSeekService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepSeekService.swift; sourceTree = "<group>"; };
 		F012 /* ApplePayObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplePayObserver.swift; sourceTree = "<group>"; };
@@ -272,6 +274,7 @@
 				F007 /* Extensions.swift */,
 				F008 /* Constants.swift */,
 				F009 /* SeedData.swift */,
+				F00A /* AppTheme.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -402,6 +405,7 @@
 				A007 /* Extensions.swift in Sources */,
 				A008 /* Constants.swift in Sources */,
 				A009 /* SeedData.swift in Sources */,
+				A00A /* AppTheme.swift in Sources */,
 				A010 /* SpeechRecognitionService.swift in Sources */,
 				A011 /* DeepSeekService.swift in Sources */,
 				A012 /* ApplePayObserver.swift in Sources */,

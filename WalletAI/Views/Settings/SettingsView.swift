@@ -6,9 +6,11 @@ struct SettingsView: View {
     @Query private var budgets: [Budget]
     @Query private var transactions: [Transaction]
 
-    @AppStorage(Constants.Storage.preferredCurrencyKey) private var preferredCurrency = "USD"
+    @AppStorage(Constants.Storage.preferredCurrencyKey)  private var preferredCurrency     = "USD"
     @AppStorage(Constants.Storage.notificationsEnabledKey) private var notificationsEnabled = true
-    @AppStorage(Constants.Storage.biometricEnabledKey) private var biometricEnabled = false
+    @AppStorage(Constants.Storage.biometricEnabledKey)   private var biometricEnabled       = false
+    @AppStorage(Constants.Storage.themeKey)              private var themeKey               = "default"
+    @AppStorage(Constants.Storage.colorSchemeKey)        private var colorSchemeRaw         = "system"
 
     @State private var deepSeekService = DeepSeekService()
     @State private var showAPIKey = false
@@ -35,6 +37,9 @@ struct SettingsView: View {
 
                     // Automation
                     automationSection
+
+                    // Appearance
+                    appearanceSection
 
                     // Preferences
                     preferencesSection
@@ -161,6 +166,69 @@ struct SettingsView: View {
         }
         .sheet(isPresented: $showApplePayInfo) {
             ApplePaySetupView()
+        }
+    }
+
+    private var appearanceSection: some View {
+        settingsSection(title: "Appearance", icon: "paintbrush.fill", color: Color(hex: "#A855F7")!) {
+            // Theme picker
+            VStack(alignment: .leading, spacing: 10) {
+                HStack {
+                    Image(systemName: "swatchpalette.fill")
+                        .frame(width: 24)
+                        .foregroundStyle(Color.walletPrimary)
+                    Text("Theme")
+                        .font(.body)
+                    Spacer()
+                }
+                .padding(.horizontal, 16)
+                .padding(.top, 12)
+
+                HStack(spacing: 10) {
+                    ForEach(AppTheme.allCases) { theme in
+                        Button {
+                            themeKey = theme.rawValue
+                        } label: {
+                            VStack(spacing: 6) {
+                                ZStack {
+                                    Circle()
+                                        .fill(theme.primaryColor)
+                                        .frame(width: 36, height: 36)
+                                    if themeKey == theme.rawValue {
+                                        Circle()
+                                            .strokeBorder(.white, lineWidth: 2)
+                                            .frame(width: 36, height: 36)
+                                        Image(systemName: "checkmark")
+                                            .font(.caption2.bold())
+                                            .foregroundStyle(.white)
+                                    }
+                                }
+                                Text("\(theme.emoji) \(theme.displayName)")
+                                    .font(.caption2)
+                                    .foregroundStyle(themeKey == theme.rawValue ? Color.walletPrimary : .secondary)
+                            }
+                            .frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(.plain)
+                        .animation(.springy, value: themeKey)
+                    }
+                }
+                .padding(.horizontal, 16)
+                .padding(.bottom, 12)
+            }
+
+            Divider().padding(.horizontal)
+
+            // Color scheme
+            settingsRow(icon: "circle.lefthalf.filled", title: "Appearance") {
+                Picker("", selection: $colorSchemeRaw) {
+                    Text("System").tag("system")
+                    Text("Light").tag("light")
+                    Text("Dark").tag("dark")
+                }
+                .pickerStyle(.menu)
+                .tint(Color.walletPrimary)
+            }
         }
     }
 

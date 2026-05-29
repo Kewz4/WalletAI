@@ -1,0 +1,517 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A001 /* WalletAIApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F001 /* WalletAIApp.swift */; };
+		A002 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F002 /* RootView.swift */; };
+		A003 /* Transaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = F003 /* Transaction.swift */; };
+		A004 /* Category.swift in Sources */ = {isa = PBXBuildFile; fileRef = F004 /* Category.swift */; };
+		A005 /* Budget.swift in Sources */ = {isa = PBXBuildFile; fileRef = F005 /* Budget.swift */; };
+		A006 /* AIConversation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F006 /* AIConversation.swift */; };
+		A007 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F007 /* Extensions.swift */; };
+		A008 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = F008 /* Constants.swift */; };
+		A009 /* SeedData.swift in Sources */ = {isa = PBXBuildFile; fileRef = F009 /* SeedData.swift */; };
+		A010 /* SpeechRecognitionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F010 /* SpeechRecognitionService.swift */; };
+		A011 /* DeepSeekService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F011 /* DeepSeekService.swift */; };
+		A012 /* ApplePayObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = F012 /* ApplePayObserver.swift */; };
+		A013 /* GlassCardModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F013 /* GlassCardModifier.swift */; };
+		A014 /* VoiceInputButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = F014 /* VoiceInputButton.swift */; };
+		A015 /* AmountTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = F015 /* AmountTextField.swift */; };
+		A016 /* BudgetProgressRing.swift in Sources */ = {isa = PBXBuildFile; fileRef = F016 /* BudgetProgressRing.swift */; };
+		A017 /* SpendingChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = F017 /* SpendingChart.swift */; };
+		A018 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F018 /* DashboardView.swift */; };
+		A019 /* TransactionRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F019 /* TransactionRowView.swift */; };
+		A020 /* TransactionListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F020 /* TransactionListView.swift */; };
+		A021 /* AddTransactionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F021 /* AddTransactionView.swift */; };
+		A022 /* TransactionDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F022 /* TransactionDetailView.swift */; };
+		A023 /* VoiceTransactionSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F023 /* VoiceTransactionSheet.swift */; };
+		A024 /* CategoriesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F024 /* CategoriesView.swift */; };
+		A025 /* CategoryFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F025 /* CategoryFormView.swift */; };
+		A026 /* AIChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F026 /* AIChatView.swift */; };
+		A027 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F027 /* SettingsView.swift */; };
+		A028 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F028 /* OnboardingView.swift */; };
+		A029 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F029 /* Assets.xcassets */; };
+		A030 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F030 /* Info.plist */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		F001 /* WalletAIApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletAIApp.swift; sourceTree = "<group>"; };
+		F002 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		F003 /* Transaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Transaction.swift; sourceTree = "<group>"; };
+		F004 /* Category.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Category.swift; sourceTree = "<group>"; };
+		F005 /* Budget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Budget.swift; sourceTree = "<group>"; };
+		F006 /* AIConversation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIConversation.swift; sourceTree = "<group>"; };
+		F007 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		F008 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		F009 /* SeedData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeedData.swift; sourceTree = "<group>"; };
+		F010 /* SpeechRecognitionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechRecognitionService.swift; sourceTree = "<group>"; };
+		F011 /* DeepSeekService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepSeekService.swift; sourceTree = "<group>"; };
+		F012 /* ApplePayObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplePayObserver.swift; sourceTree = "<group>"; };
+		F013 /* GlassCardModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassCardModifier.swift; sourceTree = "<group>"; };
+		F014 /* VoiceInputButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceInputButton.swift; sourceTree = "<group>"; };
+		F015 /* AmountTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmountTextField.swift; sourceTree = "<group>"; };
+		F016 /* BudgetProgressRing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BudgetProgressRing.swift; sourceTree = "<group>"; };
+		F017 /* SpendingChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpendingChart.swift; sourceTree = "<group>"; };
+		F018 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
+		F019 /* TransactionRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionRowView.swift; sourceTree = "<group>"; };
+		F020 /* TransactionListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionListView.swift; sourceTree = "<group>"; };
+		F021 /* AddTransactionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddTransactionView.swift; sourceTree = "<group>"; };
+		F022 /* TransactionDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionDetailView.swift; sourceTree = "<group>"; };
+		F023 /* VoiceTransactionSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceTransactionSheet.swift; sourceTree = "<group>"; };
+		F024 /* CategoriesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoriesView.swift; sourceTree = "<group>"; };
+		F025 /* CategoryFormView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryFormView.swift; sourceTree = "<group>"; };
+		F026 /* AIChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIChatView.swift; sourceTree = "<group>"; };
+		F027 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		F028 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		F029 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		F030 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		FENT /* WalletAI.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WalletAI.entitlements; sourceTree = "<group>"; };
+		FAPP /* WalletAI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WalletAI.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		GROOT /* WalletAI */ = {
+			isa = PBXGroup;
+			children = (
+				GWAI /* WalletAI */,
+				GPROD /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		GPROD /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				FAPP /* WalletAI.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		GWAI /* WalletAI */ = {
+			isa = PBXGroup;
+			children = (
+				GAPP /* App */,
+				GMOD /* Models */,
+				GSVC /* Services */,
+				GCMP /* Components */,
+				GVIW /* Views */,
+				GUTI /* Utilities */,
+				GRES /* Resources */,
+			);
+			path = WalletAI;
+			sourceTree = "<group>";
+		};
+		GAPP /* App */ = {
+			isa = PBXGroup;
+			children = (
+				F001 /* WalletAIApp.swift */,
+				F002 /* RootView.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		GMOD /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				F003 /* Transaction.swift */,
+				F004 /* Category.swift */,
+				F005 /* Budget.swift */,
+				F006 /* AIConversation.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		GSVC /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				F010 /* SpeechRecognitionService.swift */,
+				F011 /* DeepSeekService.swift */,
+				F012 /* ApplePayObserver.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		GCMP /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				F013 /* GlassCardModifier.swift */,
+				F014 /* VoiceInputButton.swift */,
+				F015 /* AmountTextField.swift */,
+				F016 /* BudgetProgressRing.swift */,
+				F017 /* SpendingChart.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		GVIW /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				GVDB /* Dashboard */,
+				GVTR /* Transactions */,
+				GVCA /* Categories */,
+				GVAI /* AIChat */,
+				GVST /* Settings */,
+				GVON /* Onboarding */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		GVDB /* Dashboard */ = {
+			isa = PBXGroup;
+			children = (
+				F018 /* DashboardView.swift */,
+			);
+			path = Dashboard;
+			sourceTree = "<group>";
+		};
+		GVTR /* Transactions */ = {
+			isa = PBXGroup;
+			children = (
+				F019 /* TransactionRowView.swift */,
+				F020 /* TransactionListView.swift */,
+				F021 /* AddTransactionView.swift */,
+				F022 /* TransactionDetailView.swift */,
+				F023 /* VoiceTransactionSheet.swift */,
+			);
+			path = Transactions;
+			sourceTree = "<group>";
+		};
+		GVCA /* Categories */ = {
+			isa = PBXGroup;
+			children = (
+				F024 /* CategoriesView.swift */,
+				F025 /* CategoryFormView.swift */,
+			);
+			path = Categories;
+			sourceTree = "<group>";
+		};
+		GVAI /* AIChat */ = {
+			isa = PBXGroup;
+			children = (
+				F026 /* AIChatView.swift */,
+			);
+			path = AIChat;
+			sourceTree = "<group>";
+		};
+		GVST /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				F027 /* SettingsView.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		GVON /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				F028 /* OnboardingView.swift */,
+			);
+			path = Onboarding;
+			sourceTree = "<group>";
+		};
+		GUTI /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				F007 /* Extensions.swift */,
+				F008 /* Constants.swift */,
+				F009 /* SeedData.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		GRES /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				F029 /* Assets.xcassets */,
+				F030 /* Info.plist */,
+				FENT /* WalletAI.entitlements */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		TAPP /* WalletAI */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BCLT /* Build configuration list for PBXNativeTarget "WalletAI" */;
+			buildPhases = (
+				BPSC /* Sources */,
+				BPRS /* Resources */,
+				BPFM /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = WalletAI;
+			productName = WalletAI;
+			productReference = FAPP /* WalletAI.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		PROJ /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1600;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					TAPP = {
+						CreatedOnToolsVersion = 16.0;
+					};
+				};
+			};
+			buildConfigurationList = BCPR /* Build configuration list for PBXProject "WalletAI" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = GROOT;
+			productRefGroup = GPROD;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				TAPP /* WalletAI */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		BPRS /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A029 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		BPSC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A001 /* WalletAIApp.swift in Sources */,
+				A002 /* RootView.swift in Sources */,
+				A003 /* Transaction.swift in Sources */,
+				A004 /* Category.swift in Sources */,
+				A005 /* Budget.swift in Sources */,
+				A006 /* AIConversation.swift in Sources */,
+				A007 /* Extensions.swift in Sources */,
+				A008 /* Constants.swift in Sources */,
+				A009 /* SeedData.swift in Sources */,
+				A010 /* SpeechRecognitionService.swift in Sources */,
+				A011 /* DeepSeekService.swift in Sources */,
+				A012 /* ApplePayObserver.swift in Sources */,
+				A013 /* GlassCardModifier.swift in Sources */,
+				A014 /* VoiceInputButton.swift in Sources */,
+				A015 /* AmountTextField.swift in Sources */,
+				A016 /* BudgetProgressRing.swift in Sources */,
+				A017 /* SpendingChart.swift in Sources */,
+				A018 /* DashboardView.swift in Sources */,
+				A019 /* TransactionRowView.swift in Sources */,
+				A020 /* TransactionListView.swift in Sources */,
+				A021 /* AddTransactionView.swift in Sources */,
+				A022 /* TransactionDetailView.swift in Sources */,
+				A023 /* VoiceTransactionSheet.swift in Sources */,
+				A024 /* CategoriesView.swift in Sources */,
+				A025 /* CategoryFormView.swift in Sources */,
+				A026 /* AIChatView.swift in Sources */,
+				A027 /* SettingsView.swift in Sources */,
+				A028 /* OnboardingView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		BPFM /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		BCDB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_CYCLE = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		BCRL /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		BCATDB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = WalletPrimary;
+				CODE_SIGN_ENTITLEMENTS = WalletAI/Resources/WalletAI.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = WalletAI/Resources/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.walletai.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		BCATRL /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = WalletPrimary;
+				CODE_SIGN_ENTITLEMENTS = WalletAI/Resources/WalletAI.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = WalletAI/Resources/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.walletai.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		BCPR /* Build configuration list for PBXProject "WalletAI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BCDB /* Debug */,
+				BCRL /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BCLT /* Build configuration list for PBXNativeTarget "WalletAI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BCATDB /* Debug */,
+				BCATRL /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+	};
+	rootObject = PROJ /* Project object */;
+}

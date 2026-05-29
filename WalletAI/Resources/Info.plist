@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleURLTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>walletai</string>
+            </array>
+            <key>CFBundleURLName</key>
+            <string>com.walletai.app</string>
+        </dict>
+    </array>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>WalletAI uses the microphone to let you add expenses using your voice.</string>
+    <key>NSSpeechRecognitionUsageDescription</key>
+    <string>WalletAI uses speech recognition to convert your spoken expenses into transactions automatically.</string>
+    <key>NSFaceIDUsageDescription</key>
+    <string>WalletAI uses Face ID to protect your financial data.</string>
+    <key>UIApplicationSceneManifest</key>
+    <dict>
+        <key>UIApplicationSupportsMultipleScenes</key>
+        <false/>
+        <key>UISceneConfigurations</key>
+        <dict/>
+    </dict>
+    <key>UILaunchScreen</key>
+    <dict/>
+    <key>UIRequiredDeviceCapabilities</key>
+    <array>
+        <string>armv7</string>
+    </array>
+    <key>UISupportedInterfaceOrientations</key>
+    <array>
+        <string>UIInterfaceOrientationPortrait</string>
+    </array>
+    <key>UIUserInterfaceStyle</key>
+    <string>Automatic</string>
+    <key>LSApplicationQueriesSchemes</key>
+    <array>
+        <string>shortcuts</string>
+    </array>
+</dict>
+</plist>

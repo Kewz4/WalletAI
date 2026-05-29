@@ -1,0 +1,171 @@
+import SwiftUI
+import SwiftData
+
+struct TransactionListView: View {
+    @Environment(\.modelContext) private var context
+    @Query(sort: \Transaction.date, order: .reverse) private var transactions: [Transaction]
+
+    @State private var searchText = ""
+    @State private var showAddTransaction = false
+    @State private var filterCategory: Category? = nil
+    @State private var filterType: FilterType = .all
+    @State private var showVoiceInput = false
+
+    @StateObject private var speechService = SpeechRecognitionService()
+
+    enum FilterType: String, CaseIterable {
+        case all = "All"
+        case expenses = "Expenses"
+        case income = "Income"
+    }
+
+    private var filtered: [Transaction] {
+        transactions.filter { t in
+            (searchText.isEmpty || t.title.localizedCaseInsensitiveContains(searchText) ||
+             (t.merchantName?.localizedCaseInsensitiveContains(searchText) ?? false)) &&
+            (filterCategory == nil || t.category?.id == filterCategory?.id) &&
+            (filterType == .all || (filterType == .expenses ? t.isExpense : !t.isExpense))
+        }
+    }
+
+    private var grouped: [(key: String, transactions: [Transaction])] {
+        let byDate = Dictionary(grouping: filtered) { t -> String in
+            if Calendar.current.isDateInToday(t.date)     { return "Today" }
+            if Calendar.current.isDateInYesterday(t.date) { return "Yesterday" }
+            return t.date.formatted(.dateTime.month(.wide).day().year())
+        }
+        return byDate.sorted { lhs, rhs in
+            let order = ["Today", "Yesterday"]
+            let li = order.firstIndex(of: lhs.key) ?? Int.max
+            let ri = order.firstIndex(of: rhs.key) ?? Int.max
+            if li != ri { return li < ri }
+            return lhs.key > rhs.key
+        }
+    }
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(spacing: 16) {
+                    filterBar
+
+                    if filtered.isEmpty {
+                        emptyState
+                    } else {
+                        ForEach(grouped, id: \.key) { group in
+                            sectionView(title: group.key, transactions: group.transactions)
+                        }
+                    }
+                }
+                .padding(.horizontal, 16)
+                .padding(.bottom, 100)
+            }
+            .background(Color.walletBackground.ignoresSafeArea())
+            .searchable(text: $searchText, prompt: "Search transactions")
+            .navigationTitle("Transactions")
+            .navigationBarTitleDisplayMode(.large)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    HStack(spacing: 12) {
+                        Button {
+                            showVoiceInput = true
+                        } label: {
+                            Image(systemName: "mic.fill")
+                                .foregroundStyle(.walletPrimary)
+                        }
+                        Button {
+                            showAddTransaction = true
+                        } label: {
+                            Image(systemName: "plus.circle.fill")
+                                .font(.title2)
+                                .foregroundStyle(.walletPrimary)
+                        }
+                    }
+                }
+            }
+            .sheet(isPresented: $showAddTransaction) {
+                AddTransactionView()
+            }
+            .sheet(isPresented: $showVoiceInput) {
+                VoiceTransactionSheet()
+            }
+        }
+    }
+
+    private var filterBar: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            GlassEffectContainer(spacing: 6) {
+                HStack(spacing: 6) {
+                    ForEach(FilterType.allCases, id: \.self) { type in
+                        Button(type.rawValue) {
+                            withAnimation(.springy) { filterType = type }
+                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                        }
+                        .font(.subheadline.weight(.semibold))
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 7)
+                        .glassEffect(
+                            filterType == type
+                                ? .regular.tint(.walletPrimary).interactive()
+                                : .regular.interactive(),
+                            in: .capsule
+                        )
+                        .foregroundStyle(filterType == type ? .walletPrimary : .secondary)
+                    }
+                }
+                .padding(4)
+            }
+        }
+        .scrollClipDisabled()
+    }
+
+    private var emptyState: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "tray")
+                .font(.system(size: 48))
+                .foregroundStyle(.secondary)
+            Text("No transactions yet")
+                .font(.headline)
+            Text("Tap + or use voice to add your first transaction")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+        }
+        .padding(40)
+    }
+
+    private func sectionView(title: String, transactions: [Transaction]) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text(title)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                Spacer()
+                let total = transactions.filter { $0.isExpense }.reduce(0) { $0 + $1.amount }
+                if total > 0 {
+                    Text("-\(total.currencyFormatted())")
+                        .font(.caption.monospacedDigit())
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .padding(.horizontal, 4)
+
+            VStack(spacing: 0) {
+                ForEach(transactions) { tx in
+                    TransactionRowView(transaction: tx)
+                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                            Button(role: .destructive) {
+                                withAnimation { context.delete(tx) }
+                            } label: {
+                                Label("Delete", systemImage: "trash")
+                            }
+                        }
+                    if tx.id != transactions.last?.id {
+                        Divider().padding(.leading, 74)
+                    }
+                }
+            }
+            .glassCard()
+        }
+    }
+}

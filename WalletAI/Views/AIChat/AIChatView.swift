@@ -325,43 +325,62 @@ struct APIKeySetupView: View {
     let service: DeepSeekService
     @Environment(\.dismiss) private var dismiss
     @State private var key: String = ""
+    @State private var saved = false
 
     var body: some View {
         NavigationStack {
             VStack(spacing: 24) {
                 VStack(spacing: 12) {
-                    Image(systemName: "key.fill")
-                        .font(.system(size: 40))
-                        .foregroundStyle(Color.walletPrimary)
+                    Text("🔑")
+                        .font(.system(size: 44))
                     Text("DeepSeek API Key")
                         .font(.title2.bold())
-                    Text("Get a free API key at platform.deepseek.com — free tier includes generous monthly credits.")
+                    Text("Get a free key at platform.deepseek.com — the free tier covers generous monthly usage.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
                 }
                 .padding(24)
-                .glassCard()
+                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20))
 
-                SecureField("sk-...", text: $key)
-                    .font(.body.monospaced())
-                    .padding(16)
-                    .glassCard()
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("API Key")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                    TextField("sk-...", text: $key)
+                        .font(.body.monospaced())
+                        .autocorrectionDisabled()
+                        .textInputAutocapitalization(.never)
+                        .padding(14)
+                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 14))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 14)
+                                .strokeBorder(Color.walletPrimary.opacity(0.3), lineWidth: 1)
+                        )
+                }
 
                 Button {
-                    service.setAPIKey(key)
-                    dismiss()
+                    let trimmed = key.trimmingCharacters(in: .whitespacesAndNewlines)
+                    guard !trimmed.isEmpty else { return }
+                    service.setAPIKey(trimmed)
+                    UINotificationFeedbackGenerator().notificationOccurred(.success)
+                    saved = true
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { dismiss() }
                 } label: {
-                    Text("Save Key")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity)
-                        .padding(16)
-                        .glassEffect(.regular.tint(Color.walletPrimary).interactive(), in: .rect(cornerRadius: 16))
-                        .foregroundStyle(Color.walletPrimary)
+                    HStack(spacing: 8) {
+                        Image(systemName: saved ? "checkmark.circle.fill" : "key.fill")
+                        Text(saved ? "Saved!" : "Save Key")
+                            .font(.headline.bold())
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(16)
+                    .background(key.isEmpty ? Color.walletPrimary.opacity(0.15) : Color.walletPrimary)
+                    .foregroundStyle(key.isEmpty ? Color.walletPrimary : Color.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
                 }
                 .disabled(key.isEmpty)
-                .opacity(key.isEmpty ? 0.4 : 1.0)
                 .buttonStyle(.plain)
+                .animation(.springy, value: saved)
 
                 Spacer()
             }
@@ -374,6 +393,7 @@ struct APIKeySetupView: View {
                     Button("Cancel") { dismiss() }
                 }
             }
+            .onAppear { key = service.apiKey }
         }
     }
 }

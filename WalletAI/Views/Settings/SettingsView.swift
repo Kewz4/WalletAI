@@ -210,17 +210,23 @@ struct SettingsView: View {
     }
 
     private var aboutSection: some View {
-        VStack(spacing: 8) {
-            Image(systemName: "wallet.bifold.fill")
-                .font(.system(size: 36))
-                .foregroundStyle(Color.walletPrimary)
+        VStack(spacing: 10) {
+            Text("💼")
+                .font(.system(size: 40))
             Text("WalletAI")
                 .font(.headline)
             Text("Version 1.0.0")
                 .font(.caption)
                 .foregroundStyle(.secondary)
-            Text("Built with SwiftUI & iOS 26 Liquid Glass")
-                .font(.caption2)
+            Divider()
+                .padding(.horizontal, 40)
+                .padding(.vertical, 4)
+            Text("Dedicated to my Lord and Savior Jesus Christ,\nand my precious Cami ❤️")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+            Text("Romans 8:28")
+                .font(.caption2.italic())
                 .foregroundStyle(.tertiary)
         }
         .frame(maxWidth: .infinity)

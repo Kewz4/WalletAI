@@ -6,9 +6,9 @@ final class DeepSeekService {
     var isLoading: Bool = false
     var error: String? = nil
 
-    private var apiKey: String {
-        get { UserDefaults.standard.string(forKey: Constants.API.deepSeekKeyStorageKey) ?? "" }
-        set { UserDefaults.standard.set(newValue, forKey: Constants.API.deepSeekKeyStorageKey) }
+    // Stored property so @Observable tracks changes and views re-render
+    var apiKey: String = UserDefaults.standard.string(forKey: Constants.API.deepSeekKeyStorageKey) ?? "" {
+        didSet { UserDefaults.standard.set(apiKey, forKey: Constants.API.deepSeekKeyStorageKey) }
     }
 
     var hasAPIKey: Bool { !apiKey.isEmpty }

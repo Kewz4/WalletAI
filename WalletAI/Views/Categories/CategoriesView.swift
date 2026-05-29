@@ -78,7 +78,11 @@ struct CategoriesView: View {
         }
         .padding(12)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .glassCard(cornerRadius: 16)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(color.opacity(0.1))
+                .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).strokeBorder(color.opacity(0.2), lineWidth: 1))
+        )
     }
 
     private var budgetSection: some View {
@@ -92,7 +96,7 @@ struct CategoriesView: View {
                     if let progress = cat.budgetProgress() {
                         LinearBudgetBar(progress: progress, category: cat)
                             .padding(12)
-                            .glassCard(cornerRadius: 16)
+                            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
                     }
                 }
             }
@@ -176,7 +180,14 @@ struct CategoryCard: View {
             }
         }
         .padding(14)
-        .glassCard(cornerRadius: 18, tint: category.color)
+        .background(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(category.color.opacity(0.08))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                        .strokeBorder(category.color.opacity(0.2), lineWidth: 1)
+                )
+        )
         .onAppear { appear = true }
     }
 }

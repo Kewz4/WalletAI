@@ -36,10 +36,10 @@ final class LiveActivityService {
         }
     }
 
-    func endCurrentActivity() {
+    nonisolated func endCurrentActivity() {
         let activity = currentActivity
         currentActivity = nil
-        Task.detached {
+        Task {
             await activity?.end(nil, dismissalPolicy: .immediate)
         }
     }

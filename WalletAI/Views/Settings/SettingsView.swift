@@ -332,42 +332,126 @@ struct BudgetEditSheet: View {
 
 struct ApplePaySetupView: View {
     @Environment(\.dismiss) private var dismiss
+    @State private var urlCopied = false
+
+    private let urlScheme = ApplePayObserver.applePayURL
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 20) {
-                    Image(systemName: "apple.logo")
-                        .font(.system(size: 48))
-                        .padding(24)
-                        .glassCard()
+                    // Header
+                    HStack(spacing: 16) {
+                        Text("💳")
+                            .font(.system(size: 48))
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Apple Pay Auto-Logging")
+                                .font(.title3.bold())
+                            Text("Log purchases without opening the app")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
+                        Spacer()
+                    }
+                    .padding(20)
+                    .glassCard()
 
-                    VStack(alignment: .leading, spacing: 16) {
-                        Text("Apple Pay Auto-Logging")
-                            .font(.title2.bold())
+                    // Recommended: App Intent
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack {
+                            Text("Recommended — Runs in Background")
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(Color.walletPrimary)
+                            Spacer()
+                            Text("✨ No app launch")
+                                .font(.caption)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(Color.walletPrimary.opacity(0.1))
+                                .foregroundStyle(Color.walletPrimary)
+                                .clipShape(Capsule())
+                        }
 
-                        Text("Every time you pay with Apple Pay, a Shortcut can automatically open WalletAI to log the transaction.")
+                        Text("Works even when your phone is locked. The transaction saves silently and a notification confirms it.")
+                            .font(.caption)
                             .foregroundStyle(.secondary)
 
                         VStack(alignment: .leading, spacing: 12) {
                             stepRow(number: "1", text: "Open the **Shortcuts** app")
                             stepRow(number: "2", text: "Tap **Automation** → **New Automation**")
                             stepRow(number: "3", text: "Select **Apple Pay** as the trigger")
-                            stepRow(number: "4", text: "Add **Open URL** action")
-                            stepRow(number: "5", text: "Enter: `walletai://applepay?amount=[Payment Amount]&merchant=[Merchant Name]`")
-                            stepRow(number: "6", text: "Enable **Run Immediately** (no confirmation)")
+                            stepRow(number: "4", text: "Tap **New Blank Automation** (not Quick Action)")
+                            stepRow(number: "5", text: "Search for **Log Apple Pay Transaction** (WalletAI)")
+                            stepRow(number: "6", text: "Set **Amount** to `Payment Amount` variable, **Merchant** to `Merchant Name`")
+                            stepRow(number: "7", text: "Turn off **Ask Before Running** — tap **Don't Ask**")
                         }
                         .padding(16)
-                        .glassCard()
+                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 14))
+                    }
+                    .padding(16)
+                    .glassCard()
 
-                        Text("The URL scheme will open WalletAI and pre-fill the transaction amount and merchant name from Apple Pay.")
+                    // Fallback: URL Scheme
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Fallback — Opens the App")
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(.secondary)
+
+                        Text("Use this if the App Intent doesn't appear in Shortcuts. The app will open and let you confirm the transaction.")
                             .font(.caption)
                             .foregroundStyle(.secondary)
+
+                        VStack(alignment: .leading, spacing: 12) {
+                            stepRow(number: "1", text: "Open **Shortcuts** → **Automation** → **New Automation**")
+                            stepRow(number: "2", text: "Select **Apple Pay** as the trigger")
+                            stepRow(number: "3", text: "Add an **Open URL** action")
+                            stepRow(number: "4", text: "Paste the URL below, then set **Run Immediately**")
+                        }
+                        .padding(16)
+                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 14))
+
+                        // URL display + copy
+                        HStack(spacing: 0) {
+                            Text(urlScheme)
+                                .font(.system(.caption, design: .monospaced))
+                                .foregroundStyle(.secondary)
+                                .lineLimit(2)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(12)
+
+                            Button {
+                                UIPasteboard.general.string = urlScheme
+                                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                                withAnimation(.springy) { urlCopied = true }
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                    withAnimation(.springy) { urlCopied = false }
+                                }
+                            } label: {
+                                VStack(spacing: 4) {
+                                    Image(systemName: urlCopied ? "checkmark" : "doc.on.doc")
+                                        .font(.body)
+                                    Text(urlCopied ? "Copied!" : "Copy")
+                                        .font(.caption2.bold())
+                                }
+                                .frame(width: 64)
+                                .padding(.vertical, 12)
+                                .background(urlCopied ? Color.green.opacity(0.15) : Color.walletPrimary.opacity(0.1))
+                                .foregroundStyle(urlCopied ? .green : Color.walletPrimary)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 14))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 14)
+                                .strokeBorder(urlCopied ? Color.green.opacity(0.4) : Color.walletPrimary.opacity(0.2), lineWidth: 1)
+                        )
+                        .animation(.springy, value: urlCopied)
                     }
                     .padding(16)
                     .glassCard()
                 }
                 .padding(16)
+                .padding(.bottom, 32)
             }
             .background(Color.walletBackground.ignoresSafeArea())
             .navigationTitle("Apple Pay Setup")

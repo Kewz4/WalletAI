@@ -140,8 +140,8 @@ struct VoiceTransactionSheet: View {
                             withAnimation(.springy) { selectedCategory = cat }
                         } label: {
                             HStack(spacing: 4) {
-                                Image(systemName: cat.iconName)
-                                    .font(.caption)
+                                Text(cat.iconName)
+                                    .font(.system(size: 14))
                                 Text(cat.name)
                                     .font(.caption)
                             }

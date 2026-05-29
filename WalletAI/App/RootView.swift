@@ -8,6 +8,7 @@ struct RootView: View {
     @State private var selectedTab: Tab = .dashboard
     @State private var isLocked = false
     @State private var authError: String? = nil
+    @State private var applePayObserver = ApplePayObserver()
     @Environment(\.scenePhase) private var scenePhase
 
     enum Tab: String, CaseIterable {
@@ -41,6 +42,13 @@ struct RootView: View {
             lockScreen
         } else {
             mainTabs
+                .onOpenURL { url in applePayObserver.handleShortcutURL(url) }
+                .sheet(isPresented: $applePayObserver.showTransactionPrompt) {
+                    if let pending = applePayObserver.pendingTransaction {
+                        AddTransactionView(title: pending.title, amount: pending.amount, source: .applePay)
+                            .onDisappear { applePayObserver.pendingTransaction = nil }
+                    }
+                }
                 .onChange(of: scenePhase) { _, phase in
                     if phase == .background && biometricEnabled {
                         isLocked = true

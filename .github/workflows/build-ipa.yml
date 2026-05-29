@@ -5,7 +5,7 @@ on:
     branches: [main, master, "claude/**"]
   pull_request:
     branches: [main, master]
-  workflow_dispatch:          # lets you trigger manually from the Actions tab
+  workflow_dispatch:
 
 jobs:
   build:
@@ -26,49 +26,70 @@ jobs:
           xcodebuild -version
           xcodebuild -showsdks | grep iphoneos
 
-      # ── 3. Resolve Swift packages (if any) ─────────────────────────────────
-      - name: Resolve Swift packages
+      # ── 3. Build for device (no archive, no signing) ───────────────────────
+      # We use `build` instead of `archive` so the .app lands in a predictable
+      # location under SYMROOT regardless of signing configuration.
+      - name: Build app
         run: |
-          xcodebuild -resolvePackageDependencies \
-            -project WalletAI.xcodeproj \
-            -scheme WalletAI \
-            -clonedSourcePackagesDirPath .spm-cache
-        continue-on-error: true   # no SPM deps in this project, safe to skip
-
-      # ── 4. Build & Archive (no code signing) ───────────────────────────────
-      - name: Build archive
-        run: |
-          xcodebuild archive \
+          xcodebuild build \
             -project WalletAI.xcodeproj \
             -scheme WalletAI \
             -configuration Release \
             -destination "generic/platform=iOS" \
-            -archivePath "$RUNNER_TEMP/WalletAI.xcarchive" \
+            -derivedDataPath "$RUNNER_TEMP/DerivedData" \
+            ONLY_ACTIVE_ARCH=NO \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
-            AD_HOC_CODE_SIGNING_ALLOWED=YES \
-            ONLY_ACTIVE_ARCH=NO \
             SKIP_INSTALL=NO \
-            | xcbeautify --quiet || \
-          xcodebuild archive \
+            | tee "$RUNNER_TEMP/build.log" | xcpretty || \
+          xcodebuild build \
             -project WalletAI.xcodeproj \
             -scheme WalletAI \
             -configuration Release \
             -destination "generic/platform=iOS" \
-            -archivePath "$RUNNER_TEMP/WalletAI.xcarchive" \
+            -derivedDataPath "$RUNNER_TEMP/DerivedData" \
+            ONLY_ACTIVE_ARCH=NO \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
-            AD_HOC_CODE_SIGNING_ALLOWED=YES \
-            ONLY_ACTIVE_ARCH=NO \
             SKIP_INSTALL=NO
+
+      # ── 4. Debug: show what was built ──────────────────────────────────────
+      - name: Locate .app bundle
+        id: locate_app
+        run: |
+          echo "=== DerivedData tree (*.app only) ==="
+          find "$RUNNER_TEMP/DerivedData" -name "*.app" -not -path "*/SourcePackages/*" 2>/dev/null || true
+
+          APP_PATH=$(find "$RUNNER_TEMP/DerivedData/Build/Products" \
+            -name "*.app" \
+            -not -name "*Tests*" \
+            -not -path "*/SourcePackages/*" \
+            | head -1)
+
+          if [ -z "$APP_PATH" ]; then
+            # Wider fallback search
+            APP_PATH=$(find "$RUNNER_TEMP/DerivedData" \
+              -name "WalletAI.app" \
+              -not -path "*/SourcePackages/*" \
+              | head -1)
+          fi
+
+          echo "APP_PATH=$APP_PATH" >> $GITHUB_OUTPUT
+          echo "Found: $APP_PATH"
+
+          if [ -z "$APP_PATH" ]; then
+            echo "ERROR: .app not found. Dumping full DerivedData layout:"
+            find "$RUNNER_TEMP/DerivedData" -maxdepth 6 | head -80
+            exit 1
+          fi
 
       # ── 5. Package .app → .ipa ─────────────────────────────────────────────
       - name: Package IPA
         run: |
-          APP_PATH=$(find "$RUNNER_TEMP/WalletAI.xcarchive/Products" -name "*.app" | head -1)
-          echo "Found app at: $APP_PATH"
+          APP_PATH="${{ steps.locate_app.outputs.APP_PATH }}"
+          echo "Packaging: $APP_PATH"
 
           mkdir -p "$RUNNER_TEMP/IPA/Payload"
           cp -r "$APP_PATH" "$RUNNER_TEMP/IPA/Payload/"
@@ -78,8 +99,8 @@ jobs:
 
           echo "IPA size: $(du -sh "$RUNNER_TEMP/WalletAI.ipa" | cut -f1)"
 
-      # ── 6. Upload IPA as artifact ──────────────────────────────────────────
-      - name: Upload IPA artifact
+      # ── 6. Upload IPA artifact ─────────────────────────────────────────────
+      - name: Upload IPA
         uses: actions/upload-artifact@v4
         with:
           name: WalletAI-unsigned-${{ github.sha }}
@@ -87,30 +108,32 @@ jobs:
           retention-days: 30
           if-no-files-found: error
 
-      # ── 7. Upload dSYMs (useful for crash symbolication) ──────────────────
-      - name: Upload dSYMs artifact
+      # ── 7. Upload build log on failure ─────────────────────────────────────
+      - name: Upload build log (on failure)
+        if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: WalletAI-dSYMs-${{ github.sha }}
-          path: ${{ runner.temp }}/WalletAI.xcarchive/dSYMs
-          retention-days: 30
-          if-no-files-found: warn
+          name: build-log-${{ github.sha }}
+          path: ${{ runner.temp }}/build.log
+          retention-days: 7
+          if-no-files-found: ignore
 
-      # ── 8. Summary ────────────────────────────────────────────────────────
+      # ── 8. Job summary ─────────────────────────────────────────────────────
       - name: Write job summary
+        if: success()
         run: |
-          echo "## WalletAI Build Complete ✅" >> $GITHUB_STEP_SUMMARY
+          echo "## WalletAI Build ✅" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Field | Value |" >> $GITHUB_STEP_SUMMARY
-          echo "|-------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| | |" >> $GITHUB_STEP_SUMMARY
+          echo "|---|---|" >> $GITHUB_STEP_SUMMARY
           echo "| Commit | \`${{ github.sha }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| Branch | \`${{ github.ref_name }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| Xcode | 26.3 |" >> $GITHUB_STEP_SUMMARY
           echo "| iOS Target | 26.0 |" >> $GITHUB_STEP_SUMMARY
-          echo "| IPA | unsigned (ready for Sideloadly / AltStore) |" >> $GITHUB_STEP_SUMMARY
+          echo "| Signing | unsigned — ready for Sideloadly / AltStore |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### How to install" >> $GITHUB_STEP_SUMMARY
-          echo "1. Download the \`WalletAI-unsigned-*\` artifact from the **Artifacts** section below" >> $GITHUB_STEP_SUMMARY
-          echo "2. Unzip it — you'll get \`WalletAI.ipa\`" >> $GITHUB_STEP_SUMMARY
-          echo "3. Open **Sideloadly** (Windows/Mac) → drag the IPA → sign with your Apple ID → install" >> $GITHUB_STEP_SUMMARY
-          echo "4. Or use **AltStore** on your PC → My Apps → + → choose the IPA" >> $GITHUB_STEP_SUMMARY
+          echo "### Install steps" >> $GITHUB_STEP_SUMMARY
+          echo "1. Download **WalletAI-unsigned-\`${{ github.sha }}\`** from Artifacts below" >> $GITHUB_STEP_SUMMARY
+          echo "2. Unzip → get \`WalletAI.ipa\`" >> $GITHUB_STEP_SUMMARY
+          echo "3. **Sideloadly** (Windows/Mac) → drag IPA → sign with Apple ID → Start" >> $GITHUB_STEP_SUMMARY
+          echo "4. Or **AltStore** → My Apps → + → pick IPA" >> $GITHUB_STEP_SUMMARY

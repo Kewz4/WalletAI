@@ -100,6 +100,11 @@ jobs:
           mkdir -p "$PAYLOAD"
           cp -r "$APP" "$PAYLOAD/"
 
+          # Strip embedded app extensions — third-party signing tools (KravaSign,
+          # Sideloadly, AltStore) only re-sign the main binary; any unsigned .appex
+          # left inside causes iOS to reject the install with "unable to install".
+          find "$PAYLOAD" -name "*.appex" -exec rm -rf {} + 2>/dev/null || true
+
           cd "$RUNNER_TEMP"
           zip -r "WalletAI.ipa" Payload
 

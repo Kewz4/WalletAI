@@ -14,6 +14,7 @@ struct SettingsView: View {
     @AppStorage("walletai_language")                     private var appLanguage            = "en"
     @AppStorage(Constants.Storage.personalityKey)        private var personalityKey         = "chill"
 
+    @Environment(\.dismiss) private var dismiss
     @State private var deepSeekService = DeepSeekService()
     @State private var authService = AuthService.shared
     @State private var categorizationService = CategorizationService()
@@ -62,6 +63,17 @@ struct SettingsView: View {
             .background(Color.walletBackground.ignoresSafeArea())
             .navigationTitle(L("settings.title"))
             .navigationBarTitleDisplayMode(.large)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundStyle(.secondary)
+                            .font(.title3)
+                    }
+                }
+            }
         }
     }
 

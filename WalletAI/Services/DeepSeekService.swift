@@ -74,11 +74,13 @@ final class DeepSeekService {
     // MARK: - Financial Context System Prompt
 
     func buildSystemPrompt(transactions: [Transaction], budget: Budget?) -> String {
-        let totalSpent = transactions.filter { $0.isExpense }.reduce(0) { $0 + $1.amount }
-        let totalIncome = transactions.filter { !$0.isExpense }.reduce(0) { $0 + $1.amount }
+        let now = Date()
+        let pastTransactions = transactions.filter { $0.date <= now }
+        let totalSpent = pastTransactions.filter { $0.isExpense }.reduce(0) { $0 + $1.amount }
+        let totalIncome = pastTransactions.filter { !$0.isExpense }.reduce(0) { $0 + $1.amount }
         let budgetInfo = budget.map { "Monthly budget: \($0.totalMonthlyLimit.currencyFormatted())" } ?? ""
 
-        let expenses = transactions.filter { $0.isExpense }
+        let expenses = pastTransactions.filter { $0.isExpense }
         let byCategory = Dictionary(grouping: expenses) { $0.category?.name ?? "Other" }
         let categoryTotals: [(String, Double)] = byCategory.map { ($0.key, $0.value.reduce(0.0) { $0 + $1.amount }) }
         let topCategories = categoryTotals
@@ -87,13 +89,22 @@ final class DeepSeekService {
             .map { "\($0.0): \($0.1.currencyFormatted())" }
             .joined(separator: ", ")
 
-        // Individual transaction list (most recent 30)
-        let txList = transactions.prefix(30).map { t in
+        // Individual transaction list (most recent 30 past ones)
+        let txList = pastTransactions.prefix(30).map { t in
             let date = t.date.formatted(.dateTime.month(.abbreviated).day())
             let sign = t.isExpense ? "-" : "+"
             let cat = t.category?.name ?? "Other"
             return "  [\(date)] \(sign)\(t.amount.currencyFormatted()) – \(t.title) (\(cat))"
         }.joined(separator: "\n")
+
+        // Upcoming recurring transactions (future-dated, not yet reflected in balance)
+        let upcoming = transactions.filter { $0.date > now && $0.isRecurring }
+        let upcomingLines = upcoming.prefix(10).map { t in
+            let date = t.date.formatted(.dateTime.month(.abbreviated).day())
+            let sign = t.isExpense ? "expense" : "income"
+            return "  [\(date)] \(t.amount.currencyFormatted()) – \(t.title) (\(sign), not yet counted)"
+        }.joined(separator: "\n")
+        let upcomingSection = upcomingLines.isEmpty ? "" : "\nScheduled future transactions (NOT included in net balance yet):\n\(upcomingLines)"
 
         let personality = AppPersonality.current.aiPrompt
         let lang = UserDefaults.standard.string(forKey: "walletai_language") ?? "en"
@@ -108,20 +119,22 @@ final class DeepSeekService {
 
         \(langInstruction)
 
-        User's finances this month:
+        User's finances this month (past transactions only):
         - Expenses: \(totalSpent.currencyFormatted()), Income: \(totalIncome.currencyFormatted()), Net: \((totalIncome - totalSpent).currencyFormatted())
         \(budgetInfo)
         - Top categories: \(topCategories)
 
-        Recent transactions (you can reference these when answering specific questions):
-        \(txList)
+        Recent transactions:
+        \(txList)\(upcomingSection)
+
+        IMPORTANT: The net balance shown in the app only includes transactions that have already occurred. Future-dated recurring transactions are scheduled but NOT yet counted in the balance.
 
         Rules:
-        - Keep answers short and direct. 2-4 sentences max unless a detailed breakdown is asked for.
-        - Only answer what was asked. Don't volunteer unsolicited advice.
-        - Use markdown formatting: **bold** for key numbers/amounts, *italic* for emphasis. Use bullet points for lists.
-        - Use at most 1 emoji per message, only when it genuinely helps.
-        - Be natural and friendly, not enthusiastic or cringe.
+        - Be extremely concise. 1-2 sentences for simple questions, 3-4 max for complex ones.
+        - Answer ONLY what was asked. Do not add tips, caveats, or extra context unless asked.
+        - If asked for the biggest/highest transaction, just name it and the amount — nothing else.
+        - Use **bold** for key numbers only. Avoid bullet lists unless explicitly asked for a breakdown.
+        - At most 1 emoji per message.
         \(personality)
         """
     }

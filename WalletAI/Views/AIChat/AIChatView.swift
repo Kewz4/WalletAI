@@ -30,9 +30,6 @@ struct AIChatView: View {
                                 MessageBubble(message: msg)
                                     .id(msg.id)
                             }
-                            if deepSeekService.isLoading {
-                                typingIndicator
-                            }
                             Color.clear.frame(height: 80).id("bottom")
                         }
                         .padding(.horizontal, 16)
@@ -198,32 +195,6 @@ struct AIChatView: View {
         }
     }
 
-    private var typingIndicator: some View {
-        HStack(alignment: .bottom, spacing: 8) {
-            ZStack {
-                Circle()
-                    .fill(Color.walletPrimary.opacity(0.15))
-                    .frame(width: 32, height: 32)
-                Image(systemName: "sparkles")
-                    .font(.system(size: 14))
-                    .foregroundStyle(Color.walletPrimary)
-            }
-
-            BouncingDotsView()
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
-                .background(Color(UIColor.secondarySystemBackground),
-                            in: UnevenRoundedRectangle(
-                                topLeadingRadius: 4,
-                                bottomLeadingRadius: 18,
-                                bottomTrailingRadius: 18,
-                                topTrailingRadius: 18
-                            ))
-
-            Spacer()
-        }
-    }
-
     // MARK: - Actions
 
     private func sendWelcomeMessage() {
@@ -322,19 +293,27 @@ struct MessageBubble: View {
             }
 
             VStack(alignment: isUser ? .trailing : .leading, spacing: 4) {
-                markdownText(message.content.isEmpty ? "▌" : message.content)
-                    .foregroundStyle(isUser ? Color.white : Color.primary)
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 10)
-                    .background(
-                        isUser ? Color.walletPrimary : Color(UIColor.secondarySystemBackground),
-                        in: UnevenRoundedRectangle(
-                            topLeadingRadius: isUser ? 18 : 4,
-                            bottomLeadingRadius: 18,
-                            bottomTrailingRadius: isUser ? 4 : 18,
-                            topTrailingRadius: 18
-                        )
+                Group {
+                    if !isUser && message.content.isEmpty {
+                        BouncingDotsView()
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 14)
+                    } else {
+                        markdownText(message.content)
+                            .foregroundStyle(isUser ? Color.white : Color.primary)
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 10)
+                    }
+                }
+                .background(
+                    isUser ? Color.walletPrimary : Color(UIColor.secondarySystemBackground),
+                    in: UnevenRoundedRectangle(
+                        topLeadingRadius: isUser ? 18 : 4,
+                        bottomLeadingRadius: 18,
+                        bottomTrailingRadius: isUser ? 4 : 18,
+                        topTrailingRadius: 18
                     )
+                )
 
                 Text(message.timestamp.formatted(.dateTime.hour().minute()))
                     .font(.caption2)

@@ -57,7 +57,7 @@ struct DashboardView: View {
         let days = 7
         return (0..<days).reversed().map { i in
             let date = Date().daysAgo(i)
-            let label = i == 0 ? "Today" : date.formatted(.dateTime.weekday(.abbreviated))
+            let label = i == 0 ? L("tx.today") : date.formatted(.dateTime.weekday(.abbreviated))
             let total = transactions
                 .filter { calendar.isDate($0.date, inSameDayAs: date) && $0.isExpense }
                 .reduce(0) { $0 + $1.amount }
@@ -274,7 +274,7 @@ struct DashboardView: View {
             in: RoundedRectangle(cornerRadius: 24, style: .continuous)
         )
         .frame(maxWidth: .infinity)
-        .padding(.horizontal, -16)
+        .padding(.horizontal, 4)
     }
 
     private func statBadge(label: String, amount: Double, icon: String) -> some View {

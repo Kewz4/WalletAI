@@ -132,7 +132,7 @@ struct TransactionDetailView: View {
                 .frame(maxWidth: .infinity)
                 .padding(16)
                 .glassEffect(.regular.tint(.red).interactive(), in: .rect(cornerRadius: 16))
-                .foregroundStyle(.red)
+                .foregroundStyle(.white)
         }
         .buttonStyle(.plain)
     }

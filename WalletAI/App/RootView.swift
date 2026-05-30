@@ -135,8 +135,8 @@ struct RootView: View {
                     }
                     .frame(maxWidth: .infinity)
                     .padding(18)
-                    .glassEffect(.regular.tint(Color.walletPrimary).interactive(), in: .rect(cornerRadius: 20))
-                    .foregroundStyle(Color.walletPrimary)
+                    .background(Color.walletPrimary, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+                    .foregroundStyle(Color.white)
                 }
                 .buttonStyle(.plain)
                 .padding(.horizontal, 32)

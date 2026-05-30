@@ -2,8 +2,14 @@ import Foundation
 
 enum Constants {
     enum API {
-        static let deepSeekBaseURL = "https://api.deepseek.com/v1"
-        static let deepSeekModel   = "deepseek-chat"
+        // Gemini (free tier — get key at aistudio.google.com)
+        static let geminiBaseURL       = "https://generativelanguage.googleapis.com/v1beta/openai"
+        static let geminiModel         = "gemini-2.0-flash"
+        static let geminiKeyStorageKey = "walletai_gemini_key"
+
+        // DeepSeek (legacy — kept for users who already have a key)
+        static let deepSeekBaseURL       = "https://api.deepseek.com/v1"
+        static let deepSeekModel         = "deepseek-chat"
         static let deepSeekKeyStorageKey = "walletai_deepseek_key"
     }
 

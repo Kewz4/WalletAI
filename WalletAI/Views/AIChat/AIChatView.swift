@@ -37,6 +37,7 @@ struct AIChatView: View {
                         .padding(.horizontal, 16)
                         .padding(.top, 8)
                     }
+                    .scrollDismissesKeyboard(.interactively)
                     .onAppear { scrollProxy = proxy }
                 }
 
@@ -325,44 +326,63 @@ struct MessageBubble: View {
 struct APIKeySetupView: View {
     let service: DeepSeekService
     @Environment(\.dismiss) private var dismiss
+    @State private var selectedProvider: AIProvider = .gemini
     @State private var key: String = ""
     @State private var saved = false
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 24) {
-                VStack(spacing: 12) {
+            VStack(spacing: 20) {
+                // Provider picker
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("AI Provider")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                    Picker("Provider", selection: $selectedProvider) {
+                        ForEach(AIProvider.allCases, id: \.self) { p in
+                            Text(p.rawValue).tag(p)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    .onChange(of: selectedProvider) { _, _ in
+                        key = service.apiKey(for: selectedProvider)
+                        saved = false
+                    }
+                }
+
+                // Info card
+                VStack(spacing: 8) {
                     Text("🔑")
-                        .font(.system(size: 44))
-                    Text("DeepSeek API Key")
-                        .font(.title2.bold())
-                    Text("Get a free key at platform.deepseek.com — the free tier covers generous monthly usage.")
+                        .font(.system(size: 36))
+                    Text(selectedProvider.rawValue)
+                        .font(.headline.bold())
+                    Text(selectedProvider.setupInstructions)
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
                 }
-                .padding(24)
+                .padding(20)
+                .frame(maxWidth: .infinity)
                 .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20))
 
+                // Key field
                 VStack(alignment: .leading, spacing: 6) {
                     Text("API Key")
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(.secondary)
-                    TextField("sk-...", text: $key)
+                    TextField("Paste your API key here", text: $key)
                         .font(.body.monospaced())
                         .autocorrectionDisabled()
                         .textInputAutocapitalization(.never)
                         .padding(14)
                         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 14))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 14)
-                                .strokeBorder(Color.walletPrimary.opacity(0.3), lineWidth: 1)
-                        )
+                        .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(Color.walletPrimary.opacity(0.3), lineWidth: 1))
                 }
 
                 Button {
                     let trimmed = key.trimmingCharacters(in: .whitespacesAndNewlines)
                     guard !trimmed.isEmpty else { return }
+                    service.provider = selectedProvider
                     service.setAPIKey(trimmed)
                     UINotificationFeedbackGenerator().notificationOccurred(.success)
                     saved = true
@@ -370,7 +390,7 @@ struct APIKeySetupView: View {
                 } label: {
                     HStack(spacing: 8) {
                         Image(systemName: saved ? "checkmark.circle.fill" : "key.fill")
-                        Text(saved ? "Saved!" : "Save Key")
+                        Text(saved ? "Saved!" : "Save & Use \(selectedProvider.rawValue)")
                             .font(.headline.bold())
                     }
                     .frame(maxWidth: .infinity)
@@ -394,7 +414,10 @@ struct APIKeySetupView: View {
                     Button("Cancel") { dismiss() }
                 }
             }
-            .onAppear { key = service.apiKey }
+            .onAppear {
+                selectedProvider = service.provider
+                key = service.apiKey
+            }
         }
     }
 }

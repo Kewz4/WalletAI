@@ -67,9 +67,18 @@ struct LinearBudgetBar: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
-                Label(category.name, systemImage: category.iconName)
-                    .font(.subheadline.weight(.medium))
-                    .foregroundStyle(category.color)
+                HStack(spacing: 6) {
+                    if category.iconName.contains(".") {
+                        Image(systemName: category.iconName)
+                            .font(.subheadline)
+                    } else {
+                        Text(category.iconName)
+                            .font(.subheadline)
+                    }
+                    Text(category.name)
+                        .font(.subheadline.weight(.medium))
+                }
+                .foregroundStyle(category.color)
 
                 Spacer()
 

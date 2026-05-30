@@ -181,7 +181,7 @@ struct DashboardView: View {
             isSelected ? .regular.tint(Color.walletPrimary).interactive() : .regular.interactive(),
             in: .capsule
         )
-        .foregroundStyle(isSelected ? Color.walletPrimary : Color.secondary)
+        .foregroundStyle(isSelected ? Color.white : Color.secondary)
     }
 
     private func budgetSection(budget: Budget) -> some View {

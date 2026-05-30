@@ -8,6 +8,7 @@ struct RootView: View {
     @State private var selectedTab: Tab = .dashboard
     @State private var isLocked = false
     @State private var authError: String? = nil
+    @State private var hasAttemptedInitialAuth = false
     @State private var applePayObserver = ApplePayObserver()
     @Environment(\.scenePhase) private var scenePhase
 
@@ -57,7 +58,10 @@ struct RootView: View {
                     }
                 }
                 .onAppear {
-                    if biometricEnabled { isLocked = true; authenticate() }
+                    guard biometricEnabled, !hasAttemptedInitialAuth else { return }
+                    hasAttemptedInitialAuth = true
+                    isLocked = true
+                    authenticate()
                 }
         }
     }

@@ -294,20 +294,18 @@ struct MessageBubble: View {
             VStack(alignment: isUser ? .trailing : .leading, spacing: 4) {
                 Text(message.content.isEmpty ? "▌" : message.content)
                     .font(.body)
+                    .foregroundStyle(isUser ? Color.white : Color.primary)
                     .padding(.horizontal, 14)
                     .padding(.vertical, 10)
-                    .glassEffect(
-                        isUser
-                            ? .regular.tint(Color.walletPrimary).interactive()
-                            : .regular,
-                        in: .rect(
+                    .background(
+                        isUser ? Color.walletPrimary : Color(UIColor.secondarySystemBackground),
+                        in: UnevenRoundedRectangle(
                             topLeadingRadius: isUser ? 18 : 4,
                             bottomLeadingRadius: 18,
                             bottomTrailingRadius: isUser ? 4 : 18,
                             topTrailingRadius: 18
                         )
                     )
-                    .foregroundStyle(isUser ? Color.walletPrimary : Color.primary)
 
                 Text(message.timestamp.formatted(.dateTime.hour().minute()))
                     .font(.caption2)

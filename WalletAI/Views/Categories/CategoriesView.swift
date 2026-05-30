@@ -143,8 +143,14 @@ struct CategoryCard: View {
                     Circle()
                         .fill(category.color.opacity(0.2))
                         .frame(width: 40, height: 40)
-                    Text(category.iconName)
-                        .font(.system(size: 20))
+                    if category.iconName.contains(".") {
+                        Image(systemName: category.iconName)
+                            .font(.system(size: 18))
+                            .foregroundStyle(category.color)
+                    } else {
+                        Text(category.iconName)
+                            .font(.system(size: 20))
+                    }
                 }
                 Spacer()
                 if category.isDefault {

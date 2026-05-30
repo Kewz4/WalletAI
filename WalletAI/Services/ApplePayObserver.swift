@@ -54,9 +54,16 @@ struct LogApplePayTransactionIntent: AppIntent {
         let context = ModelContext(container)
 
         let allCategories = try context.fetch(FetchDescriptor<Category>())
-        let category = allCategories.first { $0.name == "Shopping" }
-            ?? allCategories.first { $0.name == "Other" }
-            ?? allCategories.first
+
+        // Ask AI for the best category before saving
+        let suggestedName = await CategorizationHelper.suggest(
+            title: merchant, amount: amount, isExpense: true,
+            existing: allCategories.map { $0.name }
+        )
+        let matchedCategory = allCategories.first {
+            $0.name.lowercased() == (suggestedName ?? "").lowercased()
+        } ?? allCategories.first { $0.name == "Shopping" }
+          ?? allCategories.first
 
         let tx = Transaction(
             title: merchant,
@@ -64,25 +71,27 @@ struct LogApplePayTransactionIntent: AppIntent {
             date: Date(),
             notes: "Auto-logged via Apple Pay",
             isExpense: true,
-            category: category,
+            category: matchedCategory,
             source: .applePay
         )
         context.insert(tx)
         try context.save()
 
+        let categoryName = matchedCategory?.name ?? suggestedName ?? "Other"
+
         // Notify the user without opening the app
         let center = UNUserNotificationCenter.current()
-        let content = UNMutableNotificationContent()
-        content.title = "💳 Apple Pay Logged"
-        content.body = "\(merchant) — \(amount.currencyFormatted())"
-        content.sound = .default
+        let notifContent = UNMutableNotificationContent()
+        notifContent.title = "💳 Apple Pay Logged"
+        notifContent.body = "\(merchant) — \(amount.currencyFormatted()) · \(categoryName)"
+        notifContent.sound = .default
         let req = UNNotificationRequest(
             identifier: "applepay-\(UUID().uuidString)",
-            content: content,
+            content: notifContent,
             trigger: UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
         )
         try? await center.add(req)
 
-        return .result(dialog: "Logged \(merchant) — \(amount.currencyFormatted())")
+        return .result(dialog: "Logged \(merchant) — \(amount.currencyFormatted()) (\(categoryName))")
     }
 }

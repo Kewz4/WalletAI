@@ -15,6 +15,7 @@ struct SettingsView: View {
 
     @State private var deepSeekService = DeepSeekService()
     @State private var authService = AuthService.shared
+    @State private var categorizationService = CategorizationService()
     @State private var showAPIKey = false
     @State private var showBudgetEdit = false
     @State private var showExport = false
@@ -172,9 +173,76 @@ struct SettingsView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
+
+            Divider().padding(.horizontal)
+
+            // Re-analyze all transactions
+            reAnalyzeRow
         }
         .sheet(isPresented: $showAPIKey) {
             APIKeySetupView(service: deepSeekService)
+        }
+    }
+
+    @Query private var categories: [Category]
+
+    private var reAnalyzeRow: some View {
+        VStack(spacing: 0) {
+            HStack {
+                Image(systemName: "arrow.triangle.2.circlepath.circle.fill")
+                    .frame(width: 24)
+                    .foregroundStyle(Color.walletPrimary)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Re-analyze Transactions")
+                        .font(.body)
+                    if let msg = categorizationService.completionMessage {
+                        Text(msg)
+                            .font(.caption)
+                            .foregroundStyle(.green)
+                    } else if !categorizationService.statusMessage.isEmpty {
+                        Text(categorizationService.statusMessage)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    } else {
+                        Text("AI will sort every transaction into the right category")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                Spacer()
+                if categorizationService.isRunning {
+                    VStack(spacing: 4) {
+                        ProgressView(value: categorizationService.progress)
+                            .frame(width: 48)
+                            .tint(Color.walletPrimary)
+                        Text("\(Int(categorizationService.progress * 100))%")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+                } else {
+                    Button {
+                        Task {
+                            await categorizationService.analyzeAll(
+                                transactions: transactions,
+                                categories: categories,
+                                context: context
+                            )
+                        }
+                        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                    } label: {
+                        Text("Analyze")
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 7)
+                            .background(Color.walletPrimary, in: Capsule())
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(transactions.isEmpty)
+                }
+            }
+            .padding(16)
+            .animation(.springy, value: categorizationService.isRunning)
         }
     }
 

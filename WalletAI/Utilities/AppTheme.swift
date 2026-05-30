@@ -43,9 +43,9 @@ enum AppTheme: String, CaseIterable, Identifiable {
     var aiPersonality: String {
         switch self {
         case .default, .lively:
-            return "Be concise, friendly, and proactive with insights. Format numbers clearly. Use bullet points for lists."
+            return "Be concise, friendly, and proactive with insights. Format numbers clearly."
         case .girly:
-            return #"Be warm and friendly like a smart friend, not a hype machine. No cringe phrases like bestie or yass. Max 1 emoji per reply."#
+            return "Be warm and friendly like a smart bestie who knows finance. Use occasional feminine warmth but no cringe. Max 1 emoji per reply. You can reply in Spanish if the user writes in Spanish."
         }
     }
 

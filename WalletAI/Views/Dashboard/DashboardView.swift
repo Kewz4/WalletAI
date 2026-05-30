@@ -56,6 +56,36 @@ struct DashboardView: View {
         }
     }
 
+    // Recurring income transactions whose next occurrence falls within 14 days
+    private var upcomingRecurringIncome: [(tx: Transaction, nextDate: Date)] {
+        let now = Date()
+        let twoWeeks = now.addingTimeInterval(14 * 86400)
+        return transactions
+            .filter { !$0.isExpense && $0.isRecurring }
+            .compactMap { tx -> (Transaction, Date)? in
+                guard let interval = tx.recurringInterval else { return nil }
+                let next = nextOccurrence(after: now, from: tx.date, interval: interval)
+                guard next <= twoWeeks else { return nil }
+                return (tx, next)
+            }
+            .sorted { $0.1 < $1.1 }
+    }
+
+    private func nextOccurrence(after now: Date, from origin: Date, interval: Transaction.RecurringInterval) -> Date {
+        var candidate = origin
+        let cal = Calendar.current
+        while candidate <= now {
+            switch interval {
+            case .daily:      candidate = cal.date(byAdding: .day,   value: 1,  to: candidate) ?? candidate
+            case .weekly:     candidate = cal.date(byAdding: .day,   value: 7,  to: candidate) ?? candidate
+            case .biweekly:   candidate = cal.date(byAdding: .day,   value: 14, to: candidate) ?? candidate
+            case .monthly:    candidate = cal.date(byAdding: .month, value: 1,  to: candidate) ?? candidate
+            case .yearly:     candidate = cal.date(byAdding: .year,  value: 1,  to: candidate) ?? candidate
+            }
+        }
+        return candidate
+    }
+
     private var categoryBreakdown: [(category: String, amount: Double, color: Color)] {
         let expenses = filteredTransactions.filter { $0.isExpense }
         let grouped = Dictionary(grouping: expenses) { $0.category?.name ?? "Other" }
@@ -75,6 +105,11 @@ struct DashboardView: View {
                 VStack(spacing: 20) {
                     // Header balance card
                     balanceCard
+
+                    // Upcoming recurring income
+                    if !upcomingRecurringIncome.isEmpty {
+                        upcomingIncomeSection
+                    }
 
                     // Period selector
                     periodSelector
@@ -120,6 +155,38 @@ struct DashboardView: View {
     }
 
     // MARK: - Subviews
+
+    private var upcomingIncomeSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            ForEach(upcomingRecurringIncome, id: \.tx.id) { item in
+                HStack(spacing: 12) {
+                    Image(systemName: "clock.badge.fill")
+                        .font(.system(size: 18))
+                        .foregroundStyle(.green)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(item.tx.title)
+                            .font(.subheadline.weight(.semibold))
+                            .lineLimit(1)
+                        Text("Expected \(item.nextDate.formatted(.dateTime.month(.abbreviated).day()))")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                    Text("+\(item.tx.amount.currencyFormatted(currency: currency))")
+                        .font(.subheadline.bold().monospacedDigit())
+                        .foregroundStyle(.green)
+                    Text("Coming Soon")
+                        .font(.caption2.weight(.semibold))
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 3)
+                        .background(Color.green.opacity(0.15), in: Capsule())
+                        .foregroundStyle(.green)
+                }
+                .padding(14)
+                .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
+            }
+        }
+    }
 
     private var balanceCard: some View {
         VStack(spacing: 0) {

@@ -126,12 +126,10 @@ struct CategoriesView: View {
                         Button { editingCategory = cat } label: {
                             Label("Edit", systemImage: "pencil")
                         }
-                        if !cat.isDefault {
-                            Button(role: .destructive) {
-                                context.delete(cat)
-                            } label: {
-                                Label("Delete", systemImage: "trash")
-                            }
+                        Button(role: .destructive) {
+                            context.delete(cat)
+                        } label: {
+                            Label("Delete", systemImage: "trash")
                         }
                     } preview: {
                         CategoryCard(category: cat, currency: currency)

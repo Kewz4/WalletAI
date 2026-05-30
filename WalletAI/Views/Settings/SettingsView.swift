@@ -11,6 +11,7 @@ struct SettingsView: View {
     @AppStorage(Constants.Storage.biometricEnabledKey)   private var biometricEnabled       = false
     @AppStorage(Constants.Storage.themeKey)              private var themeKey               = "default"
     @AppStorage(Constants.Storage.colorSchemeKey)        private var colorSchemeRaw         = "system"
+    @AppStorage("walletai_language")                     private var appLanguage            = "en"
 
     @State private var deepSeekService = DeepSeekService()
     @State private var authService = AuthService.shared
@@ -361,6 +362,17 @@ struct SettingsView: View {
                 Toggle("", isOn: $biometricEnabled)
                     .tint(Color.walletPrimary)
                     .labelsHidden()
+            }
+
+            Divider().padding(.horizontal)
+
+            settingsRow(icon: "globe", title: "Language") {
+                Picker("", selection: $appLanguage) {
+                    Text("🇺🇸 English").tag("en")
+                    Text("🇸🇻 Español").tag("es")
+                }
+                .pickerStyle(.menu)
+                .tint(Color.walletPrimary)
             }
         }
     }

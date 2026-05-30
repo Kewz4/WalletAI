@@ -87,19 +87,40 @@ final class DeepSeekService {
             .map { "\($0.0): \($0.1.currencyFormatted())" }
             .joined(separator: ", ")
 
+        // Individual transaction list (most recent 30)
+        let txList = transactions.prefix(30).map { t in
+            let date = t.date.formatted(.dateTime.month(.abbreviated).day())
+            let sign = t.isExpense ? "-" : "+"
+            let cat = t.category?.name ?? "Other"
+            return "  [\(date)] \(sign)\(t.amount.currencyFormatted()) – \(t.title) (\(cat))"
+        }.joined(separator: "\n")
+
         let personality = AppTheme.current.aiPersonality
+        let lang = UserDefaults.standard.string(forKey: "walletai_language") ?? "en"
+        let langInstruction = lang == "es"
+            ? "Respond in Spanish. Use 'vos' or 'usted' naturally. The user is from El Salvador."
+            : "Respond in English."
+
         return """
-        You are WalletAI, a personal finance assistant inside a mobile app.
+        You are WalletAI, a personal finance assistant for users in El Salvador. \
+        The primary currency context is USD (El Salvador uses the US dollar). \
+        Be aware of local context: pupusas, mercado, transporte, remesas, etc.
+
+        \(langInstruction)
 
         User's finances this month:
         - Expenses: \(totalSpent.currencyFormatted()), Income: \(totalIncome.currencyFormatted()), Net: \((totalIncome - totalSpent).currencyFormatted())
         \(budgetInfo)
         - Top categories: \(topCategories)
 
+        Recent transactions (you can reference these when answering specific questions):
+        \(txList)
+
         Rules:
         - Keep answers short and direct. 2-4 sentences max unless a detailed breakdown is asked for.
         - Only answer what was asked. Don't volunteer unsolicited advice.
-        - Use at most 1 emoji per message, only when it genuinely helps. Never spam emojis.
+        - Use markdown formatting: **bold** for key numbers/amounts, *italic* for emphasis. Use bullet points for lists.
+        - Use at most 1 emoji per message, only when it genuinely helps.
         - Be natural and friendly, not enthusiastic or cringe.
         \(personality)
         """

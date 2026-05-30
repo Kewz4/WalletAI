@@ -13,6 +13,10 @@ final class NotificationService {
         _ = try? await center.requestAuthorization(options: [.alert, .sound, .badge])
     }
 
+    private var isGirly: Bool {
+        AppTheme(rawValue: UserDefaults.standard.string(forKey: Constants.Storage.themeKey) ?? "") == .girly
+    }
+
     func checkBudgetAlerts(for categories: [Category]) async {
         let center = UNUserNotificationCenter.current()
         let settings = await center.notificationSettings()
@@ -27,13 +31,19 @@ final class NotificationService {
             let identifier: String
 
             if progress >= 1.0 {
-                message = "You've exceeded your \(category.name) budget of \(budget.currencyFormatted())!"
+                message = isGirly
+                    ? "💸 Oops! Ya te pasaste del presupuesto de \(category.name) (\(budget.currencyFormatted())). ¡A ahorrar!"
+                    : "You've exceeded your \(category.name) budget of \(budget.currencyFormatted())!"
                 identifier = "budget-over-\(category.id)"
             } else if progress >= 0.9 {
-                message = "90% of your \(category.name) budget used. \((budget - spent).currencyFormatted()) remaining."
+                message = isGirly
+                    ? "✨ Casi sin presupuesto en \(category.name) — solo te quedan \((budget - spent).currencyFormatted()). Cuídate!"
+                    : "90% of your \(category.name) budget used. \((budget - spent).currencyFormatted()) remaining."
                 identifier = "budget-90-\(category.id)"
             } else if progress >= 0.75 {
-                message = "75% of your \(category.name) budget used."
+                message = isGirly
+                    ? "🎀 Ya usaste el 75% de tu presupuesto en \(category.name). ¡Ojo!"
+                    : "75% of your \(category.name) budget used."
                 identifier = "budget-75-\(category.id)"
             } else {
                 continue
@@ -46,7 +56,7 @@ final class NotificationService {
             if delivered.contains(where: { $0.request.identifier == identifier }) { continue }
 
             let content = UNMutableNotificationContent()
-            content.title = "💰 Budget Alert — \(category.name)"
+            content.title = isGirly ? "🎀 Budget Alert — \(category.name)" : "💰 Budget Alert — \(category.name)"
             content.body = message
             content.sound = .default
             content.categoryIdentifier = "BUDGET_ALERT"

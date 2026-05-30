@@ -125,10 +125,11 @@ struct DashboardView: View {
         VStack(spacing: 12) {
             Text("Net Balance")
                 .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(.white.opacity(0.8))
 
             Text((totalIncome - totalSpent).currencyFormatted(currency: currency))
                 .font(.system(size: 42, weight: .bold, design: .rounded))
+                .foregroundStyle(.white)
                 .contentTransition(.numericText())
                 .animation(.springy, value: totalIncome - totalSpent)
 
@@ -138,7 +139,7 @@ struct DashboardView: View {
             }
         }
         .padding(24)
-        .glassEffect(.regular.tint(Color.walletPrimary).interactive(), in: .rect(cornerRadius: 24))
+        .background(Color.walletPrimary, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
         .frame(maxWidth: .infinity)
     }
 
@@ -149,9 +150,10 @@ struct DashboardView: View {
             VStack(alignment: .leading, spacing: 1) {
                 Text(label)
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.white.opacity(0.7))
                 Text(amount.currencyFormatted(currency: currency))
                     .font(.subheadline.bold())
+                    .foregroundStyle(.white)
                     .contentTransition(.numericText())
             }
         }

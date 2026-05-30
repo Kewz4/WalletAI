@@ -256,6 +256,9 @@ struct AIChatView: View {
                 },
                 onComplete: {
                     streamingMsg.isStreaming = false
+                    if streamingMsg.content.isEmpty {
+                        streamingMsg.content = deepSeekService.error ?? "No response received. Check your API key."
+                    }
                     messages[streamingIndex] = streamingMsg
                 }
             )

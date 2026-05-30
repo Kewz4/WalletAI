@@ -22,9 +22,10 @@ final class DeepSeekService {
     func streamChat(messages: [AIMessage], onChunk: @escaping (String) -> Void, onComplete: @escaping () -> Void) async {
         guard hasAPIKey else {
             error = "Please add your DeepSeek API key in Settings."
+            onComplete()
             return
         }
-        guard let url = URL(string: "\(Constants.API.deepSeekBaseURL)/chat/completions") else { return }
+        guard let url = URL(string: "\(Constants.API.deepSeekBaseURL)/chat/completions") else { onComplete(); return }
 
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -45,6 +46,7 @@ final class DeepSeekService {
             guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
                 error = "API error. Check your key or try again."
                 isLoading = false
+                onComplete()
                 return
             }
 

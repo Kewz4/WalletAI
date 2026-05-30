@@ -153,7 +153,7 @@ struct VoiceTransactionSheet: View {
                                     : .regular.interactive(),
                                 in: .capsule
                             )
-                            .foregroundStyle(selectedCategory?.id == cat.id ? cat.color : .secondary)
+                            .foregroundStyle(selectedCategory?.id == cat.id ? Color.white : Color.secondary)
                         }
                         .buttonStyle(.plain)
                     }
@@ -183,7 +183,7 @@ struct VoiceTransactionSheet: View {
                     .regular.tint(tx.isExpense ? Color.red : Color.green).interactive(),
                     in: .rect(cornerRadius: 14)
                 )
-                .foregroundStyle(tx.isExpense ? Color.red : Color.green)
+                .foregroundStyle(Color.white)
                 .font(.headline)
                 .buttonStyle(.plain)
             }

@@ -128,7 +128,7 @@ struct AddTransactionView: View {
                     isExpense ? .regular.tint(Color.red).interactive() : .regular.interactive(),
                     in: .capsule
                 )
-                .foregroundStyle(isExpense ? Color.red : Color.secondary)
+                .foregroundStyle(isExpense ? Color.white : Color.secondary)
 
                 Button("Income") {
                     withAnimation(.springy) { isExpense = false }
@@ -141,7 +141,7 @@ struct AddTransactionView: View {
                     !isExpense ? .regular.tint(Color.green).interactive() : .regular.interactive(),
                     in: .capsule
                 )
-                .foregroundStyle(!isExpense ? Color.green : Color.secondary)
+                .foregroundStyle(!isExpense ? Color.white : Color.secondary)
             }
             .padding(4)
         }

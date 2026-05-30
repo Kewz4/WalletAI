@@ -80,13 +80,30 @@ extension AuthService: ASAuthorizationControllerDelegate {
 
 extension AuthService: ASAuthorizationControllerPresentationContextProviding {
     nonisolated func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
-        // Apple calls this on the main thread; assumeIsolated is safe here
-        MainActor.assumeIsolated {
-            UIApplication.shared.connectedScenes
-                .compactMap { $0 as? UIWindowScene }
-                .compactMap { $0.keyWindow }
-                .first ?? UIWindow()
+        // Apple calls this on the main thread; if somehow called off-thread, sync to main.
+        if Thread.isMainThread {
+            return MainActor.assumeIsolated { AuthService.resolveKeyWindow() }
+        } else {
+            return DispatchQueue.main.sync { MainActor.assumeIsolated { AuthService.resolveKeyWindow() } }
         }
+    }
+
+    @MainActor private static func resolveKeyWindow() -> UIWindow {
+        let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+        // 1. Active foreground scene with a key window
+        if let w = scenes.filter({ $0.activationState == .foregroundActive }).compactMap({ $0.keyWindow }).first {
+            return w
+        }
+        // 2. Any scene with a key window
+        if let w = scenes.compactMap({ $0.keyWindow }).first {
+            return w
+        }
+        // 3. Any visible window from any scene
+        if let w = scenes.flatMap({ $0.windows }).first(where: { $0.isKeyWindow }) {
+            return w
+        }
+        // 4. Any window at all
+        return scenes.flatMap { $0.windows }.first ?? UIWindow()
     }
 }
 

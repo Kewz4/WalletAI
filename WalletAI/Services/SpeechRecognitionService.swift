@@ -1,7 +1,6 @@
 import Foundation
 import Speech
 import AVFoundation
-import Combine
 
 @MainActor
 @Observable
@@ -12,10 +11,13 @@ final class SpeechRecognitionService: NSObject {
     var authorizationStatus: SFSpeechRecognizerAuthorizationStatus = .notDetermined
 
     private let speechRecognizer = SFSpeechRecognizer(locale: Locale.current)
-    private var recognitionRequest: SFSpeechAudioBufferRecognitionRequest?
-    private var recognitionTask: SFSpeechRecognitionTask?
-    private let audioEngine = AVAudioEngine()
-    private var isTapInstalled = false
+    // nonisolated(unsafe): these are only mutated from startListening/stopListening
+    // (both run on the main actor) but the audio tap callback captures them by
+    // local value, so no cross-actor access occurs at runtime.
+    nonisolated(unsafe) private var recognitionRequest: SFSpeechAudioBufferRecognitionRequest?
+    nonisolated(unsafe) private var recognitionTask: SFSpeechRecognitionTask?
+    nonisolated(unsafe) private let audioEngine = AVAudioEngine()
+    nonisolated(unsafe) private var isTapInstalled = false
 
     override init() {
         super.init()
@@ -39,28 +41,49 @@ final class SpeechRecognitionService: NSObject {
     func startListening() async throws {
         guard !isListening else { return }
 
+        // Speech permission
         if authorizationStatus != .authorized {
             let granted = await requestAuthorization()
             guard granted else {
-                error = "Speech recognition permission denied."
+                error = "Speech recognition permission denied. Enable in Settings → Privacy → Speech Recognition."
                 return
             }
         }
+
+        // Microphone permission
+        let micGranted = await withCheckedContinuation { (cont: CheckedContinuation<Bool, Never>) in
+            AVAudioApplication.requestRecordPermission { granted in cont.resume(returning: granted) }
+        }
+        guard micGranted else {
+            error = "Microphone permission denied. Enable in Settings → Privacy → Microphone."
+            return
+        }
+
+        // Tear down any leftover state
+        if isTapInstalled {
+            audioEngine.inputNode.removeTap(onBus: 0)
+            isTapInstalled = false
+        }
+        if audioEngine.isRunning { audioEngine.stop() }
 
         let session = AVAudioSession.sharedInstance()
         try session.setCategory(.record, mode: .measurement, options: .duckOthers)
         try session.setActive(true, options: .notifyOthersOnDeactivation)
 
-        recognitionRequest = SFSpeechAudioBufferRecognitionRequest()
-        guard let recognitionRequest else { return }
-        recognitionRequest.shouldReportPartialResults = true
-        recognitionRequest.requiresOnDeviceRecognition = false
+        let request = SFSpeechAudioBufferRecognitionRequest()
+        request.shouldReportPartialResults = true
+        request.requiresOnDeviceRecognition = false
+        recognitionRequest = request
 
         let inputNode = audioEngine.inputNode
         let recordingFormat = inputNode.outputFormat(forBus: 0)
 
-        inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { [weak self] buffer, _ in
-            self?.recognitionRequest?.append(buffer)
+        // IMPORTANT: capture `request` by local value — do NOT reference `self` or
+        // any @MainActor-isolated property inside this closure. The audio tap runs
+        // on a private audio thread; touching actor-isolated state from there
+        // triggers a Swift 6 runtime isolation trap.
+        inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { buffer, _ in
+            request.append(buffer)
         }
         isTapInstalled = true
 
@@ -70,17 +93,13 @@ final class SpeechRecognitionService: NSObject {
         isListening = true
         transcript = ""
 
-        recognitionTask = speechRecognizer?.recognitionTask(with: recognitionRequest) { [weak self] result, err in
-            guard let self else { return }
+        recognitionTask = speechRecognizer?.recognitionTask(with: request) { [weak self] result, err in
             if let result {
-                Task { @MainActor in
-                    self.transcript = result.bestTranscription.formattedString
-                }
+                let text = result.bestTranscription.formattedString
+                Task { @MainActor [weak self] in self?.transcript = text }
             }
             if err != nil || result?.isFinal == true {
-                Task { @MainActor in
-                    self.stopListening()
-                }
+                Task { @MainActor [weak self] in self?.stopListening() }
             }
         }
     }
@@ -102,7 +121,6 @@ final class SpeechRecognitionService: NSObject {
 
     func parseTransactionFromSpeech(_ text: String) -> ParsedTransaction? {
         let lowercased = text.lowercased()
-
         let amountPattern = #"(\$|€|£)?\s?(\d+(?:\.\d{1,2})?)"#
         guard let regex = try? NSRegularExpression(pattern: amountPattern),
               let match = regex.firstMatch(in: lowercased, range: NSRange(lowercased.startIndex..., in: lowercased)),

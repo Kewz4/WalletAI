@@ -223,7 +223,7 @@ struct CategoryFormView: View {
             .frame(maxWidth: .infinity)
             .padding(18)
             .glassEffect(.regular.tint(Color.walletPrimary).interactive(), in: .rect(cornerRadius: 16))
-            .foregroundStyle(Color.walletPrimary)
+            .foregroundStyle(.white)
             .opacity(isValid ? 1.0 : 0.4)
         }
         .disabled(!isValid)

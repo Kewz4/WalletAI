@@ -23,7 +23,9 @@ struct AddTransactionView: View {
     var prefilledTitle: String?
     var prefilledAmount: Double?
     var prefilledSource: Transaction.Source?
+    var editingTransaction: Transaction?
 
+    private var isEditing: Bool { editingTransaction != nil }
     private var currency: String { budgets.first?.currency ?? "USD" }
 
     init(title: String? = nil, amount: Double? = nil, source: Transaction.Source? = nil) {
@@ -32,39 +34,28 @@ struct AddTransactionView: View {
         prefilledSource = source
     }
 
+    init(editing transaction: Transaction) {
+        editingTransaction = transaction
+    }
+
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 20) {
-                    // Type toggle
                     typeToggle
-
-                    // Amount
                     amountSection
-
-                    // Details
                     detailsSection
-
-                    // Category
                     categorySection
-
-                    // Date
                     dateSection
-
-                    // Recurring
                     recurringSection
-
-                    // Notes
                     notesSection
-
-                    // Save button
                     saveButton
                 }
                 .padding(16)
                 .padding(.bottom, 32)
             }
             .background(Color.walletBackground.ignoresSafeArea())
-            .navigationTitle(isExpense ? "Add Expense" : "Add Income")
+            .navigationTitle(isEditing ? "Edit Transaction" : (isExpense ? "Add Expense" : "Add Income"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -73,10 +64,23 @@ struct AddTransactionView: View {
                 }
             }
             .onAppear {
-                if let t = prefilledTitle  { title = t }
-                if let a = prefilledAmount { amount = a }
-                if let s = prefilledSource { source = s }
-                selectedCategory = categories.first { $0.name == "Other" }
+                if let tx = editingTransaction {
+                    title = tx.title
+                    amount = tx.amount
+                    isExpense = tx.isExpense
+                    date = tx.date
+                    notes = tx.notes
+                    selectedCategory = tx.category
+                    source = tx.source
+                    isRecurring = tx.isRecurring
+                    recurringInterval = tx.recurringInterval ?? .monthly
+                } else {
+                    if let t = prefilledTitle  { title = t }
+                    if let a = prefilledAmount { amount = a }
+                    if let s = prefilledSource { source = s }
+                    selectedCategory = categories.first { $0.name == "Other" }
+                }
+                validate()
             }
             .onChange(of: amount) { _, _ in validate() }
             .onChange(of: title)  { _, _ in validate() }
@@ -88,27 +92,34 @@ struct AddTransactionView: View {
     }
 
     private func save() {
-        let tx = Transaction(
-            title: title,
-            amount: amount,
-            date: date,
-            notes: notes,
-            isExpense: isExpense,
-            category: selectedCategory,
-            source: source,
-            isRecurring: isRecurring,
-            recurringInterval: isRecurring ? recurringInterval : nil,
-            currency: currency
-        )
-        context.insert(tx)
-        UINotificationFeedbackGenerator().notificationOccurred(.success)
-
-        // Live Activity + budget alerts
-        LiveActivityService.shared.startActivity(for: tx)
-        Task {
-            await NotificationService.shared.checkBudgetAlerts(for: Array(categories))
+        if let tx = editingTransaction {
+            tx.title = title
+            tx.amount = amount
+            tx.isExpense = isExpense
+            tx.date = date
+            tx.notes = notes
+            tx.category = selectedCategory
+            tx.source = source
+            tx.isRecurring = isRecurring
+            tx.recurringInterval = isRecurring ? recurringInterval : nil
+        } else {
+            let tx = Transaction(
+                title: title,
+                amount: amount,
+                date: date,
+                notes: notes,
+                isExpense: isExpense,
+                category: selectedCategory,
+                source: source,
+                isRecurring: isRecurring,
+                recurringInterval: isRecurring ? recurringInterval : nil,
+                currency: currency
+            )
+            context.insert(tx)
+            LiveActivityService.shared.startActivity(for: tx)
         }
-
+        UINotificationFeedbackGenerator().notificationOccurred(.success)
+        Task { await NotificationService.shared.checkBudgetAlerts(for: Array(categories)) }
         dismiss()
     }
 
@@ -308,7 +319,7 @@ struct AddTransactionView: View {
                 .regular.tint(isExpense ? Color.red : Color.green).interactive(),
                 in: .rect(cornerRadius: 16)
             )
-            .foregroundStyle(isExpense ? Color.red : Color.green)
+            .foregroundStyle(.white)
             .opacity(isValid ? 1.0 : 0.4)
         }
         .disabled(!isValid)

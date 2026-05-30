@@ -111,19 +111,19 @@ struct CategoriesView: View {
 
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                 ForEach(categories) { cat in
-                    CategoryCard(category: cat, currency: currency)
-                        .onTapGesture {
-                            editingCategory = cat
-                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                        }
-                        .contextMenu {
-                            Button("Edit") { editingCategory = cat }
-                            if !cat.isDefault {
-                                Button("Delete", role: .destructive) {
-                                    context.delete(cat)
-                                }
+                    CategoryCard(category: cat, currency: currency, onEdit: {
+                        editingCategory = cat
+                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                    })
+                    .frame(maxHeight: .infinity)
+                    .contextMenu {
+                        Button("Edit") { editingCategory = cat }
+                        if !cat.isDefault {
+                            Button("Delete", role: .destructive) {
+                                context.delete(cat)
                             }
                         }
+                    }
                 }
             }
         }
@@ -133,6 +133,7 @@ struct CategoriesView: View {
 struct CategoryCard: View {
     let category: Category
     let currency: String
+    var onEdit: (() -> Void)? = nil
 
     @State private var appear = false
 
@@ -153,11 +154,12 @@ struct CategoryCard: View {
                     }
                 }
                 Spacer()
-                if category.isDefault {
-                    Image(systemName: "checkmark.seal.fill")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                Button { onEdit?() } label: {
+                    Image(systemName: "pencil.circle.fill")
+                        .font(.title3)
+                        .foregroundStyle(category.color.opacity(0.7))
                 }
+                .buttonStyle(.plain)
             }
 
             Text(category.name)

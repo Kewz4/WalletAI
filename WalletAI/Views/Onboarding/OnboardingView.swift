@@ -21,7 +21,7 @@ struct OnboardingView: View {
         OnboardingPage(
             emoji: "✨",
             title: "AI Financial Insights",
-            subtitle: "DeepSeek AI analyzes your spending and gives you personalized tips to save more money.",
+            subtitle: "Free Groq AI analyzes your spending and gives you personalized tips to save more money.",
             color: Color(hex: "#FDCB6E")!
         ),
         OnboardingPage(

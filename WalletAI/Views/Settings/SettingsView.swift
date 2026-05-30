@@ -381,7 +381,7 @@ struct BudgetEditSheet: View {
                 .frame(maxWidth: .infinity)
                 .padding(16)
                 .glassEffect(.regular.tint(Color.walletPrimary).interactive(), in: .rect(cornerRadius: 16))
-                .foregroundStyle(Color.walletPrimary)
+                .foregroundStyle(.white)
                 .buttonStyle(.plain)
             }
             .padding(16)

@@ -104,14 +104,7 @@
         <false/>
         <key>NSExceptionDomains</key>
         <dict>
-            <key>api.deepseek.com</key>
-            <dict>
-                <key>NSExceptionAllowsInsecureHTTPLoads</key>
-                <false/>
-                <key>NSIncludesSubdomains</key>
-                <true/>
-            </dict>
-            <key>generativelanguage.googleapis.com</key>
+            <key>api.groq.com</key>
             <dict>
                 <key>NSExceptionAllowsInsecureHTTPLoads</key>
                 <false/>

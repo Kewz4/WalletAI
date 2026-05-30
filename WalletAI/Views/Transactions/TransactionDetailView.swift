@@ -34,12 +34,18 @@ struct TransactionDetailView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Edit") { showEdit = true }
-                        .foregroundStyle(Color.walletPrimary)
+                    Button { showEdit = true } label: {
+                        Image(systemName: "pencil.circle.fill")
+                            .font(.title2)
+                            .foregroundStyle(Color.walletPrimary)
+                    }
                 }
                 ToolbarItem(placement: .topBarLeading) {
                     Button("Done") { dismiss() }
                 }
+            }
+            .sheet(isPresented: $showEdit) {
+                AddTransactionView(editing: transaction)
             }
             .confirmationDialog("Delete Transaction?", isPresented: $showDeleteConfirm, titleVisibility: .visible) {
                 Button("Delete", role: .destructive) {

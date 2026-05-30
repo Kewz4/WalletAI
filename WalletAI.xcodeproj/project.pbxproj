@@ -19,6 +19,7 @@
 		A00A /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00A /* AppTheme.swift */; };
 		A010 /* SpeechRecognitionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F010 /* SpeechRecognitionService.swift */; };
 		A011 /* DeepSeekService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F011 /* DeepSeekService.swift */; };
+		A018 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F018 /* AuthService.swift */; };
 		A012 /* ApplePayObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = F012 /* ApplePayObserver.swift */; };
 		A013 /* GlassCardModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F013 /* GlassCardModifier.swift */; };
 		A014 /* VoiceInputButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = F014 /* VoiceInputButton.swift */; };
@@ -84,6 +85,7 @@
 		F00A /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
 		F010 /* SpeechRecognitionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechRecognitionService.swift; sourceTree = "<group>"; };
 		F011 /* DeepSeekService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepSeekService.swift; sourceTree = "<group>"; };
+		F018 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
 		F012 /* ApplePayObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplePayObserver.swift; sourceTree = "<group>"; };
 		F013 /* GlassCardModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassCardModifier.swift; sourceTree = "<group>"; };
 		F014 /* VoiceInputButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceInputButton.swift; sourceTree = "<group>"; };
@@ -183,6 +185,7 @@
 			children = (
 				F010 /* SpeechRecognitionService.swift */,
 				F011 /* DeepSeekService.swift */,
+				F018 /* AuthService.swift */,
 				F012 /* ApplePayObserver.swift */,
 				F031 /* NotificationService.swift */,
 				F032 /* LiveActivityService.swift */,
@@ -408,6 +411,7 @@
 				A00A /* AppTheme.swift in Sources */,
 				A010 /* SpeechRecognitionService.swift in Sources */,
 				A011 /* DeepSeekService.swift in Sources */,
+				A018 /* AuthService.swift in Sources */,
 				A012 /* ApplePayObserver.swift in Sources */,
 				A013 /* GlassCardModifier.swift in Sources */,
 				A014 /* VoiceInputButton.swift in Sources */,

@@ -70,6 +70,14 @@ struct AIChatView: View {
                     sendWelcomeMessage()
                 }
             }
+            // When Whisper finishes transcribing, populate the text field
+            .onChange(of: speechService.isTranscribing) { _, isTranscribing in
+                if !isTranscribing, !speechService.transcript.isEmpty {
+                    inputText = speechService.transcript
+                    speechService.transcript = ""
+                }
+            }
+            .keyboardDoneButton()
         }
     }
 
@@ -163,18 +171,27 @@ struct AIChatView: View {
                     .background(.regularMaterial, in: Capsule())
 
                 Button {
-                    if inputText.isEmpty || speechService.isListening {
+                    if speechService.isListening || speechService.isTranscribing {
+                        if speechService.isListening { speechService.stopListening() }
+                    } else if inputText.isEmpty {
                         handleMicTap()
                     } else {
                         send()
                     }
                 } label: {
-                    Image(systemName: speechService.isListening ? "stop.circle.fill" : (inputText.isEmpty ? "mic.fill" : "arrow.up.circle.fill"))
-                        .font(.system(size: 22, weight: .semibold))
-                        .foregroundStyle(.white)
-                        .frame(width: 40, height: 40)
-                        .background(speechService.isListening ? Color.red : Color.walletPrimary, in: Circle())
-                        .animation(.springy, value: speechService.isListening)
+                    Group {
+                        if speechService.isTranscribing {
+                            ProgressView().tint(.white).scaleEffect(0.8)
+                        } else {
+                            Image(systemName: speechService.isListening ? "stop.circle.fill"
+                                             : (inputText.isEmpty ? "mic.fill" : "arrow.up.circle.fill"))
+                                .font(.system(size: 22, weight: .semibold))
+                                .foregroundStyle(.white)
+                        }
+                    }
+                    .frame(width: 40, height: 40)
+                    .background(speechService.isListening ? Color.red : Color.walletPrimary, in: Circle())
+                    .animation(.springy, value: speechService.isListening)
                 }
                 .disabled(deepSeekService.isLoading)
                 .buttonStyle(.plain)
@@ -288,23 +305,7 @@ struct AIChatView: View {
     }
 
     private func handleMicTap() {
-        if speechService.isListening {
-            speechService.stopListening()
-            if !speechService.transcript.isEmpty {
-                inputText = speechService.transcript
-            }
-        } else {
-            Task { try? await speechService.startListening() }
-            // Watch transcript and auto-update text field while listening
-            Task {
-                while speechService.isListening {
-                    try? await Task.sleep(nanoseconds: 200_000_000)
-                    if !speechService.transcript.isEmpty {
-                        inputText = speechService.transcript
-                    }
-                }
-            }
-        }
+        Task { try? await speechService.startListening() }
         UIImpactFeedbackGenerator(style: .medium).impactOccurred()
     }
 }

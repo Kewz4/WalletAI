@@ -158,30 +158,35 @@ struct TransactionListView: View {
             }
             .padding(.horizontal, 4)
 
-            VStack(spacing: 0) {
+            // List is required for swipe actions; scrollDisabled lets the outer ScrollView drive.
+            List {
                 ForEach(transactions) { tx in
                     TransactionRowView(transaction: tx)
+                        .listRowBackground(Color.clear)
+                        .listRowInsets(EdgeInsets())
+                        .listRowSeparatorTint(Color.secondary.opacity(0.2))
+                        // Swipe RIGHT → Edit
                         .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                            Button { editingTransaction = tx } label: {
+                                Label("Edit", systemImage: "pencil")
+                            }
+                            .tint(.blue)
+                        }
+                        // Swipe LEFT → Delete
+                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
                                 withAnimation { context.delete(tx) }
                             } label: {
                                 Label("Delete", systemImage: "trash")
                             }
                         }
-                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                            Button {
-                                editingTransaction = tx
-                            } label: {
-                                Label("Edit", systemImage: "pencil")
-                            }
-                            .tint(.blue)
-                        }
-                    if tx.id != transactions.last?.id {
-                        Divider().padding(.leading, 74)
-                    }
                 }
             }
-            .glassCard()
+            .listStyle(.plain)
+            .scrollDisabled(true)
+            .scrollContentBackground(.hidden)
+            .frame(minHeight: CGFloat(transactions.count) * 70)
+            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
         }
     }
 }

@@ -1,6 +1,5 @@
 import SwiftUI
 import SwiftData
-import AuthenticationServices
 
 struct SettingsView: View {
     @Environment(\.modelContext) private var context
@@ -22,6 +21,8 @@ struct SettingsView: View {
     @State private var showDeleteConfirm = false
     @State private var budgetAmount: Double = 2500
     @State private var showApplePayInfo = false
+    @State private var profileNameInput: String = ""
+    @State private var profileEmailInput: String = ""
 
     private var currentBudget: Budget? { budgets.first }
 
@@ -70,7 +71,9 @@ struct SettingsView: View {
                 ProfileImageView(image: authService.profileImage, size: 72)
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(authService.isSignedIn ? (authService.userName.isEmpty ? "WalletAI User" : authService.userName) : "WalletAI")
+                    Text(authService.isSignedIn
+                         ? (authService.userName.isEmpty ? "WalletAI User" : authService.userName)
+                         : "Set up your profile")
                         .font(.title3.bold())
                     if authService.isSignedIn && !authService.userEmail.isEmpty {
                         Text(authService.userEmail)
@@ -87,43 +90,54 @@ struct SettingsView: View {
                 if authService.isSignedIn {
                     Button {
                         authService.signOut()
+                        profileNameInput = ""
+                        profileEmailInput = ""
                     } label: {
-                        Text("Sign Out")
+                        Text("Edit")
                             .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(Color.walletPrimary)
                     }
                 }
             }
 
             if !authService.isSignedIn {
-                Button {
-                    authService.signInWithApple()
-                } label: {
-                    HStack(spacing: 8) {
-                        if authService.isLoading {
-                            ProgressView().tint(.white)
-                        } else {
-                            Image(systemName: "apple.logo")
-                            Text("Sign in with Apple")
-                                .font(.body.weight(.semibold))
-                        }
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(14)
-                    .background(Color.primary, in: RoundedRectangle(cornerRadius: 14))
-                    .foregroundStyle(Color(UIColor.systemBackground))
-                }
-                .buttonStyle(.plain)
-                .disabled(authService.isLoading)
+                VStack(spacing: 10) {
+                    TextField("Your name", text: $profileNameInput)
+                        .textContentType(.name)
+                        .padding(12)
+                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
 
-                Text("Sign in to sync your data across devices")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
+                    TextField("Email (optional)", text: $profileEmailInput)
+                        .textContentType(.emailAddress)
+                        .keyboardType(.emailAddress)
+                        .autocorrectionDisabled()
+                        .textInputAutocapitalization(.never)
+                        .padding(12)
+                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+
+                    Button {
+                        authService.setProfile(name: profileNameInput, email: profileEmailInput)
+                    } label: {
+                        Text("Save Profile")
+                            .font(.headline)
+                            .frame(maxWidth: .infinity)
+                            .padding(13)
+                            .glassEffect(.regular.tint(Color.walletPrimary).interactive(), in: .rect(cornerRadius: 13))
+                            .foregroundStyle(.white)
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(profileNameInput.trimmingCharacters(in: .whitespaces).isEmpty)
+                    .opacity(profileNameInput.trimmingCharacters(in: .whitespaces).isEmpty ? 0.4 : 1)
+                }
             }
         }
         .padding(20)
         .glassCard()
+        .keyboardDoneButton()
+        .onAppear {
+            profileNameInput = authService.userName
+            profileEmailInput = authService.userEmail
+        }
     }
 
     private var budgetSection: some View {
@@ -489,6 +503,7 @@ struct BudgetEditSheet: View {
             .background(Color.walletBackground.ignoresSafeArea())
             .navigationTitle("Set Budget")
             .navigationBarTitleDisplayMode(.inline)
+            .keyboardDoneButton()
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("Cancel") { dismiss() }

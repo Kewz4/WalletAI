@@ -33,7 +33,7 @@ final class DeepSeekService {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
         let body: [String: Any] = [
-            "model": Constants.API.groqModel,
+            "model": Constants.API.groqChatModel,  // compound-beta: built-in web search
             "stream": true,
             "messages": messages.map { ["role": $0.role.rawValue, "content": $0.content] }
         ]

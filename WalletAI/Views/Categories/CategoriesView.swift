@@ -109,6 +109,12 @@ struct CategoriesView: View {
                 .font(.headline)
                 .padding(.horizontal, 4)
 
+            Text("Hold any card to edit or delete")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 4)
+
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                 ForEach(categories) { cat in
                     CategoryCard(category: cat, currency: currency, onEdit: {
@@ -117,12 +123,20 @@ struct CategoriesView: View {
                     })
                     .frame(maxHeight: .infinity)
                     .contextMenu {
-                        Button("Edit") { editingCategory = cat }
+                        Button { editingCategory = cat } label: {
+                            Label("Edit", systemImage: "pencil")
+                        }
                         if !cat.isDefault {
-                            Button("Delete", role: .destructive) {
+                            Button(role: .destructive) {
                                 context.delete(cat)
+                            } label: {
+                                Label("Delete", systemImage: "trash")
                             }
                         }
+                    } preview: {
+                        CategoryCard(category: cat, currency: currency)
+                            .frame(width: 180)
+                            .padding(4)
                     }
                 }
             }

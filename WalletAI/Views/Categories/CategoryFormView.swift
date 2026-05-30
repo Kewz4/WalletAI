@@ -66,6 +66,7 @@ struct CategoryFormView: View {
             .background(Color.walletBackground.ignoresSafeArea())
             .navigationTitle(isEditing ? "Edit Category" : "New Category")
             .navigationBarTitleDisplayMode(.inline)
+            .keyboardDoneButton()
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("Cancel") { dismiss() }

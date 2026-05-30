@@ -1,7 +1,9 @@
 import Foundation
-import AuthenticationServices
 import UIKit
 import SwiftUI
+
+// Simple local profile — SIWA requires a paid developer entitlement and won't work on sideloaded apps.
+// Data stays on-device in UserDefaults; no authentication token is issued.
 
 @MainActor
 @Observable
@@ -12,25 +14,21 @@ final class AuthService: NSObject {
     var userEmail: String = UserDefaults.standard.string(forKey: "walletai_user_email") ?? ""
     var userID: String = UserDefaults.standard.string(forKey: "walletai_user_id") ?? ""
     var profileImage: UIImage? = nil
+
     var isSignedIn: Bool { !userID.isEmpty }
-    var isLoading: Bool = false
-    var error: String? = nil
 
-    private override init() {
-        super.init()
-        if isSignedIn { loadProfilePhoto() }
-    }
+    private override init() { super.init() }
 
-    func signInWithApple() {
-        isLoading = true
-        error = nil
-        let request = ASAuthorizationAppleIDProvider().createRequest()
-        request.requestedScopes = [.fullName, .email]
-
-        let controller = ASAuthorizationController(authorizationRequests: [request])
-        controller.delegate = self
-        controller.presentationContextProvider = self
-        controller.performRequests()
+    func setProfile(name: String, email: String = "") {
+        let n = name.trimmingCharacters(in: .whitespaces)
+        guard !n.isEmpty else { return }
+        userName = n
+        userEmail = email.trimmingCharacters(in: .whitespaces)
+        if userID.isEmpty { userID = "local_\(UUID().uuidString)" }
+        UserDefaults.standard.set(userName, forKey: "walletai_user_name")
+        UserDefaults.standard.set(userEmail, forKey: "walletai_user_email")
+        UserDefaults.standard.set(userID, forKey: "walletai_user_id")
+        UINotificationFeedbackGenerator().notificationOccurred(.success)
     }
 
     func signOut() {
@@ -42,72 +40,10 @@ final class AuthService: NSObject {
         UserDefaults.standard.removeObject(forKey: "walletai_user_email")
         UserDefaults.standard.removeObject(forKey: "walletai_user_id")
     }
-
-    func loadProfilePhoto() {
-        // CNContact Me card is not available on iOS; profile photo comes from Sign In with Apple
-    }
 }
 
-extension AuthService: ASAuthorizationControllerDelegate {
-    nonisolated func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
-        guard let credential = authorization.credential as? ASAuthorizationAppleIDCredential else { return }
-        let id = credential.user
-        let name = [credential.fullName?.givenName, credential.fullName?.familyName]
-            .compactMap { $0 }.joined(separator: " ")
-        let email = credential.email ?? ""
+// MARK: - SwiftUI profile image
 
-        Task { @MainActor in
-            self.userID = id
-            if !name.isEmpty { self.userName = name }
-            if !email.isEmpty { self.userEmail = email }
-            UserDefaults.standard.set(id, forKey: "walletai_user_id")
-            if !name.isEmpty { UserDefaults.standard.set(name, forKey: "walletai_user_name") }
-            if !email.isEmpty { UserDefaults.standard.set(email, forKey: "walletai_user_email") }
-            self.isLoading = false
-            self.loadProfilePhoto()
-        }
-    }
-
-    nonisolated func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
-        Task { @MainActor in
-            self.isLoading = false
-            if (error as? ASAuthorizationError)?.code != .canceled {
-                self.error = error.localizedDescription
-            }
-        }
-    }
-}
-
-extension AuthService: ASAuthorizationControllerPresentationContextProviding {
-    nonisolated func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
-        // Apple calls this on the main thread; if somehow called off-thread, sync to main.
-        if Thread.isMainThread {
-            return MainActor.assumeIsolated { AuthService.resolveKeyWindow() }
-        } else {
-            return DispatchQueue.main.sync { MainActor.assumeIsolated { AuthService.resolveKeyWindow() } }
-        }
-    }
-
-    @MainActor private static func resolveKeyWindow() -> UIWindow {
-        let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
-        // 1. Active foreground scene with a key window
-        if let w = scenes.filter({ $0.activationState == .foregroundActive }).compactMap({ $0.keyWindow }).first {
-            return w
-        }
-        // 2. Any scene with a key window
-        if let w = scenes.compactMap({ $0.keyWindow }).first {
-            return w
-        }
-        // 3. Any visible window from any scene
-        if let w = scenes.flatMap({ $0.windows }).first(where: { $0.isKeyWindow }) {
-            return w
-        }
-        // 4. Any window at all
-        return scenes.flatMap { $0.windows }.first ?? UIWindow()
-    }
-}
-
-// SwiftUI wrapper
 struct ProfileImageView: View {
     let image: UIImage?
     let size: CGFloat

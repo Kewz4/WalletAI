@@ -57,6 +57,7 @@ struct AddTransactionView: View {
             .background(Color.walletBackground.ignoresSafeArea())
             .navigationTitle(isEditing ? "Edit Transaction" : (isExpense ? "Add Expense" : "Add Income"))
             .navigationBarTitleDisplayMode(.inline)
+            .keyboardDoneButton()
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("Cancel") { dismiss() }

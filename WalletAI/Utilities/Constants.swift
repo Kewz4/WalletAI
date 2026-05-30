@@ -5,6 +5,7 @@ enum Constants {
         // Groq — free tier, no credit card (console.groq.com)
         static let groqBaseURL       = "https://api.groq.com/openai/v1"
         static let groqModel         = "llama-3.3-70b-versatile"
+        static let groqChatModel     = "compound-beta"   // has built-in Groq web search
         static let groqKeyStorageKey = "walletai_groq_key"
     }
 

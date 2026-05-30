@@ -53,7 +53,7 @@ struct VoiceTransactionSheet: View {
                         onTap: { try await speechService.startListening() },
                         onStop: {
                             speechService.stopListening()
-                            processTranscript()
+                            // processTranscript is called by onChange(isTranscribing) after Whisper finishes
                         }
                     )
 
@@ -74,7 +74,17 @@ struct VoiceTransactionSheet: View {
             }
             .onChange(of: speechService.isListening) { _, isListening in
                 withAnimation(.springy) {
-                    status = isListening ? .listening : .idle
+                    status = isListening ? .listening : (speechService.isTranscribing ? .processing : .idle)
+                }
+            }
+            .onChange(of: speechService.isTranscribing) { _, isTranscribing in
+                if !isTranscribing {
+                    withAnimation(.springy) { status = .processing }
+                    if !speechService.transcript.isEmpty {
+                        processTranscript()
+                    } else {
+                        withAnimation(.springy) { status = .idle }
+                    }
                 }
             }
         }

@@ -118,6 +118,22 @@ extension View {
             else { self }
         }
     }
+
+    /// Adds a "Done" button above the keyboard on every screen that has text fields.
+    func keyboardDoneButton() -> some View {
+        toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button("Done") {
+                    UIApplication.shared.sendAction(
+                        #selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil
+                    )
+                }
+                .fontWeight(.semibold)
+                .foregroundStyle(Color.walletPrimary)
+            }
+        }
+    }
 }
 
 // MARK: - Animation

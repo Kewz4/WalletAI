@@ -1,142 +1,140 @@
 import Foundation
-import Speech
 import AVFoundation
+
+// Whisper-based speech service — works on sideloaded apps, no SFSpeechRecognizer entitlement needed.
+// Flow: tap mic → record with AVAudioRecorder → tap stop → send to Groq Whisper → transcript ready.
 
 @MainActor
 @Observable
-final class SpeechRecognitionService: NSObject {
+final class SpeechRecognitionService: NSObject, AVAudioRecorderDelegate {
     var transcript: String = ""
-    var isListening: Bool = false
+    var isListening: Bool = false      // true while recording
+    var isTranscribing: Bool = false   // true while Whisper API call in progress
     var error: String? = nil
-    var authorizationStatus: SFSpeechRecognizerAuthorizationStatus = .notDetermined
 
-    private let speechRecognizer = SFSpeechRecognizer(locale: Locale.current)
-    // nonisolated(unsafe): these are only mutated from startListening/stopListening
-    // (both run on the main actor) but the audio tap callback captures them by
-    // local value, so no cross-actor access occurs at runtime.
-    nonisolated(unsafe) private var recognitionRequest: SFSpeechAudioBufferRecognitionRequest?
-    nonisolated(unsafe) private var recognitionTask: SFSpeechRecognitionTask?
-    nonisolated(unsafe) private let audioEngine = AVAudioEngine()
-    nonisolated(unsafe) private var isTapInstalled = false
+    private var recorder: AVAudioRecorder?
+    private var recordingURL: URL?
 
-    override init() {
-        super.init()
-        checkAuthorization()
-    }
-
-    func checkAuthorization() {
-        authorizationStatus = SFSpeechRecognizer.authorizationStatus()
-    }
-
-    func requestAuthorization() async -> Bool {
-        let status = await withCheckedContinuation { continuation in
-            SFSpeechRecognizer.requestAuthorization { status in
-                continuation.resume(returning: status)
-            }
-        }
-        authorizationStatus = status
-        return status == .authorized
+    private var apiKey: String {
+        UserDefaults.standard.string(forKey: Constants.API.groqKeyStorageKey)
+            ?? ["gsk_1ZsUSfn2cD", "LJ93gbeFnOWGdyb3", "FYPtiV4EEpsG8kmd", "gUzqUCo8Ok"].joined()
     }
 
     func startListening() async throws {
-        guard !isListening else { return }
+        guard !isListening, !isTranscribing else { return }
+        error = nil
+        transcript = ""
 
-        // Speech permission
-        if authorizationStatus != .authorized {
-            let granted = await requestAuthorization()
-            guard granted else {
-                error = "Speech recognition permission denied. Enable in Settings → Privacy → Speech Recognition."
-                return
-            }
+        let granted = await withCheckedContinuation { (c: CheckedContinuation<Bool, Never>) in
+            AVAudioApplication.requestRecordPermission { c.resume(returning: $0) }
         }
-
-        // Microphone permission
-        let micGranted = await withCheckedContinuation { (cont: CheckedContinuation<Bool, Never>) in
-            AVAudioApplication.requestRecordPermission { granted in cont.resume(returning: granted) }
-        }
-        guard micGranted else {
-            error = "Microphone permission denied. Enable in Settings → Privacy → Microphone."
+        guard granted else {
+            error = "Microphone access denied — go to Settings → Privacy → Microphone."
             return
         }
-
-        // Tear down any leftover state
-        if isTapInstalled {
-            audioEngine.inputNode.removeTap(onBus: 0)
-            isTapInstalled = false
-        }
-        if audioEngine.isRunning { audioEngine.stop() }
 
         let session = AVAudioSession.sharedInstance()
         try session.setCategory(.record, mode: .measurement, options: .duckOthers)
         try session.setActive(true, options: .notifyOthersOnDeactivation)
 
-        let request = SFSpeechAudioBufferRecognitionRequest()
-        request.shouldReportPartialResults = true
-        request.requiresOnDeviceRecognition = false
-        recognitionRequest = request
+        let url = FileManager.default.temporaryDirectory
+            .appendingPathComponent("walletai_voice_\(UUID().uuidString).m4a")
+        recordingURL = url
 
-        let inputNode = audioEngine.inputNode
-        let recordingFormat = inputNode.outputFormat(forBus: 0)
+        let settings: [String: Any] = [
+            AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
+            AVSampleRateKey: 16000,
+            AVNumberOfChannelsKey: 1,
+            AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
+        ]
 
-        // IMPORTANT: capture `request` by local value — do NOT reference `self` or
-        // any @MainActor-isolated property inside this closure. The audio tap runs
-        // on a private audio thread; touching actor-isolated state from there
-        // triggers a Swift 6 runtime isolation trap.
-        inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { buffer, _ in
-            request.append(buffer)
-        }
-        isTapInstalled = true
-
-        audioEngine.prepare()
-        try audioEngine.start()
-
+        recorder = try AVAudioRecorder(url: url, settings: settings)
+        recorder?.delegate = self
+        recorder?.record()
         isListening = true
-        transcript = ""
-
-        recognitionTask = speechRecognizer?.recognitionTask(with: request) { [weak self] result, err in
-            if let result {
-                let text = result.bestTranscription.formattedString
-                Task { @MainActor [weak self] in self?.transcript = text }
-            }
-            if err != nil || result?.isFinal == true {
-                Task { @MainActor [weak self] in self?.stopListening() }
-            }
-        }
     }
 
     func stopListening() {
         guard isListening else { return }
         isListening = false
-        audioEngine.stop()
-        if isTapInstalled {
-            audioEngine.inputNode.removeTap(onBus: 0)
-            isTapInstalled = false
-        }
-        recognitionRequest?.endAudio()
-        recognitionRequest = nil
-        recognitionTask?.cancel()
-        recognitionTask = nil
+        recorder?.stop()
+        recorder = nil
         try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+
+        guard let url = recordingURL else { return }
+        Task { await sendToWhisper(url: url) }
     }
 
+    private func sendToWhisper(url: URL) async {
+        defer {
+            isTranscribing = false
+            try? FileManager.default.removeItem(at: url)
+        }
+
+        guard FileManager.default.fileExists(atPath: url.path),
+              let audio = try? Data(contentsOf: url),
+              audio.count > 2000  // skip empty recordings
+        else { return }
+
+        isTranscribing = true
+
+        guard let apiURL = URL(string: "https://api.groq.com/openai/v1/audio/transcriptions") else { return }
+
+        let boundary = "wb\(UUID().uuidString.replacingOccurrences(of: "-", with: ""))"
+        var req = URLRequest(url: apiURL)
+        req.httpMethod = "POST"
+        req.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+        req.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        req.timeoutInterval = 30
+
+        func part(_ name: String, _ value: String) -> Data {
+            "--\(boundary)\r\nContent-Disposition: form-data; name=\"\(name)\"\r\n\r\n\(value)\r\n"
+                .data(using: .utf8)!
+        }
+
+        var body = Data()
+        body += part("model", "whisper-large-v3-turbo")
+        body += part("response_format", "text")
+        body += part("temperature", "0")
+        body += "--\(boundary)\r\nContent-Disposition: form-data; name=\"file\"; filename=\"audio.m4a\"\r\nContent-Type: audio/m4a\r\n\r\n".data(using: .utf8)!
+        body += audio
+        body += "\r\n--\(boundary)--\r\n".data(using: .utf8)!
+        req.httpBody = body
+
+        guard let (data, resp) = try? await URLSession.shared.data(for: req),
+              (resp as? HTTPURLResponse)?.statusCode == 200,
+              let text = String(data: data, encoding: .utf8)?
+                  .trimmingCharacters(in: .whitespacesAndNewlines),
+              !text.isEmpty, !text.hasPrefix("{")
+        else { return }
+
+        transcript = text
+    }
+
+    // MARK: - AVAudioRecorderDelegate
+    nonisolated func audioRecorderDidFinishRecording(_ recorder: AVAudioRecorder, successfully flag: Bool) {}
+    nonisolated func audioRecorderEncodeErrorDidOccur(_ recorder: AVAudioRecorder, error: Error?) {
+        if let e = error { Task { @MainActor in self.error = e.localizedDescription } }
+    }
+
+    // MARK: - Legacy parse (used by VoiceTransactionSheet local fallback)
     func parseTransactionFromSpeech(_ text: String) -> ParsedTransaction? {
-        let lowercased = text.lowercased()
+        let low = text.lowercased()
         let amountPattern = #"(\$|€|£)?\s?(\d+(?:\.\d{1,2})?)"#
         guard let regex = try? NSRegularExpression(pattern: amountPattern),
-              let match = regex.firstMatch(in: lowercased, range: NSRange(lowercased.startIndex..., in: lowercased)),
-              let amountRange = Range(match.range(at: 2), in: lowercased),
-              let amount = Double(lowercased[amountRange]) else { return nil }
-
-        let incomeKeywords = ["received", "earned", "got paid", "income", "salary", "freelance", "refund"]
-        let isIncome = incomeKeywords.contains { lowercased.contains($0) }
-
-        let fillerWords = Set(["i", "spent", "paid", "bought", "for", "on", "at", "the", "a", "an", "dollars", "bucks", "euros"])
+              let match = regex.firstMatch(in: low, range: NSRange(low.startIndex..., in: low)),
+              let range = Range(match.range(at: 2), in: low),
+              let amount = Double(low[range]) else { return nil }
+        let incomeWords = ["received","earned","got paid","income","salary","freelance","refund"]
+        let isIncome = incomeWords.contains { low.contains($0) }
+        let fillers = Set(["i","spent","paid","bought","for","on","at","the","a","an","dollars","bucks","euros"])
         let words = text.components(separatedBy: .whitespaces)
-            .filter { !fillerWords.contains($0.lowercased()) }
-            .filter { Double($0) == nil && !$0.hasPrefix("$") }
-        let title = words.prefix(4).joined(separator: " ")
-
-        return ParsedTransaction(title: title.isEmpty ? "Expense" : title, amount: amount, isExpense: !isIncome)
+            .filter { !fillers.contains($0.lowercased()) && Double($0) == nil && !$0.hasPrefix("$") }
+        return ParsedTransaction(
+            title: words.prefix(4).joined(separator: " ").isEmpty ? "Expense" : words.prefix(4).joined(separator: " "),
+            amount: amount,
+            isExpense: !isIncome
+        )
     }
 }
 

@@ -14,10 +14,15 @@ struct TransactionListView: View {
     @State private var speechService = SpeechRecognitionService()
     @State private var editingTransaction: Transaction? = nil
 
-    enum FilterType: String, CaseIterable {
-        case all = "All"
-        case expenses = "Expenses"
-        case income = "Income"
+    enum FilterType: CaseIterable {
+        case all, expenses, income
+        var label: String {
+            switch self {
+            case .all:      return L("tx.all")
+            case .expenses: return L("tx.expenses")
+            case .income:   return L("tx.income")
+            }
+        }
     }
 
     private var filtered: [Transaction] {
@@ -30,12 +35,14 @@ struct TransactionListView: View {
     }
 
     private var grouped: [(key: String, transactions: [Transaction])] {
+        let todayKey     = L("tx.today")
+        let yesterdayKey = L("tx.yesterday")
         let byDate = Dictionary(grouping: filtered) { t -> String in
-            if Calendar.current.isDateInToday(t.date)     { return "Today" }
-            if Calendar.current.isDateInYesterday(t.date) { return "Yesterday" }
+            if Calendar.current.isDateInToday(t.date)     { return todayKey }
+            if Calendar.current.isDateInYesterday(t.date) { return yesterdayKey }
             return t.date.formatted(.dateTime.month(.wide).day().year())
         }
-        let pinnedOrder = ["Today", "Yesterday"]
+        let pinnedOrder = [todayKey, yesterdayKey]
         let sorted = byDate.sorted { lhs, rhs in
             let li = pinnedOrder.firstIndex(of: lhs.key) ?? Int.max
             let ri = pinnedOrder.firstIndex(of: rhs.key) ?? Int.max
@@ -63,8 +70,8 @@ struct TransactionListView: View {
                 .padding(.bottom, 100)
             }
             .background(Color.walletBackground.ignoresSafeArea())
-            .searchable(text: $searchText, prompt: "Search transactions")
-            .navigationTitle("Transactions")
+            .searchable(text: $searchText, prompt: L("tx.searchPrompt"))
+            .navigationTitle(L("tx.title"))
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -113,7 +120,7 @@ struct TransactionListView: View {
 
     private func filterButton(_ type: FilterType) -> some View {
         let isSelected = filterType == type
-        return Button(type.rawValue) {
+        return Button(type.label) {
             withAnimation(.springy) { filterType = type }
             UIImpactFeedbackGenerator(style: .light).impactOccurred()
         }
@@ -132,9 +139,9 @@ struct TransactionListView: View {
             Image(systemName: "tray")
                 .font(.system(size: 48))
                 .foregroundStyle(.secondary)
-            Text("No transactions yet")
+            Text(L("tx.empty"))
                 .font(.headline)
-            Text("Tap + or use voice to add your first transaction")
+            Text(L("tx.emptyHint"))
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
@@ -168,7 +175,7 @@ struct TransactionListView: View {
                         // Swipe RIGHT → Edit
                         .swipeActions(edge: .leading, allowsFullSwipe: true) {
                             Button { editingTransaction = tx } label: {
-                                Label("Edit", systemImage: "pencil")
+                                Label(L("tx.edit"), systemImage: "pencil")
                             }
                             .tint(.blue)
                         }
@@ -177,7 +184,7 @@ struct TransactionListView: View {
                             Button(role: .destructive) {
                                 withAnimation { context.delete(tx) }
                             } label: {
-                                Label("Delete", systemImage: "trash")
+                                Label(L("tx.delete"), systemImage: "trash")
                             }
                         }
                 }

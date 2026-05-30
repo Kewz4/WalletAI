@@ -13,9 +13,7 @@ final class NotificationService {
         _ = try? await center.requestAuthorization(options: [.alert, .sound, .badge])
     }
 
-    private var isGirly: Bool {
-        AppTheme(rawValue: UserDefaults.standard.string(forKey: Constants.Storage.themeKey) ?? "") == .girly
-    }
+    private var isGirly: Bool { AppPersonality.current.isGirly }
 
     func checkBudgetAlerts(for categories: [Category]) async {
         let center = UNUserNotificationCenter.current()

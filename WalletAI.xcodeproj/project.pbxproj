@@ -21,6 +21,8 @@
 		A011 /* DeepSeekService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F011 /* DeepSeekService.swift */; };
 		A034 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F034 /* AuthService.swift */; };
 		A035 /* CategorizationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F035 /* CategorizationService.swift */; };
+		A036 /* L.swift in Sources */ = {isa = PBXBuildFile; fileRef = F036 /* L.swift */; };
+		A037 /* AppPersonality.swift in Sources */ = {isa = PBXBuildFile; fileRef = F037 /* AppPersonality.swift */; };
 		A012 /* ApplePayObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = F012 /* ApplePayObserver.swift */; };
 		A013 /* GlassCardModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F013 /* GlassCardModifier.swift */; };
 		A014 /* VoiceInputButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = F014 /* VoiceInputButton.swift */; };
@@ -88,6 +90,8 @@
 		F011 /* DeepSeekService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepSeekService.swift; sourceTree = "<group>"; };
 		F034 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
 		F035 /* CategorizationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategorizationService.swift; sourceTree = "<group>"; };
+		F036 /* L.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = L.swift; sourceTree = "<group>"; };
+		F037 /* AppPersonality.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppPersonality.swift; sourceTree = "<group>"; };
 		F012 /* ApplePayObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplePayObserver.swift; sourceTree = "<group>"; };
 		F013 /* GlassCardModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassCardModifier.swift; sourceTree = "<group>"; };
 		F014 /* VoiceInputButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceInputButton.swift; sourceTree = "<group>"; };
@@ -281,6 +285,8 @@
 				F008 /* Constants.swift */,
 				F009 /* SeedData.swift */,
 				F00A /* AppTheme.swift */,
+				F036 /* L.swift */,
+				F037 /* AppPersonality.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -416,6 +422,8 @@
 				A011 /* DeepSeekService.swift in Sources */,
 				A034 /* AuthService.swift in Sources */,
 				A035 /* CategorizationService.swift in Sources */,
+				A036 /* L.swift in Sources */,
+				A037 /* AppPersonality.swift in Sources */,
 				A012 /* ApplePayObserver.swift in Sources */,
 				A013 /* GlassCardModifier.swift in Sources */,
 				A014 /* VoiceInputButton.swift in Sources */,

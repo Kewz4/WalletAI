@@ -46,16 +46,16 @@ struct AIChatView: View {
                 inputBar
             }
             .background(Color.walletBackground.ignoresSafeArea())
-            .navigationTitle("AI Assistant")
+            .navigationTitle(L("ai.title"))
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
-                        Button("Set API Key") { showAPIKeyPrompt = true }
-                        Button("Clear Chat") { messages = [] }
-                        Button("Financial Summary") { askQuickQuestion("Give me a detailed summary of my finances this month") }
-                        Button("Saving Tips") { askQuickQuestion("Based on my spending, give me 3 specific tips to save more money") }
-                        Button("Biggest Expenses") { askQuickQuestion("What are my biggest expenses and how can I reduce them?") }
+                        Button(L("ai.menuSetKey")) { showAPIKeyPrompt = true }
+                        Button(L("ai.menuClear")) { messages = [] }
+                        Button(L("ai.menuSummary")) { askQuickQuestion(L("ai.q1") + " " + L("ai.q2")) }
+                        Button(L("ai.menuTips")) { askQuickQuestion(L("ai.q4")) }
+                        Button(L("ai.menuBiggest")) { askQuickQuestion(L("ai.q3")) }
                     } label: {
                         Image(systemName: "ellipsis.circle.fill")
                             .foregroundStyle(Color.walletPrimary)
@@ -94,10 +94,10 @@ struct AIChatView: View {
             }
 
             VStack(spacing: 8) {
-                Text("Meet your AI Finance Assistant")
+                Text(L("ai.welcome"))
                     .font(.title2.bold())
                     .multilineTextAlignment(.center)
-                Text("Ask anything about your spending, get insights, or let me help you track expenses via voice.")
+                Text(L("ai.welcomeHint"))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
@@ -118,7 +118,7 @@ struct AIChatView: View {
             }
 
             VStack(spacing: 10) {
-                Text("Quick Questions")
+                Text(L("ai.quickQuestions"))
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(.secondary)
 
@@ -141,12 +141,9 @@ struct AIChatView: View {
         .padding(.top, 20)
     }
 
-    private let quickQuestions = [
-        "How much have I spent this month?",
-        "What's my biggest spending category?",
-        "Am I over budget?",
-        "Give me 3 tips to save more money",
-    ]
+    private var quickQuestions: [String] {
+        [L("ai.q1"), L("ai.q2"), L("ai.q3"), L("ai.q4")]
+    }
 
     // MARK: - Input Bar
 
@@ -163,7 +160,7 @@ struct AIChatView: View {
                 }
                 .buttonStyle(.plain)
 
-                TextField("Ask about your finances...", text: $inputText, axis: .vertical)
+                TextField(L("ai.inputPlaceholder"), text: $inputText, axis: .vertical)
                     .lineLimit(1...4)
                     .padding(.horizontal, 14)
                     .padding(.vertical, 10)
@@ -202,33 +199,26 @@ struct AIChatView: View {
     }
 
     private var typingIndicator: some View {
-        HStack(alignment: .bottom) {
+        HStack(alignment: .bottom, spacing: 8) {
             ZStack {
                 Circle()
-                    .fill(Color.walletPrimary.opacity(0.1))
+                    .fill(Color.walletPrimary.opacity(0.15))
                     .frame(width: 32, height: 32)
                 Image(systemName: "sparkles")
                     .font(.system(size: 14))
                     .foregroundStyle(Color.walletPrimary)
             }
 
-            HStack(spacing: 4) {
-                ForEach(0..<3) { i in
-                    Circle()
-                        .fill(Color.secondary)
-                        .frame(width: 6, height: 6)
-                        .scaleEffect(1.0)
-                        .animation(
-                            .easeInOut(duration: 0.5)
-                            .repeatForever()
-                            .delay(Double(i) * 0.15),
-                            value: deepSeekService.isLoading
-                        )
-                }
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 10)
-            .glassEffect(.regular, in: .capsule)
+            BouncingDotsView()
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+                .background(Color(UIColor.secondarySystemBackground),
+                            in: UnevenRoundedRectangle(
+                                topLeadingRadius: 4,
+                                bottomLeadingRadius: 18,
+                                bottomTrailingRadius: 18,
+                                topTrailingRadius: 18
+                            ))
 
             Spacer()
         }
@@ -388,6 +378,36 @@ struct MessageBubble: View {
         }
         flush()
         return result.font(.body)
+    }
+}
+
+// MARK: - Bouncing Dots Typing Indicator
+
+struct BouncingDotsView: View {
+    @State private var up0 = false
+    @State private var up1 = false
+    @State private var up2 = false
+
+    private let bounce = Animation.easeInOut(duration: 0.38).repeatForever(autoreverses: true)
+
+    var body: some View {
+        HStack(spacing: 5) {
+            dot(up: up0)
+            dot(up: up1)
+            dot(up: up2)
+        }
+        .onAppear {
+            withAnimation(bounce)                       { up0 = true }
+            withAnimation(bounce.delay(0.14))           { up1 = true }
+            withAnimation(bounce.delay(0.28))           { up2 = true }
+        }
+    }
+
+    private func dot(up: Bool) -> some View {
+        Circle()
+            .fill(Color.secondary.opacity(0.65))
+            .frame(width: 7, height: 7)
+            .offset(y: up ? -5 : 0)
     }
 }
 

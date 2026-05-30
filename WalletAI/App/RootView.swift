@@ -26,10 +26,10 @@ struct RootView: View {
 
         var label: String {
             switch self {
-            case .dashboard:    return "Dashboard"
-            case .transactions: return "Transactions"
-            case .ai:           return "AI"
-            case .categories:   return "Categories"
+            case .dashboard:    return L("tab.dashboard")
+            case .transactions: return L("tab.transactions")
+            case .ai:           return L("tab.ai")
+            case .categories:   return L("tab.categories")
             }
         }
     }

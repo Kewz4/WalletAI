@@ -12,6 +12,7 @@ struct SettingsView: View {
     @AppStorage(Constants.Storage.themeKey)              private var themeKey               = "default"
     @AppStorage(Constants.Storage.colorSchemeKey)        private var colorSchemeRaw         = "system"
     @AppStorage("walletai_language")                     private var appLanguage            = "en"
+    @AppStorage(Constants.Storage.personalityKey)        private var personalityKey         = "chill"
 
     @State private var deepSeekService = DeepSeekService()
     @State private var authService = AuthService.shared
@@ -59,7 +60,7 @@ struct SettingsView: View {
                 .padding(.bottom, 100)
             }
             .background(Color.walletBackground.ignoresSafeArea())
-            .navigationTitle("Settings")
+            .navigationTitle(L("settings.title"))
             .navigationBarTitleDisplayMode(.large)
         }
     }
@@ -286,44 +287,47 @@ struct SettingsView: View {
     }
 
     private var appearanceSection: some View {
-        settingsSection(title: "Appearance", icon: "paintbrush.fill", color: Color(hex: "#A855F7")!) {
-            // Theme picker
+        settingsSection(title: L("settings.appearance"), icon: "paintbrush.fill", color: Color(hex: "#A855F7")!) {
+            // Color theme picker
             VStack(alignment: .leading, spacing: 10) {
                 HStack {
                     Image(systemName: "swatchpalette.fill")
                         .frame(width: 24)
                         .foregroundStyle(Color.walletPrimary)
-                    Text("Theme")
+                    Text(L("settings.colorTheme"))
                         .font(.body)
                     Spacer()
                 }
                 .padding(.horizontal, 16)
                 .padding(.top, 12)
 
-                HStack(spacing: 10) {
+                // 7-color grid (2 rows of 4 + 3 — use LazyVGrid)
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 4), spacing: 12) {
                     ForEach(AppTheme.allCases) { theme in
                         Button {
                             themeKey = theme.rawValue
+                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
                         } label: {
-                            VStack(spacing: 6) {
+                            VStack(spacing: 4) {
                                 ZStack {
                                     Circle()
                                         .fill(theme.primaryColor)
-                                        .frame(width: 36, height: 36)
+                                        .frame(width: 38, height: 38)
                                     if themeKey == theme.rawValue {
                                         Circle()
-                                            .strokeBorder(.white, lineWidth: 2)
-                                            .frame(width: 36, height: 36)
+                                            .strokeBorder(.white, lineWidth: 2.5)
+                                            .frame(width: 38, height: 38)
                                         Image(systemName: "checkmark")
                                             .font(.caption2.bold())
                                             .foregroundStyle(.white)
                                     }
                                 }
-                                Text("\(theme.emoji) \(theme.displayName)")
-                                    .font(.caption2)
+                                Text(theme.displayName)
+                                    .font(.system(size: 9, weight: .medium))
                                     .foregroundStyle(themeKey == theme.rawValue ? Color.walletPrimary : .secondary)
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.7)
                             }
-                            .frame(maxWidth: .infinity)
                         }
                         .buttonStyle(.plain)
                         .animation(.springy, value: themeKey)
@@ -335,8 +339,56 @@ struct SettingsView: View {
 
             Divider().padding(.horizontal)
 
-            // Color scheme
-            settingsRow(icon: "circle.lefthalf.filled", title: "Appearance") {
+            // Personality picker
+            VStack(alignment: .leading, spacing: 10) {
+                HStack {
+                    Image(systemName: "theatermasks.fill")
+                        .frame(width: 24)
+                        .foregroundStyle(Color(hex: "#EC4899")!)
+                    Text(L("settings.personality"))
+                        .font(.body)
+                    Spacer()
+                }
+                .padding(.horizontal, 16)
+                .padding(.top, 12)
+
+                HStack(spacing: 12) {
+                    ForEach(AppPersonality.allCases) { p in
+                        Button {
+                            personalityKey = p.rawValue
+                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                        } label: {
+                            VStack(spacing: 6) {
+                                Text(p.emoji)
+                                    .font(.system(size: 28))
+                                Text(p.displayName)
+                                    .font(.caption)
+                                    .fontWeight(personalityKey == p.rawValue ? .semibold : .regular)
+                                    .foregroundStyle(personalityKey == p.rawValue ? Color.walletPrimary : .secondary)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
+                            .background(
+                                RoundedRectangle(cornerRadius: 14)
+                                    .fill(personalityKey == p.rawValue ? Color.walletPrimary.opacity(0.12) : Color.clear)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 14)
+                                            .strokeBorder(personalityKey == p.rawValue ? Color.walletPrimary : Color.secondary.opacity(0.2), lineWidth: 1.5)
+                                    )
+                            )
+                        }
+                        .buttonStyle(.plain)
+                        .animation(.springy, value: personalityKey)
+                    }
+                }
+                .padding(.horizontal, 16)
+                .padding(.bottom, 12)
+            }
+
+            Divider().padding(.horizontal)
+
+            // Color scheme (light/dark/system)
+            settingsRow(icon: "circle.lefthalf.filled", title: L("settings.appearance")) {
                 Picker("", selection: $colorSchemeRaw) {
                     Text("System").tag("system")
                     Text("Light").tag("light")
@@ -350,7 +402,7 @@ struct SettingsView: View {
 
     private var preferencesSection: some View {
         settingsSection(title: "Preferences", icon: "gearshape.fill", color: .secondary) {
-            settingsRow(icon: "bell.fill", title: "Budget Alerts") {
+            settingsRow(icon: "bell.fill", title: L("settings.budgetAlerts")) {
                 Toggle("", isOn: $notificationsEnabled)
                     .tint(Color.walletPrimary)
                     .labelsHidden()
@@ -358,7 +410,7 @@ struct SettingsView: View {
 
             Divider().padding(.horizontal)
 
-            settingsRow(icon: "faceid", title: "Face ID Lock") {
+            settingsRow(icon: "faceid", title: L("settings.faceID")) {
                 Toggle("", isOn: $biometricEnabled)
                     .tint(Color.walletPrimary)
                     .labelsHidden()
@@ -366,10 +418,10 @@ struct SettingsView: View {
 
             Divider().padding(.horizontal)
 
-            settingsRow(icon: "globe", title: "Language") {
+            settingsRow(icon: "globe", title: L("settings.language")) {
                 Picker("", selection: $appLanguage) {
-                    Text("🇺🇸 English").tag("en")
-                    Text("🇸🇻 Español").tag("es")
+                    Text(L("common.english")).tag("en")
+                    Text(L("common.spanish")).tag("es")
                 }
                 .pickerStyle(.menu)
                 .tint(Color.walletPrimary)

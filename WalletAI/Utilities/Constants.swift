@@ -16,6 +16,7 @@ enum Constants {
         static let notificationsEnabledKey = "notificationsEnabled"
         static let themeKey        = "appTheme"
         static let colorSchemeKey  = "appColorScheme"
+        static let personalityKey  = "appPersonality"
     }
 
     enum Design {

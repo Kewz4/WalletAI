@@ -31,7 +31,7 @@ struct CategoriesView: View {
                 .padding(.bottom, 100)
             }
             .background(Color.walletBackground.ignoresSafeArea())
-            .navigationTitle("Categories")
+            .navigationTitle(L("cat.title"))
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -58,9 +58,9 @@ struct CategoriesView: View {
         let totalSpent = categories.reduce(0) { $0 + $1.totalSpent() }
 
         return HStack(spacing: 12) {
-            statCard(title: "Categories", value: "\(categories.count)", icon: "square.grid.2x2.fill", color: .walletPrimary)
-            statCard(title: "Total Budget", value: totalBudget.currencyFormatted(currency: currency), icon: "banknote.fill", color: .green)
-            statCard(title: "Month Spent", value: totalSpent.currencyFormatted(currency: currency), icon: "arrow.up.circle.fill", color: .red)
+            statCard(title: L("tab.categories"), value: "\(categories.count)", icon: "square.grid.2x2.fill", color: .walletPrimary)
+            statCard(title: L("cat.totalBudget"), value: totalBudget.currencyFormatted(currency: currency), icon: "banknote.fill", color: .green)
+            statCard(title: L("cat.monthSpent"), value: totalSpent.currencyFormatted(currency: currency), icon: "arrow.up.circle.fill", color: .red)
         }
     }
 
@@ -87,7 +87,7 @@ struct CategoriesView: View {
 
     private var budgetSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Budget Overview")
+            Text(L("cat.budgetOverview"))
                 .font(.headline)
                 .padding(.horizontal, 4)
 
@@ -105,11 +105,11 @@ struct CategoriesView: View {
 
     private var categoryGrid: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("All Categories")
+            Text(L("cat.all"))
                 .font(.headline)
                 .padding(.horizontal, 4)
 
-            Text("Hold any card to edit or delete")
+            Text(L("cat.hint"))
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -124,12 +124,12 @@ struct CategoriesView: View {
                     .frame(maxHeight: .infinity)
                     .contextMenu {
                         Button { editingCategory = cat } label: {
-                            Label("Edit", systemImage: "pencil")
+                            Label(L("common.edit"), systemImage: "pencil")
                         }
                         Button(role: .destructive) {
                             context.delete(cat)
                         } label: {
-                            Label("Delete", systemImage: "trash")
+                            Label(L("common.delete"), systemImage: "trash")
                         }
                     } preview: {
                         CategoryCard(category: cat, currency: currency)

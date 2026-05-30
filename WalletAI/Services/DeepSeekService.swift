@@ -95,7 +95,7 @@ final class DeepSeekService {
             return "  [\(date)] \(sign)\(t.amount.currencyFormatted()) – \(t.title) (\(cat))"
         }.joined(separator: "\n")
 
-        let personality = AppTheme.current.aiPersonality
+        let personality = AppPersonality.current.aiPrompt
         let lang = UserDefaults.standard.string(forKey: "walletai_language") ?? "en"
         let langInstruction = lang == "es"
             ? "Respond in Spanish. Use 'vos' or 'usted' naturally. The user is from El Salvador."

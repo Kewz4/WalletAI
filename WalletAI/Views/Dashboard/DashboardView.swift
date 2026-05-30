@@ -14,9 +14,14 @@ struct DashboardView: View {
     @State private var authService = AuthService.shared
 
     enum Period: String, CaseIterable {
-        case week = "Week"
-        case month = "Month"
-        case year = "Year"
+        case week, month, year
+        var label: String {
+            switch self {
+            case .week:  return L("dashboard.week")
+            case .month: return L("dashboard.month")
+            case .year:  return L("dashboard.year")
+            }
+        }
     }
 
     private var currentBudget: Budget? { budgets.first }
@@ -138,7 +143,7 @@ struct DashboardView: View {
                 .padding(.bottom, 100)
             }
             .background(Color.walletBackground.ignoresSafeArea())
-            .navigationTitle("WalletAI")
+            .navigationTitle(L("dashboard.title"))
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -206,7 +211,7 @@ struct DashboardView: View {
                         Text(item.tx.title)
                             .font(.subheadline.weight(.semibold))
                             .lineLimit(1)
-                        Text("Expected \(item.nextDate.formatted(.dateTime.month(.abbreviated).day()))")
+                        Text("\(L("dashboard.expected")) \(item.nextDate.formatted(.dateTime.month(.abbreviated).day()))")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -214,7 +219,7 @@ struct DashboardView: View {
                     Text("+\(item.tx.amount.currencyFormatted(currency: currency))")
                         .font(.subheadline.bold().monospacedDigit())
                         .foregroundStyle(.green)
-                    Text("Coming Soon")
+                    Text(L("dashboard.comingSoon"))
                         .font(.caption2.weight(.semibold))
                         .padding(.horizontal, 8)
                         .padding(.vertical, 3)
@@ -231,7 +236,7 @@ struct DashboardView: View {
         VStack(spacing: 0) {
             // Balance
             VStack(spacing: 6) {
-                Text("Net Balance")
+                Text(L("dashboard.netBalance"))
                     .font(.subheadline.weight(.medium))
                     .foregroundStyle(.white.opacity(0.75))
                 Text((totalIncome - totalSpent).currencyFormatted(currency: currency))
@@ -252,11 +257,11 @@ struct DashboardView: View {
 
             // Stats
             HStack(spacing: 0) {
-                statBadge(label: "Income", amount: totalIncome, icon: "arrow.down.circle.fill")
+                statBadge(label: L("dashboard.income"), amount: totalIncome, icon: "arrow.down.circle.fill")
                 Rectangle()
                     .fill(.white.opacity(0.2))
                     .frame(width: 1, height: 48)
-                statBadge(label: "Expenses", amount: totalSpent, icon: "arrow.up.circle.fill")
+                statBadge(label: L("dashboard.expenses"), amount: totalSpent, icon: "arrow.up.circle.fill")
             }
             .padding(.vertical, 16)
         }
@@ -310,7 +315,7 @@ struct DashboardView: View {
 
     private func periodButton(_ period: Period) -> some View {
         let isSelected = selectedPeriod == period
-        return Button(period.rawValue) {
+        return Button(period.label) {
             withAnimation(.springy) { selectedPeriod = period }
             UIImpactFeedbackGenerator(style: .light).impactOccurred()
         }
@@ -327,11 +332,11 @@ struct DashboardView: View {
     private func budgetSection(budget: Budget) -> some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
-                Text("Monthly Budget")
+                Text(L("dashboard.monthlyBudget"))
                     .font(.headline)
                 Spacer()
                 let pct = Int(min(budgetProgress, 1.0) * 100)
-                Text("\(pct)% used")
+                Text("\(pct)% \(L("dashboard.used"))")
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(budgetProgress > 0.9 ? .red : Color.walletPrimary)
             }
@@ -341,7 +346,7 @@ struct DashboardView: View {
                 // Overall progress bar
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {
-                        Text("Total Spent")
+                        Text(L("dashboard.totalSpent"))
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                         Spacer()
@@ -413,7 +418,7 @@ struct DashboardView: View {
 
     private var chartSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Last 7 Days")
+            Text(L("dashboard.last7Days"))
                 .font(.headline)
                 .padding(.horizontal, 4)
 
@@ -425,7 +430,7 @@ struct DashboardView: View {
 
     private var categorySection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("By Category")
+            Text(L("dashboard.byCategory"))
                 .font(.headline)
                 .padding(.horizontal, 4)
 
@@ -457,10 +462,10 @@ struct DashboardView: View {
     private var recentSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text("Recent")
+                Text(L("dashboard.recent"))
                     .font(.headline)
                 Spacer()
-                NavigationLink("See All") {
+                NavigationLink(L("dashboard.seeAll")) {
                     TransactionListView()
                 }
                 .font(.subheadline)

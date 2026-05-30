@@ -7,8 +7,11 @@ struct DashboardView: View {
     @Query private var categories: [Category]
 
     @State private var showAddTransaction = false
+    @State private var showSettings = false
     @State private var selectedPeriod: Period = .month
     @Namespace private var glassNS
+
+    @State private var authService = AuthService.shared
 
     enum Period: String, CaseIterable {
         case week = "Week"
@@ -22,6 +25,7 @@ struct DashboardView: View {
     private var filteredTransactions: [Transaction] {
         let now = Date()
         return transactions.filter { t in
+            guard t.date <= now else { return false }  // exclude future-dated transactions from balance
             switch selectedPeriod {
             case .week:  return t.date >= now.daysAgo(7)
             case .month: return t.date >= now.startOfMonth
@@ -137,6 +141,15 @@ struct DashboardView: View {
             .navigationTitle("WalletAI")
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        showSettings = true
+                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                    } label: {
+                        profileAvatar
+                    }
+                    .buttonStyle(.plain)
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         showAddTransaction = true
@@ -151,10 +164,36 @@ struct DashboardView: View {
             .sheet(isPresented: $showAddTransaction) {
                 AddTransactionView()
             }
+            .sheet(isPresented: $showSettings) {
+                SettingsView()
+            }
         }
     }
 
     // MARK: - Subviews
+
+    private var profileAvatar: some View {
+        ZStack {
+            Circle()
+                .fill(Color.walletPrimary.opacity(0.15))
+                .frame(width: 34, height: 34)
+            if let img = authService.profileImage {
+                Image(uiImage: img)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 34, height: 34)
+                    .clipShape(Circle())
+            } else if !authService.userName.isEmpty {
+                Text(String(authService.userName.prefix(1)).uppercased())
+                    .font(.system(size: 15, weight: .bold))
+                    .foregroundStyle(Color.walletPrimary)
+            } else {
+                Image(systemName: "person.fill")
+                    .font(.system(size: 15))
+                    .foregroundStyle(Color.walletPrimary)
+            }
+        }
+    }
 
     private var upcomingIncomeSection: some View {
         VStack(alignment: .leading, spacing: 8) {

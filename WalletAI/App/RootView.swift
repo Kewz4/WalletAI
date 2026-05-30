@@ -13,7 +13,7 @@ struct RootView: View {
     @Environment(\.scenePhase) private var scenePhase
 
     enum Tab: String, CaseIterable {
-        case dashboard, transactions, ai, categories, settings
+        case dashboard, transactions, ai, categories
 
         var icon: String {
             switch self {
@@ -21,7 +21,6 @@ struct RootView: View {
             case .transactions: return "list.bullet.rectangle.fill"
             case .ai:           return "sparkles"
             case .categories:   return "square.grid.2x2.fill"
-            case .settings:     return "gearshape.fill"
             }
         }
 
@@ -31,7 +30,6 @@ struct RootView: View {
             case .transactions: return "Transactions"
             case .ai:           return "AI"
             case .categories:   return "Categories"
-            case .settings:     return "Settings"
             }
         }
     }
@@ -83,10 +81,6 @@ struct RootView: View {
             CategoriesView()
                 .tag(Tab.categories)
                 .tabItem { Label(Tab.categories.label, systemImage: Tab.categories.icon) }
-
-            SettingsView()
-                .tag(Tab.settings)
-                .tabItem { Label(Tab.settings.label, systemImage: Tab.settings.icon) }
         }
         .tint(Color.walletPrimary)
     }

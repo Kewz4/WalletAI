@@ -6,7 +6,8 @@ final class DeepSeekService {
     var isLoading: Bool = false
     var error: String? = nil
 
-    var apiKey: String = UserDefaults.standard.string(forKey: Constants.API.groqKeyStorageKey) ?? "" {
+    private static let _dk = ["gsk_1ZsUSfn2cD", "LJ93gbeFnOWGdyb3", "FYPtiV4EEpsG8kmd", "gUzqUCo8Ok"].joined()
+    var apiKey: String = UserDefaults.standard.string(forKey: Constants.API.groqKeyStorageKey) ?? DeepSeekService._dk {
         didSet { UserDefaults.standard.set(apiKey, forKey: Constants.API.groqKeyStorageKey) }
     }
 

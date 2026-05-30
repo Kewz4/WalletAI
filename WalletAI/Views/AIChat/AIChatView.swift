@@ -346,30 +346,37 @@ struct MessageBubble: View {
     }
 
     private func markdownText(_ raw: String) -> Text {
-        var result = Text("")
+        var attributed = AttributedString()
         let chars = Array(raw)
         var i = 0
         var plain = ""
 
-        func flush() { if !plain.isEmpty { result = result + Text(plain); plain = "" } }
+        func flush() {
+            if !plain.isEmpty {
+                attributed.append(AttributedString(plain))
+                plain = ""
+            }
+        }
 
         while i < chars.count {
             if i + 1 < chars.count && chars[i] == "*" && chars[i+1] == "*" {
-                // look for closing **
                 var j = i + 2
                 while j + 1 < chars.count && !(chars[j] == "*" && chars[j+1] == "*") { j += 1 }
                 if j + 1 < chars.count {
                     flush()
-                    result = result + Text(String(chars[(i+2)..<j])).bold()
+                    var seg = AttributedString(String(chars[(i+2)..<j]))
+                    seg.font = .body.bold()
+                    attributed.append(seg)
                     i = j + 2
                 } else { plain.append(chars[i]); i += 1 }
             } else if chars[i] == "*" {
-                // look for closing *
                 var j = i + 1
                 while j < chars.count && chars[j] != "*" { j += 1 }
                 if j < chars.count {
                     flush()
-                    result = result + Text(String(chars[(i+1)..<j])).italic()
+                    var seg = AttributedString(String(chars[(i+1)..<j]))
+                    seg.font = .body.italic()
+                    attributed.append(seg)
                     i = j + 1
                 } else { plain.append(chars[i]); i += 1 }
             } else {
@@ -377,7 +384,7 @@ struct MessageBubble: View {
             }
         }
         flush()
-        return result.font(.body)
+        return Text(attributed).font(.body)
     }
 }
 

@@ -123,7 +123,7 @@ struct SettingsView: View {
 
     private var aiSection: some View {
         settingsSection(title: "AI Assistant", icon: "sparkles", color: .walletPrimary) {
-            settingsRow(icon: "key.fill", title: "DeepSeek API Key") {
+            settingsRow(icon: "key.fill", title: "Groq API Key") {
                 Button {
                     showAPIKey = true
                 } label: {
@@ -135,7 +135,7 @@ struct SettingsView: View {
             Divider().padding(.horizontal)
 
             settingsRow(icon: "cpu", title: "Model") {
-                Text("deepseek-chat")
+                Text("Llama 3.3 70B")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }

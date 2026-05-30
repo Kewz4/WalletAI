@@ -163,28 +163,32 @@ struct CategoryCard: View {
             }
 
             Text(category.name)
-                .font(.subheadline.weight(.semibold))
+                .font(.footnote.weight(.semibold))
                 .lineLimit(1)
+                .minimumScaleFactor(0.8)
 
             Text(category.totalSpent().currencyFormatted(currency: currency))
                 .font(.caption.monospacedDigit())
                 .foregroundStyle(.secondary)
+                .lineLimit(1)
 
             if let budget = category.monthlyBudget, let progress = category.budgetProgress() {
                 GeometryReader { geo in
                     ZStack(alignment: .leading) {
-                        Capsule().fill(category.color.opacity(0.1)).frame(height: 4)
+                        Capsule().fill(category.color.opacity(0.1)).frame(height: 3)
                         Capsule()
                             .fill(category.color)
-                            .frame(width: geo.size.width * (appear ? progress : 0), height: 4)
+                            .frame(width: geo.size.width * (appear ? progress : 0), height: 3)
                             .animation(.spring(response: 0.7), value: appear)
                     }
                 }
-                .frame(height: 4)
+                .frame(height: 3)
 
                 Text("\(budget.currencyFormatted(currency: currency)) budget")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
             }
         }
         .padding(14)

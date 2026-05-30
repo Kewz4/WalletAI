@@ -80,8 +80,8 @@ struct AddTransactionView: View {
                     if let s = prefilledSource { source = s }
                     selectedCategory = categories.first { $0.name == "Other" }
                 }
-                validate()
             }
+            .task(id: "\(title)\(amount)") { validate() }
             .onChange(of: amount) { _, _ in validate() }
             .onChange(of: title)  { _, _ in validate() }
         }
@@ -102,6 +102,7 @@ struct AddTransactionView: View {
             tx.source = source
             tx.isRecurring = isRecurring
             tx.recurringInterval = isRecurring ? recurringInterval : nil
+            try? context.save()
         } else {
             let tx = Transaction(
                 title: title,

@@ -99,7 +99,7 @@ struct AIChatView: View {
                 Button {
                     showAPIKeyPrompt = true
                 } label: {
-                    Label("Set Up DeepSeek API Key", systemImage: "key.fill")
+                    Label("Set Up Groq API Key", systemImage: "key.fill")
                         .font(.headline)
                         .padding(16)
                         .frame(maxWidth: .infinity)
@@ -145,27 +145,36 @@ struct AIChatView: View {
     private var inputBar: some View {
         GlassEffectContainer(spacing: 8) {
             HStack(spacing: 8) {
+                Button {
+                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                } label: {
+                    Image(systemName: "keyboard.chevron.compact.down")
+                        .font(.system(size: 18))
+                        .foregroundStyle(.secondary)
+                        .frame(width: 36, height: 36)
+                }
+                .buttonStyle(.plain)
+
                 TextField("Ask about your finances...", text: $inputText, axis: .vertical)
                     .lineLimit(1...4)
-                    .padding(.horizontal, 16)
+                    .padding(.horizontal, 14)
                     .padding(.vertical, 10)
-                    .glassEffect(.regular, in: .capsule)
+                    .background(.regularMaterial, in: Capsule())
 
                 Button {
                     send()
                 } label: {
                     Image(systemName: inputText.isEmpty ? "mic.fill" : "arrow.up.circle.fill")
-                        .font(.system(size: 24, weight: .semibold))
+                        .font(.system(size: 22, weight: .semibold))
                         .foregroundStyle(.white)
-                        .frame(width: 44, height: 44)
-                        .background(Color.walletPrimary)
-                        .clipShape(Circle())
+                        .frame(width: 40, height: 40)
+                        .background(Color.walletPrimary, in: Circle())
                 }
                 .disabled(deepSeekService.isLoading)
-                .glassEffect(.regular.tint(Color.walletPrimary).interactive(), in: .circle)
+                .buttonStyle(.plain)
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 10)
             .padding(.bottom, 20)
         }
     }
@@ -208,7 +217,7 @@ struct AIChatView: View {
     private func sendWelcomeMessage() {
         let welcome = AIMessage(
             role: .assistant,
-            content: "Hi! I'm your WalletAI assistant powered by DeepSeek. I can see your transaction history and help you understand your spending. What would you like to know?"
+            content: "Hi! I'm your WalletAI assistant. I can see your transactions and help with spending insights. What would you like to know?"
         )
         messages = [welcome]
     }
@@ -230,7 +239,7 @@ struct AIChatView: View {
         scrollToBottom()
 
         guard deepSeekService.hasAPIKey else {
-            let reply = AIMessage(role: .assistant, content: "Please set up your DeepSeek API key in Settings or tap the menu above to add it.")
+            let reply = AIMessage(role: .assistant, content: "Please add your Groq API key — tap the ⋯ menu above.")
             messages.append(reply)
             return
         }

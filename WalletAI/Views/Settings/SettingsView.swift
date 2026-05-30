@@ -86,7 +86,8 @@ struct SettingsView: View {
                 // Emoji avatar (tappable)
                 ZStack {
                     ProfileImageView(image: authService.profileImage, size: 72,
-                                     emoji: authService.profileEmoji)
+                                     emoji: authService.profileEmoji,
+                                     initials: String(authService.userName.prefix(1)).uppercased())
                     if authService.isSignedIn {
                         VStack {
                             Spacer()

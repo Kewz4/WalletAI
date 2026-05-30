@@ -181,7 +181,8 @@ struct DashboardView: View {
         ProfileImageView(
             image: authService.profileImage,
             size: 34,
-            emoji: authService.profileEmoji
+            emoji: authService.profileEmoji,
+            initials: String(authService.userName.prefix(1)).uppercased()
         )
     }
 

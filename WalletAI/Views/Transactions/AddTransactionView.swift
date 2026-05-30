@@ -53,12 +53,12 @@ struct AddTransactionView: View {
                 .padding(.bottom, 32)
             }
             .background(Color.walletBackground.ignoresSafeArea())
-            .navigationTitle(isEditing ? "Edit Transaction" : (isExpense ? "Add Expense" : "Add Income"))
+            .navigationTitle(isEditing ? L("tx.editTx") : (isExpense ? L("tx.addExpense") : L("tx.addIncome")))
             .navigationBarTitleDisplayMode(.inline)
             .keyboardDoneButton()
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("Cancel") { dismiss() }
+                    Button(L("common.cancel")) { dismiss() }
                         .foregroundStyle(.secondary)
                 }
             }
@@ -128,7 +128,7 @@ struct AddTransactionView: View {
     private var typeToggle: some View {
         GlassEffectContainer(spacing: 4) {
             HStack(spacing: 4) {
-                Button("Expense") {
+                Button(L("tx.expenses")) {
                     withAnimation(.springy) { isExpense = true }
                     UIImpactFeedbackGenerator(style: .light).impactOccurred()
                 }
@@ -141,7 +141,7 @@ struct AddTransactionView: View {
                 )
                 .foregroundStyle(isExpense ? Color.white : Color.secondary)
 
-                Button("Income") {
+                Button(L("tx.income")) {
                     withAnimation(.springy) { isExpense = false }
                     UIImpactFeedbackGenerator(style: .light).impactOccurred()
                 }
@@ -256,7 +256,7 @@ struct AddTransactionView: View {
                 Image(systemName: "calendar")
                     .frame(width: 24)
                     .foregroundStyle(Color.walletPrimary)
-                DatePicker("Date", selection: $date, displayedComponents: [.date, .hourAndMinute])
+                DatePicker(L("tx.date"), selection: $date, displayedComponents: [.date, .hourAndMinute])
                     .tint(Color.walletPrimary)
             }
             .padding(16)
@@ -270,7 +270,7 @@ struct AddTransactionView: View {
                 Image(systemName: "arrow.clockwise.circle.fill")
                     .frame(width: 24)
                     .foregroundStyle(.orange)
-                Toggle("Recurring", isOn: $isRecurring.animation(.springy))
+                Toggle(L("tx.recurring"), isOn: $isRecurring.animation(.springy))
                     .tint(.orange)
             }
             .padding(16)
@@ -281,7 +281,7 @@ struct AddTransactionView: View {
                     Image(systemName: "clock.fill")
                         .frame(width: 24)
                         .foregroundStyle(.orange)
-                    Picker("Interval", selection: $recurringInterval) {
+                    Picker(L("tx.interval"), selection: $recurringInterval) {
                         ForEach(Transaction.RecurringInterval.allCases, id: \.self) { interval in
                             Text(interval.displayName).tag(interval)
                         }
@@ -300,7 +300,7 @@ struct AddTransactionView: View {
             Image(systemName: "note.text")
                 .frame(width: 24)
                 .foregroundStyle(Color.walletPrimary)
-            TextField("Notes (optional)", text: $notes, axis: .vertical)
+            TextField(L("tx.notes"), text: $notes, axis: .vertical)
                 .lineLimit(3...6)
         }
         .padding(16)
@@ -313,7 +313,7 @@ struct AddTransactionView: View {
         } label: {
             HStack {
                 Image(systemName: "checkmark.circle.fill")
-                Text(isExpense ? "Save Expense" : "Save Income")
+                Text(isExpense ? L("tx.saveExpense") : L("tx.saveIncome"))
                     .font(.headline)
             }
             .frame(maxWidth: .infinity)

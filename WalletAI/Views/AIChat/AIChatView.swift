@@ -268,8 +268,10 @@ struct AIChatView: View {
     }
 
     private func scrollToBottom() {
-        withAnimation(.smooth) {
-            scrollProxy?.scrollTo("bottom", anchor: .bottom)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.08) {
+            withAnimation(.smooth) {
+                scrollProxy?.scrollTo("bottom", anchor: .bottom)
+            }
         }
     }
 
@@ -432,7 +434,7 @@ struct MessageBubble: View {
 
 // MARK: - AI Chart View
 
-private let chartPalette: [Color] = [
+let chartPalette: [Color] = [
     .walletPrimary, Color(hex: "#00B894")!, Color(hex: "#E17055")!,
     Color(hex: "#6C5CE7")!, Color(hex: "#FDCB6E")!, Color(hex: "#0984E3")!,
     Color(hex: "#FF6B6B")!, Color(hex: "#A855F7")!
@@ -440,24 +442,41 @@ private let chartPalette: [Color] = [
 
 struct AIChartView: View {
     let chart: AIChartData
+    var isExpanded: Bool = false
+    @State private var showExpanded = false
 
     private var pairs: [(String, Double)] { Array(zip(chart.labels, chart.values)) }
     private var sym: String { chart.currency == "USD" ? "$" : (chart.currency ?? "") }
-    private var total: Double { chart.values.reduce(0, +) }
+    private var total: Double { max(chart.values.reduce(0, +), 0.01) }
+    private var barH: CGFloat { isExpanded ? 240 : 160 }
+    private var pieH: CGFloat { isExpanded ? 220 : 160 }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            if let title = chart.title {
-                Text(title)
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.secondary)
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                if let title = chart.title {
+                    Text(title)
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
+                if !isExpanded {
+                    Image(systemName: "arrow.up.left.and.arrow.down.right")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
             }
 
             switch chart.type {
-            case .bar:   barChart
-            case .pie:   pieChart
-            case .line:  lineChart
+            case .bar:  barChart
+            case .pie:  pieChart
+            case .line: lineChart
             }
+        }
+        .contentShape(Rectangle())
+        .onTapGesture { if !isExpanded { showExpanded = true } }
+        .sheet(isPresented: $showExpanded) {
+            ExpandedChartSheet(chart: chart)
         }
     }
 
@@ -467,51 +486,57 @@ struct AIChartView: View {
             ForEach(Array(pairs.enumerated()), id: \.offset) { idx, pair in
                 BarMark(x: .value("Label", pair.0), y: .value("Amount", pair.1))
                     .foregroundStyle(chartPalette[idx % chartPalette.count].gradient)
-                    .cornerRadius(5)
+                    .cornerRadius(6)
                     .annotation(position: .top) {
                         Text("\(sym)\(Int(pair.1))")
-                            .font(.system(size: 9, weight: .semibold))
+                            .font(.system(size: isExpanded ? 10 : 9, weight: .semibold))
                             .foregroundStyle(chartPalette[idx % chartPalette.count])
                     }
             }
         }
         .chartYAxis(.hidden)
         .chartXAxis { AxisMarks { _ in AxisValueLabel().font(.caption2) } }
-        .frame(height: 150)
+        .frame(maxWidth: .infinity)
+        .frame(height: barH)
     }
 
-    // MARK: Pie / Donut
+    // MARK: Pie / Donut — vertical layout so labels are never clipped
     private var pieChart: some View {
-        HStack(spacing: 16) {
+        VStack(spacing: 12) {
             Chart {
                 ForEach(Array(pairs.enumerated()), id: \.offset) { idx, pair in
                     SectorMark(
                         angle: .value("Amount", pair.1),
-                        innerRadius: .ratio(0.55),
-                        angularInset: 2
+                        innerRadius: .ratio(0.52),
+                        angularInset: 2.5
                     )
                     .foregroundStyle(chartPalette[idx % chartPalette.count])
-                    .cornerRadius(4)
+                    .cornerRadius(5)
                 }
             }
-            .frame(width: 130, height: 130)
+            .frame(maxWidth: .infinity)
+            .frame(height: pieH)
 
-            VStack(alignment: .leading, spacing: 6) {
+            // Full-width legend grid — 2 columns, no truncation
+            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
                 ForEach(Array(pairs.enumerated()), id: \.offset) { idx, pair in
                     HStack(spacing: 6) {
                         Circle()
                             .fill(chartPalette[idx % chartPalette.count])
                             .frame(width: 8, height: 8)
-                        Text(pair.0)
-                            .font(.caption2)
-                            .lineLimit(1)
-                        Spacer()
-                        Text("\(sym)\(Int(pair.1))")
-                            .font(.caption2.bold())
+                        VStack(alignment: .leading, spacing: 1) {
+                            Text(pair.0)
+                                .font(.caption2.weight(.medium))
+                                .lineLimit(2)
+                                .fixedSize(horizontal: false, vertical: true)
+                            Text("\(sym)\(Int(pair.1)) · \(Int(pair.1 / total * 100))%")
+                                .font(.system(size: 9))
+                                .foregroundStyle(.secondary)
+                        }
+                        Spacer(minLength: 0)
                     }
                 }
             }
-            .frame(maxWidth: .infinity)
         }
     }
 
@@ -527,17 +552,79 @@ struct AIChartView: View {
                     .interpolationMethod(.catmullRom)
                 PointMark(x: .value("Label", pair.0), y: .value("Amount", pair.1))
                     .foregroundStyle(Color.walletPrimary)
-                    .symbolSize(30)
+                    .symbolSize(isExpanded ? 50 : 30)
                     .annotation(position: .top) {
                         Text("\(sym)\(Int(pair.1))")
-                            .font(.system(size: 9, weight: .semibold))
+                            .font(.system(size: isExpanded ? 10 : 9, weight: .semibold))
                             .foregroundStyle(Color.walletPrimary)
                     }
             }
         }
         .chartYAxis(.hidden)
         .chartXAxis { AxisMarks { _ in AxisValueLabel().font(.caption2) } }
-        .frame(height: 150)
+        .frame(maxWidth: .infinity)
+        .frame(height: barH)
+    }
+}
+
+// MARK: - Expanded Chart Sheet
+
+struct ExpandedChartSheet: View {
+    let chart: AIChartData
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(spacing: 20) {
+                    AIChartView(chart: chart, isExpanded: true)
+                        .padding(.horizontal, 20)
+                        .padding(.top, 8)
+
+                    if !chart.labels.isEmpty {
+                        let pairs = Array(zip(chart.labels, chart.values))
+                        let sym = chart.currency == "USD" ? "$" : (chart.currency ?? "")
+                        let total = max(chart.values.reduce(0, +), 0.01)
+
+                        VStack(spacing: 0) {
+                            ForEach(Array(pairs.enumerated()), id: \.offset) { idx, pair in
+                                HStack(spacing: 12) {
+                                    Circle()
+                                        .fill(chartPalette[idx % chartPalette.count])
+                                        .frame(width: 10, height: 10)
+                                    Text(pair.0)
+                                        .font(.subheadline)
+                                    Spacer()
+                                    VStack(alignment: .trailing, spacing: 2) {
+                                        Text("\(sym)\(String(format: "%.2f", pair.1))")
+                                            .font(.subheadline.bold())
+                                        Text("\(Int(pair.1 / total * 100))%")
+                                            .font(.caption2)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                }
+                                .padding(.horizontal, 20)
+                                .padding(.vertical, 12)
+                                if idx < pairs.count - 1 {
+                                    Divider().padding(.leading, 42)
+                                }
+                            }
+                        }
+                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
+                        .padding(.horizontal, 16)
+                    }
+                }
+                .padding(.bottom, 32)
+            }
+            .background(Color.walletBackground.ignoresSafeArea())
+            .navigationTitle(chart.title ?? "Chart")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(L("common.done")) { dismiss() }
+                }
+            }
+        }
     }
 }
 

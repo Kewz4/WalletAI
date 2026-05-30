@@ -48,6 +48,7 @@ struct ProfileImageView: View {
     let image: UIImage?
     let size: CGFloat
     var emoji: String = ""
+    var initials: String = ""
     var primaryColor: Color = .walletPrimary
     var accentColor: Color = .walletAccent
 
@@ -79,9 +80,15 @@ struct ProfileImageView: View {
                         endPoint: .bottomTrailing
                     ))
                     .frame(width: size, height: size)
-                Image(systemName: "person.fill")
-                    .font(.system(size: size * 0.44))
-                    .foregroundStyle(.white)
+                if !initials.isEmpty {
+                    Text(initials)
+                        .font(.system(size: size * 0.44, weight: .semibold))
+                        .foregroundStyle(.white)
+                } else {
+                    Image(systemName: "person.fill")
+                        .font(.system(size: size * 0.44))
+                        .foregroundStyle(.white)
+                }
             }
         }
     }

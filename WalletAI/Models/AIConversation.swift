@@ -17,7 +17,7 @@ final class AIConversation {
 }
 
 struct AIChartData: Codable {
-    enum ChartType: String, Codable { case bar, pie }
+    enum ChartType: String, Codable { case bar, pie, line }
     let type: ChartType
     let labels: [String]
     let values: [Double]

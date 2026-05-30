@@ -91,8 +91,8 @@ private let _lEN: [String: String] = [
     "ai.menuBiggest":    "Biggest Expenses",
     "ai.menuSetKey":     "Set API Key",
     "ai.menuClear":      "Clear Chat",
-    "ai.setupKey":       "Set Up Groq API Key",
-    "ai.noKey":          "Please add your Groq API key — tap the ⋯ menu above.",
+    "ai.setupKey":       "Set Up API Key",
+    "ai.noKey":          "Please set up your API key — tap the ⋯ menu above.",
 
     // Settings
     "settings.title":    "Settings",
@@ -247,8 +247,8 @@ private let _lES: [String: String] = [
     "ai.menuBiggest":    "Mayores Gastos",
     "ai.menuSetKey":     "Configurar API Key",
     "ai.menuClear":      "Limpiar Chat",
-    "ai.setupKey":       "Configurar Groq API Key",
-    "ai.noKey":          "Agrega tu Groq API key — toca el menú ⋯ arriba.",
+    "ai.setupKey":       "Configurar API Key",
+    "ai.noKey":          "Configura tu clave de API — toca el menú ⋯ arriba.",
 
     // Settings
     "settings.title":    "Ajustes",

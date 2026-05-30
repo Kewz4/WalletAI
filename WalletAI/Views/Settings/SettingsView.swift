@@ -229,14 +229,6 @@ struct SettingsView: View {
 
             Divider().padding(.horizontal)
 
-            settingsRow(icon: "cpu", title: L("settings.modelRow")) {
-                Text("Llama 3.3 70B")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-
-            Divider().padding(.horizontal)
-
             // Re-analyze all transactions
             reAnalyzeRow
         }

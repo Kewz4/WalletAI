@@ -111,7 +111,7 @@ struct AIChatView: View {
                 Button {
                     showAPIKeyPrompt = true
                 } label: {
-                    Label("Set Up Groq API Key", systemImage: "key.fill")
+                    Label(L("ai.setupKey"), systemImage: "key.fill")
                         .font(.headline)
                         .padding(16)
                         .frame(maxWidth: .infinity)
@@ -227,7 +227,7 @@ struct AIChatView: View {
         scrollToBottom()
 
         guard deepSeekService.hasAPIKey else {
-            let reply = AIMessage(role: .assistant, content: "Please add your Groq API key — tap the ⋯ menu above.")
+            let reply = AIMessage(role: .assistant, content: L("ai.noKey"))
             messages.append(reply)
             return
         }
@@ -243,6 +243,7 @@ struct AIChatView: View {
         var streamingMsg = AIMessage(role: .assistant, content: "", isStreaming: true)
         messages.append(streamingMsg)
         let streamingIndex = messages.count - 1
+        scrollToBottom()
 
         Task {
             await deepSeekService.streamChat(
@@ -375,7 +376,6 @@ struct MessageBubble: View {
         if paragraphs.count <= 1 {
             markdownText(raw)
                 .foregroundStyle(isUser ? Color.white : Color.primary)
-                .frame(maxWidth: .infinity, alignment: isUser ? .trailing : .leading)
         } else {
             VStack(alignment: .leading, spacing: 8) {
                 ForEach(Array(paragraphs.enumerated()), id: \.offset) { _, para in
@@ -432,12 +432,18 @@ struct MessageBubble: View {
 
 // MARK: - AI Chart View
 
+private let chartPalette: [Color] = [
+    .walletPrimary, Color(hex: "#00B894")!, Color(hex: "#E17055")!,
+    Color(hex: "#6C5CE7")!, Color(hex: "#FDCB6E")!, Color(hex: "#0984E3")!,
+    Color(hex: "#FF6B6B")!, Color(hex: "#A855F7")!
+]
+
 struct AIChartView: View {
     let chart: AIChartData
 
     private var pairs: [(String, Double)] { Array(zip(chart.labels, chart.values)) }
-    private var maxVal: Double { chart.values.max() ?? 1 }
-    private var currencySymbol: String { chart.currency == "USD" ? "$" : (chart.currency ?? "") }
+    private var sym: String { chart.currency == "USD" ? "$" : (chart.currency ?? "") }
+    private var total: Double { chart.values.reduce(0, +) }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -446,27 +452,92 @@ struct AIChartView: View {
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(.secondary)
             }
-            Chart {
-                ForEach(pairs, id: \.0) { label, value in
-                    BarMark(
-                        x: .value("Label", label),
-                        y: .value("Amount", value)
-                    )
-                    .foregroundStyle(Color.walletPrimary.gradient)
+
+            switch chart.type {
+            case .bar:   barChart
+            case .pie:   pieChart
+            case .line:  lineChart
+            }
+        }
+    }
+
+    // MARK: Bar
+    private var barChart: some View {
+        Chart {
+            ForEach(Array(pairs.enumerated()), id: \.offset) { idx, pair in
+                BarMark(x: .value("Label", pair.0), y: .value("Amount", pair.1))
+                    .foregroundStyle(chartPalette[idx % chartPalette.count].gradient)
                     .cornerRadius(5)
-                    .annotation(position: .top, alignment: .center) {
-                        Text("\(currencySymbol)\(Int(value))")
+                    .annotation(position: .top) {
+                        Text("\(sym)\(Int(pair.1))")
                             .font(.system(size: 9, weight: .semibold))
-                            .foregroundStyle(Color.walletPrimary)
+                            .foregroundStyle(chartPalette[idx % chartPalette.count])
+                    }
+            }
+        }
+        .chartYAxis(.hidden)
+        .chartXAxis { AxisMarks { _ in AxisValueLabel().font(.caption2) } }
+        .frame(height: 150)
+    }
+
+    // MARK: Pie / Donut
+    private var pieChart: some View {
+        HStack(spacing: 16) {
+            Chart {
+                ForEach(Array(pairs.enumerated()), id: \.offset) { idx, pair in
+                    SectorMark(
+                        angle: .value("Amount", pair.1),
+                        innerRadius: .ratio(0.55),
+                        angularInset: 2
+                    )
+                    .foregroundStyle(chartPalette[idx % chartPalette.count])
+                    .cornerRadius(4)
+                }
+            }
+            .frame(width: 130, height: 130)
+
+            VStack(alignment: .leading, spacing: 6) {
+                ForEach(Array(pairs.enumerated()), id: \.offset) { idx, pair in
+                    HStack(spacing: 6) {
+                        Circle()
+                            .fill(chartPalette[idx % chartPalette.count])
+                            .frame(width: 8, height: 8)
+                        Text(pair.0)
+                            .font(.caption2)
+                            .lineLimit(1)
+                        Spacer()
+                        Text("\(sym)\(Int(pair.1))")
+                            .font(.caption2.bold())
                     }
                 }
             }
-            .chartYAxis(.hidden)
-            .chartXAxis {
-                AxisMarks { _ in AxisValueLabel().font(.caption2) }
-            }
-            .frame(height: 140)
+            .frame(maxWidth: .infinity)
         }
+    }
+
+    // MARK: Line
+    private var lineChart: some View {
+        Chart {
+            ForEach(Array(pairs.enumerated()), id: \.offset) { idx, pair in
+                LineMark(x: .value("Label", pair.0), y: .value("Amount", pair.1))
+                    .foregroundStyle(Color.walletPrimary)
+                    .interpolationMethod(.catmullRom)
+                AreaMark(x: .value("Label", pair.0), y: .value("Amount", pair.1))
+                    .foregroundStyle(Color.walletPrimary.opacity(0.12).gradient)
+                    .interpolationMethod(.catmullRom)
+                PointMark(x: .value("Label", pair.0), y: .value("Amount", pair.1))
+                    .foregroundStyle(Color.walletPrimary)
+                    .symbolSize(30)
+                    .annotation(position: .top) {
+                        Text("\(sym)\(Int(pair.1))")
+                            .font(.system(size: 9, weight: .semibold))
+                            .foregroundStyle(Color.walletPrimary)
+                    }
+            }
+        }
+        .chartYAxis(.hidden)
+        .chartXAxis { AxisMarks { _ in AxisValueLabel().font(.caption2) } }
+        .frame(height: 150)
     }
 }
 
@@ -513,11 +584,11 @@ struct APIKeySetupView: View {
             VStack(spacing: 20) {
                 // Info card
                 VStack(spacing: 10) {
-                    Text("⚡️")
+                    Text("🤖")
                         .font(.system(size: 44))
-                    Text("Groq AI — Free")
+                    Text(L("settings.aiSection"))
                         .font(.title2.bold())
-                    Text("100% free, no credit card needed.\nGet your key at console.groq.com")
+                    Text("Paste your API key below to enable AI features.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
@@ -527,10 +598,10 @@ struct APIKeySetupView: View {
                 .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20))
 
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("API Key")
+                    Text(L("settings.groqKey"))
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(.secondary)
-                    TextField("gsk_...", text: $key)
+                    TextField("API Key", text: $key)
                         .font(.body.monospaced())
                         .autocorrectionDisabled()
                         .textInputAutocapitalization(.never)

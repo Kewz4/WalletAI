@@ -137,9 +137,13 @@ final class DeepSeekService {
         - Use **bold** for key numbers only. Avoid bullet lists unless explicitly asked for a breakdown.
         - At most 1 emoji per message.
         - Use double newlines (blank lines) between paragraphs so responses are easy to read.
-        - When your response contains a breakdown with 3 or more numeric items (e.g. spending by category, weekly totals), append a chart block on its own line at the very end, after all text:
-          [CHART]:{"type":"bar","labels":["Label1","Label2"],"values":[0.0,0.0],"title":"Chart Title","currency":"USD"}
-          The JSON must be valid and on a single line. Do not include the chart block for single-item or yes/no answers.
+        - For visual data, append ONE chart block at the very end of your response (after all text), on its own line. Choose the chart type wisely:
+          • "bar" — comparing amounts across categories (spending by category, budget vs. actual)
+          • "pie" — showing percentage/proportion breakdown (share of total spending per category)
+          • "line" — showing a trend over time (daily or weekly spending over consecutive periods)
+          Only include a chart when it genuinely adds value (3+ data points, numeric comparison or trend). Never include one for yes/no answers, single values, or advice questions.
+          Format: [CHART]:{"type":"bar","labels":["A","B","C"],"values":[10.0,20.0,30.0],"title":"Title","currency":"USD"}
+          JSON must be valid, single line, no trailing text after it.
         \(personality)
         """
     }

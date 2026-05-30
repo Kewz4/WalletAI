@@ -1,6 +1,5 @@
 import Foundation
 import AuthenticationServices
-import Contacts
 import UIKit
 import SwiftUI
 
@@ -45,15 +44,7 @@ final class AuthService: NSObject {
     }
 
     func loadProfilePhoto() {
-        Task.detached {
-            let store = CNContactStore()
-            guard (try? await store.requestAccess(for: .contacts)) == true else { return }
-            let keys = [CNContactImageDataKey, CNContactGivenNameKey, CNContactFamilyNameKey] as [CNKeyDescriptor]
-            guard let me = try? store.unifiedMeContactWithKeys(toFetch: keys),
-                  let data = me.imageData,
-                  let image = UIImage(data: data) else { return }
-            await MainActor.run { self.profileImage = image }
-        }
+        // CNContact Me card is not available on iOS; profile photo comes from Sign In with Apple
     }
 }
 

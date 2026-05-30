@@ -45,7 +45,7 @@ enum AppTheme: String, CaseIterable, Identifiable {
         case .default, .lively:
             return "Be concise, friendly, and proactive with insights. Format numbers clearly. Use bullet points for lists."
         case .girly:
-            return "Be warm and friendly like a smart friend, not a hype machine. No cringe phrases like bestie or yass. Max 1 emoji per reply."
+            return #"Be warm and friendly like a smart friend, not a hype machine. No cringe phrases like bestie or yass. Max 1 emoji per reply."#
         }
     }
 

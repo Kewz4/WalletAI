@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import Charts
 
 struct AIChatView: View {
     @Environment(\.modelContext) private var context
@@ -253,6 +254,9 @@ struct AIChatView: View {
                 },
                 onComplete: {
                     streamingMsg.isStreaming = false
+                    let (cleanContent, chart) = parseChartPayload(from: streamingMsg.content)
+                    streamingMsg.content = cleanContent
+                    streamingMsg.chartPayload = chart
                     if streamingMsg.content.isEmpty {
                         streamingMsg.content = deepSeekService.error ?? "No response received. Check your API key."
                     }
@@ -271,6 +275,21 @@ struct AIChatView: View {
     private func handleMicTap() {
         Task { try? await speechService.startListening() }
         UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+    }
+
+    private func parseChartPayload(from text: String) -> (String, AIChartData?) {
+        let marker = "[CHART]:"
+        guard let range = text.range(of: marker) else { return (text, nil) }
+        let before = String(text[text.startIndex..<range.lowerBound])
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let jsonStr = String(text[range.upperBound...])
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .components(separatedBy: "\n").first ?? ""
+        guard let data = jsonStr.data(using: .utf8),
+              let chart = try? JSONDecoder().decode(AIChartData.self, from: data) else {
+            return (before.isEmpty ? text : before, nil)
+        }
+        return (before, chart)
     }
 }
 
@@ -294,17 +313,18 @@ struct MessageBubble: View {
                         .font(.system(size: 14))
                         .foregroundStyle(Color.walletPrimary)
                 }
+                .alignmentGuide(.bottom) { d in d[.bottom] }
             }
 
             VStack(alignment: isUser ? .trailing : .leading, spacing: 4) {
-                Group {
+                // Main bubble
+                VStack(alignment: .leading, spacing: 0) {
                     if !isUser && message.content.isEmpty {
                         BouncingDotsView()
                             .padding(.horizontal, 14)
                             .padding(.vertical, 14)
                     } else {
-                        markdownText(message.content)
-                            .foregroundStyle(isUser ? Color.white : Color.primary)
+                        paragraphBody(message.content)
                             .padding(.horizontal, 14)
                             .padding(.vertical, 10)
                     }
@@ -327,12 +347,43 @@ struct MessageBubble: View {
                     }
                 }
 
+                // Chart (AI only)
+                if !isUser, let chart = message.chartPayload {
+                    AIChartView(chart: chart)
+                        .padding(12)
+                        .background(Color(UIColor.secondarySystemBackground),
+                                    in: RoundedRectangle(cornerRadius: 16))
+                }
+
                 Text(message.timestamp.formatted(.dateTime.hour().minute()))
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
 
             if !isUser { Spacer(minLength: 60) }
+        }
+    }
+
+    // Split on double newline → separate Text views with spacing
+    @ViewBuilder
+    private func paragraphBody(_ raw: String) -> some View {
+        let paragraphs = raw
+            .components(separatedBy: "\n\n")
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+
+        if paragraphs.count <= 1 {
+            markdownText(raw)
+                .foregroundStyle(isUser ? Color.white : Color.primary)
+                .frame(maxWidth: .infinity, alignment: isUser ? .trailing : .leading)
+        } else {
+            VStack(alignment: .leading, spacing: 8) {
+                ForEach(Array(paragraphs.enumerated()), id: \.offset) { _, para in
+                    markdownText(para)
+                        .foregroundStyle(isUser ? Color.white : Color.primary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+            }
         }
     }
 
@@ -376,6 +427,46 @@ struct MessageBubble: View {
         }
         flush()
         return Text(attributed).font(.body)
+    }
+}
+
+// MARK: - AI Chart View
+
+struct AIChartView: View {
+    let chart: AIChartData
+
+    private var pairs: [(String, Double)] { Array(zip(chart.labels, chart.values)) }
+    private var maxVal: Double { chart.values.max() ?? 1 }
+    private var currencySymbol: String { chart.currency == "USD" ? "$" : (chart.currency ?? "") }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            if let title = chart.title {
+                Text(title)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+            }
+            Chart {
+                ForEach(pairs, id: \.0) { label, value in
+                    BarMark(
+                        x: .value("Label", label),
+                        y: .value("Amount", value)
+                    )
+                    .foregroundStyle(Color.walletPrimary.gradient)
+                    .cornerRadius(5)
+                    .annotation(position: .top, alignment: .center) {
+                        Text("\(currencySymbol)\(Int(value))")
+                            .font(.system(size: 9, weight: .semibold))
+                            .foregroundStyle(Color.walletPrimary)
+                    }
+                }
+            }
+            .chartYAxis(.hidden)
+            .chartXAxis {
+                AxisMarks { _ in AxisValueLabel().font(.caption2) }
+            }
+            .frame(height: 140)
+        }
     }
 }
 

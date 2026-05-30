@@ -11,7 +11,7 @@ final class AuthService: NSObject {
     static let shared = AuthService()
 
     var userName: String = UserDefaults.standard.string(forKey: "walletai_user_name") ?? ""
-    var userEmail: String = UserDefaults.standard.string(forKey: "walletai_user_email") ?? ""
+    var profileEmoji: String = UserDefaults.standard.string(forKey: "walletai_user_emoji") ?? ""
     var userID: String = UserDefaults.standard.string(forKey: "walletai_user_id") ?? ""
     var profileImage: UIImage? = nil
 
@@ -19,25 +19,25 @@ final class AuthService: NSObject {
 
     private override init() { super.init() }
 
-    func setProfile(name: String, email: String = "") {
+    func setProfile(name: String, emoji: String = "") {
         let n = name.trimmingCharacters(in: .whitespaces)
         guard !n.isEmpty else { return }
         userName = n
-        userEmail = email.trimmingCharacters(in: .whitespaces)
+        profileEmoji = emoji.trimmingCharacters(in: .whitespaces)
         if userID.isEmpty { userID = "local_\(UUID().uuidString)" }
         UserDefaults.standard.set(userName, forKey: "walletai_user_name")
-        UserDefaults.standard.set(userEmail, forKey: "walletai_user_email")
+        UserDefaults.standard.set(profileEmoji, forKey: "walletai_user_emoji")
         UserDefaults.standard.set(userID, forKey: "walletai_user_id")
         UINotificationFeedbackGenerator().notificationOccurred(.success)
     }
 
     func signOut() {
         userName = ""
-        userEmail = ""
+        profileEmoji = ""
         userID = ""
         profileImage = nil
         UserDefaults.standard.removeObject(forKey: "walletai_user_name")
-        UserDefaults.standard.removeObject(forKey: "walletai_user_email")
+        UserDefaults.standard.removeObject(forKey: "walletai_user_emoji")
         UserDefaults.standard.removeObject(forKey: "walletai_user_id")
     }
 }
@@ -47,6 +47,7 @@ final class AuthService: NSObject {
 struct ProfileImageView: View {
     let image: UIImage?
     let size: CGFloat
+    var emoji: String = ""
     var primaryColor: Color = .walletPrimary
     var accentColor: Color = .walletAccent
 
@@ -57,6 +58,18 @@ struct ProfileImageView: View {
                 .scaledToFill()
                 .frame(width: size, height: size)
                 .clipShape(Circle())
+        } else if !emoji.isEmpty {
+            ZStack {
+                Circle()
+                    .fill(LinearGradient(
+                        colors: [primaryColor.opacity(0.2), accentColor.opacity(0.15)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ))
+                    .frame(width: size, height: size)
+                Text(emoji)
+                    .font(.system(size: size * 0.5))
+            }
         } else {
             ZStack {
                 Circle()

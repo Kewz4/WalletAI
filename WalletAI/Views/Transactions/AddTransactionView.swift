@@ -16,8 +16,6 @@ struct AddTransactionView: View {
     @State private var isRecurring: Bool = false
     @State private var recurringInterval: Transaction.RecurringInterval = .monthly
     @State private var source: Transaction.Source = .manual
-    @State private var showCategoryPicker = false
-    @State private var showDatePicker = false
     @State private var isValid: Bool = false
 
     var prefilledTitle: String?
@@ -161,15 +159,13 @@ struct AddTransactionView: View {
     }
 
     private var amountSection: some View {
-        VStack(spacing: 8) {
-            AmountTextField(amount: $amount, currency: currency)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 20)
-                .glassEffect(
-                    .regular.tint(isExpense ? Color.red : Color.green),
-                    in: .rect(cornerRadius: 20)
-                )
-        }
+        AmountTextField(amount: $amount, currency: currency, textColor: .white)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 20)
+            .background(
+                isExpense ? Color.red.opacity(0.85) : Color.green.opacity(0.85),
+                in: RoundedRectangle(cornerRadius: 20, style: .continuous)
+            )
     }
 
     private var detailsSection: some View {
@@ -178,75 +174,80 @@ struct AddTransactionView: View {
                 Image(systemName: "pencil")
                     .frame(width: 24)
                     .foregroundStyle(Color.walletPrimary)
-                TextField("Title", text: $title)
+                TextField(L("tx.title_field"), text: $title)
                     .font(.body)
                     .submitLabel(.next)
             }
             .padding(16)
+        }
+        .glassCard()
+    }
 
-            Divider().padding(.horizontal)
-
+    private var categorySection: some View {
+        VStack(alignment: .leading, spacing: 0) {
             HStack {
                 Image(systemName: "tag.fill")
                     .frame(width: 24)
                     .foregroundStyle(Color.walletPrimary)
-                Button {
-                    showCategoryPicker = true
-                } label: {
-                    HStack {
-                        Text(selectedCategory?.name ?? "Select Category")
-                            .foregroundStyle(selectedCategory == nil ? Color.secondary : Color.primary)
-                        Spacer()
-                        Image(systemName: "chevron.right")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
+                Text(L("tx.category"))
+                    .font(.body)
+                    .foregroundStyle(.secondary)
+                Spacer()
+                if let cat = selectedCategory {
+                    Text(cat.iconName)
+                        .font(.body)
+                    Text(cat.name)
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(cat.color)
                 }
-                .buttonStyle(.plain)
             }
-            .padding(16)
-        }
-        .glassCard()
-        .sheet(isPresented: $showCategoryPicker) {
-            CategoryPickerView(selected: $selectedCategory, isExpense: isExpense)
-        }
-    }
+            .padding(.horizontal, 16)
+            .padding(.top, 14)
+            .padding(.bottom, 10)
 
-    private var categorySection: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 10) {
-                ForEach(categories.filter { _ in true }) { cat in
+            Divider().padding(.horizontal)
+
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 4), spacing: 14) {
+                ForEach(categories) { cat in
+                    let isSelected = selectedCategory?.id == cat.id
                     Button {
                         withAnimation(.springy) { selectedCategory = cat }
                         UIImpactFeedbackGenerator(style: .light).impactOccurred()
                     } label: {
-                        VStack(spacing: 6) {
+                        VStack(spacing: 5) {
                             ZStack {
                                 Circle()
-                                    .fill(cat.color.opacity(selectedCategory?.id == cat.id ? 0.3 : 0.1))
-                                    .frame(width: 44, height: 44)
-                                Text(cat.iconName)
-                                    .font(.system(size: 20))
+                                    .fill(isSelected ? cat.color : cat.color.opacity(0.12))
+                                    .frame(width: 46, height: 46)
+                                if isSelected {
+                                    Circle()
+                                        .strokeBorder(.white.opacity(0.6), lineWidth: 2)
+                                        .frame(width: 46, height: 46)
+                                }
+                                if cat.iconName.contains(".") {
+                                    Image(systemName: cat.iconName)
+                                        .font(.system(size: 18))
+                                        .foregroundStyle(isSelected ? .white : cat.color)
+                                } else {
+                                    Text(cat.iconName)
+                                        .font(.system(size: 20))
+                                }
                             }
                             Text(cat.name)
-                                .font(.caption2)
+                                .font(.system(size: 9, weight: isSelected ? .semibold : .regular))
+                                .foregroundStyle(isSelected ? cat.color : .secondary)
                                 .lineLimit(1)
+                                .minimumScaleFactor(0.7)
                         }
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 8)
-                        .glassEffect(
-                            selectedCategory?.id == cat.id
-                                ? .regular.tint(cat.color).interactive()
-                                : .regular.interactive(),
-                            in: .rect(cornerRadius: 14)
-                        )
                     }
                     .buttonStyle(.plain)
+                    .animation(.springy, value: isSelected)
                 }
             }
-            .padding(.horizontal, 4)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 14)
         }
-        .scrollClipDisabled()
+        .glassCard()
     }
 
     private var dateSection: some View {

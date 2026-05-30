@@ -25,7 +25,7 @@ struct SettingsView: View {
     @State private var budgetAmount: Double = 2500
     @State private var showApplePayInfo = false
     @State private var profileNameInput: String = ""
-    @State private var profileEmailInput: String = ""
+    @State private var profileEmojiInput: String = ""
 
     private var currentBudget: Budget? { budgets.first }
 
@@ -81,56 +81,89 @@ struct SettingsView: View {
 
     private var profileHeader: some View {
         VStack(spacing: 16) {
+            // Avatar row
             HStack(spacing: 16) {
-                ProfileImageView(image: authService.profileImage, size: 72)
+                // Emoji avatar (tappable)
+                ZStack {
+                    ProfileImageView(image: authService.profileImage, size: 72,
+                                     emoji: authService.profileEmoji)
+                    if authService.isSignedIn {
+                        VStack {
+                            Spacer()
+                            HStack {
+                                Spacer()
+                                Circle()
+                                    .fill(Color.walletPrimary)
+                                    .frame(width: 22, height: 22)
+                                    .overlay(
+                                        Image(systemName: "pencil")
+                                            .font(.system(size: 10, weight: .bold))
+                                            .foregroundStyle(.white)
+                                    )
+                            }
+                        }
+                        .frame(width: 72, height: 72)
+                    }
+                }
+                .onTapGesture {
+                    if authService.isSignedIn { authService.signOut(); profileNameInput = ""; profileEmojiInput = "" }
+                }
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(authService.isSignedIn
-                         ? (authService.userName.isEmpty ? L("settings.walletaiUser") : authService.userName)
-                         : L("settings.setupProfileHint"))
-                        .font(.title3.bold())
-                    if authService.isSignedIn && !authService.userEmail.isEmpty {
-                        Text(authService.userEmail)
-                            .font(.caption)
+                    if authService.isSignedIn {
+                        Text(authService.userName.isEmpty ? L("settings.walletaiUser") : authService.userName)
+                            .font(.title3.bold())
+                        Text("\(transactions.count) \(L("settings.txTracked"))")
+                            .font(.subheadline)
                             .foregroundStyle(.secondary)
+                    } else {
+                        Text(L("settings.setupProfileHint"))
+                            .font(.title3.bold())
                     }
-                    Text("\(transactions.count) \(L("settings.txTracked"))")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
                 }
-
                 Spacer()
-
-                if authService.isSignedIn {
-                    Button {
-                        authService.signOut()
-                        profileNameInput = ""
-                        profileEmailInput = ""
-                    } label: {
-                        Text(L("common.edit"))
-                            .font(.caption)
-                            .foregroundStyle(Color.walletPrimary)
-                    }
-                }
             }
 
+            // Edit form (shown when not signed in)
             if !authService.isSignedIn {
                 VStack(spacing: 10) {
+                    // Emoji picker
+                    HStack(spacing: 12) {
+                        ZStack {
+                            Circle()
+                                .fill(Color.walletPrimary.opacity(0.1))
+                                .frame(width: 56, height: 56)
+                            if profileEmojiInput.isEmpty {
+                                Image(systemName: "face.smiling")
+                                    .font(.system(size: 26))
+                                    .foregroundStyle(Color.walletPrimary.opacity(0.5))
+                            } else {
+                                Text(profileEmojiInput)
+                                    .font(.system(size: 32))
+                            }
+                        }
+                        TextField("😊 Emoji (optional)", text: $profileEmojiInput)
+                            .font(.body)
+                            .onChange(of: profileEmojiInput) { _, new in
+                                // Keep only the last character if it's an emoji
+                                let scalars = new.unicodeScalars
+                                if let last = scalars.last, last.properties.isEmojiPresentation || last.properties.isEmoji {
+                                    profileEmojiInput = String(new.unicodeScalars.suffix(1).map { Character($0) })
+                                } else if !new.isEmpty {
+                                    profileEmojiInput = ""
+                                }
+                            }
+                            .padding(12)
+                            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+                    }
+
                     TextField(L("settings.yourName"), text: $profileNameInput)
                         .textContentType(.name)
                         .padding(12)
                         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
 
-                    TextField(L("settings.yourEmail"), text: $profileEmailInput)
-                        .textContentType(.emailAddress)
-                        .keyboardType(.emailAddress)
-                        .autocorrectionDisabled()
-                        .textInputAutocapitalization(.never)
-                        .padding(12)
-                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
-
                     Button {
-                        authService.setProfile(name: profileNameInput, email: profileEmailInput)
+                        authService.setProfile(name: profileNameInput, emoji: profileEmojiInput)
                     } label: {
                         Text(L("settings.saveProfile"))
                             .font(.headline)
@@ -150,7 +183,7 @@ struct SettingsView: View {
         .keyboardDoneButton()
         .onAppear {
             profileNameInput = authService.userName
-            profileEmailInput = authService.userEmail
+            profileEmojiInput = authService.profileEmoji
         }
     }
 

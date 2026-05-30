@@ -178,26 +178,11 @@ struct DashboardView: View {
     // MARK: - Subviews
 
     private var profileAvatar: some View {
-        ZStack {
-            Circle()
-                .fill(Color.walletPrimary.opacity(0.15))
-                .frame(width: 34, height: 34)
-            if let img = authService.profileImage {
-                Image(uiImage: img)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 34, height: 34)
-                    .clipShape(Circle())
-            } else if !authService.userName.isEmpty {
-                Text(String(authService.userName.prefix(1)).uppercased())
-                    .font(.system(size: 15, weight: .bold))
-                    .foregroundStyle(Color.walletPrimary)
-            } else {
-                Image(systemName: "person.fill")
-                    .font(.system(size: 15))
-                    .foregroundStyle(Color.walletPrimary)
-            }
-        }
+        ProfileImageView(
+            image: authService.profileImage,
+            size: 34,
+            emoji: authService.profileEmoji
+        )
     }
 
     private var upcomingIncomeSection: some View {
@@ -303,8 +288,8 @@ struct DashboardView: View {
     }
 
     private var periodSelector: some View {
-        GlassEffectContainer(spacing: 4) {
-            HStack(spacing: 4) {
+        GlassEffectContainer(spacing: 8) {
+            HStack(spacing: 8) {
                 periodButton(.week)
                 periodButton(.month)
                 periodButton(.year)
@@ -320,7 +305,7 @@ struct DashboardView: View {
             UIImpactFeedbackGenerator(style: .light).impactOccurred()
         }
         .font(.subheadline.weight(.semibold))
-        .padding(.horizontal, 16)
+        .padding(.horizontal, 20)
         .padding(.vertical, 8)
         .glassEffect(
             isSelected ? .regular.tint(Color.walletPrimary).interactive() : .regular.interactive(),

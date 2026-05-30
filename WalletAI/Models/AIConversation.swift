@@ -16,12 +16,22 @@ final class AIConversation {
     }
 }
 
+struct AIChartData: Codable {
+    enum ChartType: String, Codable { case bar, pie }
+    let type: ChartType
+    let labels: [String]
+    let values: [Double]
+    var title: String?
+    var currency: String?
+}
+
 struct AIMessage: Codable, Identifiable {
     var id: UUID
     var role: Role
     var content: String
     var timestamp: Date
     var isStreaming: Bool
+    var chartPayload: AIChartData?
 
     enum Role: String, Codable {
         case user, assistant, system
@@ -33,5 +43,6 @@ struct AIMessage: Codable, Identifiable {
         self.content = content
         self.timestamp = Date()
         self.isStreaming = isStreaming
+        self.chartPayload = nil
     }
 }

@@ -3,6 +3,7 @@ import SwiftUI
 struct AmountTextField: View {
     @Binding var amount: Double
     let currency: String
+    var textColor: Color = .primary
     @State private var text: String = ""
     @FocusState private var isFocused: Bool
 
@@ -16,12 +17,13 @@ struct AmountTextField: View {
 
             Text(symbol)
                 .font(Font.system(size: 30, weight: .semibold, design: .rounded))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(textColor.opacity(0.7))
                 .padding(.trailing, 3)
 
             TextField("0", text: $text)
                 .keyboardType(.decimalPad)
                 .font(.system(size: 52, weight: .bold, design: .rounded))
+                .foregroundStyle(textColor)
                 .fixedSize()
                 .focused($isFocused)
                 .onChange(of: text) { _, newValue in

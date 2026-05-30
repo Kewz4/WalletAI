@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import UIKit
 
 struct CategoryFormView: View {
     @Environment(\.modelContext) private var context
@@ -130,28 +131,53 @@ struct CategoryFormView: View {
                 .foregroundStyle(.secondary)
                 .padding(.horizontal, 4)
 
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 6), spacing: 10) {
+            // Free-type emoji field
+            HStack(spacing: 16) {
+                Text(selectedIcon)
+                    .font(.system(size: 44))
+                    .frame(width: 72, height: 72)
+                    .background(selectedColor.opacity(0.15), in: RoundedRectangle(cornerRadius: 16))
+
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Type any emoji")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    EmojiTextField(text: $selectedIcon)
+                        .frame(height: 48)
+                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+                }
+            }
+            .padding(16)
+            .glassCard()
+
+            // Quick picks
+            Text("Quick picks")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .padding(.horizontal, 4)
+
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 9), spacing: 8) {
                 ForEach(icons, id: \.self) { icon in
                     Button {
                         withAnimation(.springy) { selectedIcon = icon }
                         UIImpactFeedbackGenerator(style: .light).impactOccurred()
                     } label: {
                         Text(icon)
-                            .font(.system(size: 22))
-                            .frame(width: 44, height: 44)
+                            .font(.system(size: 20))
+                            .frame(width: 36, height: 36)
                             .background(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .fill(selectedIcon == icon ? selectedColor.opacity(0.2) : Color.clear)
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(selectedIcon == icon ? selectedColor.opacity(0.25) : Color.clear)
                             )
                             .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .strokeBorder(selectedIcon == icon ? selectedColor : Color.clear, lineWidth: 2)
+                                RoundedRectangle(cornerRadius: 8)
+                                    .strokeBorder(selectedIcon == icon ? selectedColor : Color.clear, lineWidth: 1.5)
                             )
                     }
                     .buttonStyle(.plain)
                 }
             }
-            .padding(16)
+            .padding(12)
             .glassCard()
         }
     }
@@ -300,5 +326,58 @@ struct CategoryPickerView: View {
                 }
             }
         }
+    }
+}
+
+// MARK: - Emoji Keyboard TextField
+
+struct EmojiTextField: UIViewRepresentable {
+    @Binding var text: String
+
+    func makeUIView(context: Context) -> EmojiUITextField {
+        let field = EmojiUITextField()
+        field.delegate = context.coordinator
+        field.textAlignment = .center
+        field.font = .systemFont(ofSize: 30)
+        field.tintColor = .clear
+        return field
+    }
+
+    func updateUIView(_ uiView: EmojiUITextField, context: Context) {
+        uiView.text = text
+    }
+
+    func makeCoordinator() -> Coordinator { Coordinator(self) }
+
+    class Coordinator: NSObject, UITextFieldDelegate {
+        var parent: EmojiTextField
+        init(_ parent: EmojiTextField) { self.parent = parent }
+
+        func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange,
+                       replacementString string: String) -> Bool {
+            let newValue = ((textField.text ?? "") as NSString).replacingCharacters(in: range, with: string)
+            // Keep only the last emoji-like character
+            let emojis = newValue.unicodeScalars.filter {
+                $0.properties.isEmoji && !$0.properties.isEmojiModifier && !$0.properties.isEmojiModifierBase
+                    || Unicode.Scalar($0.value)?.properties.isEmojiPresentation == true
+            }
+            if let last = emojis.last {
+                let emoji = String(last)
+                parent.text = emoji
+                textField.text = emoji
+            } else if newValue.isEmpty {
+                parent.text = "📌"
+                textField.text = "📌"
+            }
+            return false
+        }
+    }
+}
+
+// UITextField subclass that always shows the emoji keyboard
+final class EmojiUITextField: UITextField {
+    override var textInputContextIdentifier: String? { "" }
+    override var textInputMode: UITextInputMode? {
+        UITextInputMode.activeInputModes.first { $0.primaryLanguage == "emoji" }
     }
 }

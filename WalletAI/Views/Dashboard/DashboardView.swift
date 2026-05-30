@@ -122,33 +122,61 @@ struct DashboardView: View {
     // MARK: - Subviews
 
     private var balanceCard: some View {
-        VStack(spacing: 12) {
-            Text("Net Balance")
-                .font(.subheadline)
-                .foregroundStyle(.white.opacity(0.8))
-
-            Text((totalIncome - totalSpent).currencyFormatted(currency: currency))
-                .font(.system(size: 42, weight: .bold, design: .rounded))
-                .foregroundStyle(.white)
-                .contentTransition(.numericText())
-                .animation(.springy, value: totalIncome - totalSpent)
-
-            HStack(spacing: 24) {
-                statBadge(label: "In", amount: totalIncome, color: .green, icon: "arrow.down.circle.fill")
-                statBadge(label: "Out", amount: totalSpent, color: .red, icon: "arrow.up.circle.fill")
+        VStack(spacing: 0) {
+            // Balance
+            VStack(spacing: 6) {
+                Text("Net Balance")
+                    .font(.subheadline.weight(.medium))
+                    .foregroundStyle(.white.opacity(0.75))
+                Text((totalIncome - totalSpent).currencyFormatted(currency: currency))
+                    .font(.system(size: 46, weight: .bold, design: .rounded))
+                    .foregroundStyle(.white)
+                    .minimumScaleFactor(0.6)
+                    .lineLimit(1)
+                    .contentTransition(.numericText())
+                    .animation(.springy, value: totalIncome - totalSpent)
             }
+            .padding(.top, 28)
+            .padding(.bottom, 20)
+
+            Rectangle()
+                .fill(.white.opacity(0.2))
+                .frame(height: 1)
+                .padding(.horizontal, 24)
+
+            // Stats
+            HStack(spacing: 0) {
+                statBadge(label: "Income", amount: totalIncome, icon: "arrow.down.circle.fill")
+                Rectangle()
+                    .fill(.white.opacity(0.2))
+                    .frame(width: 1, height: 48)
+                statBadge(label: "Expenses", amount: totalSpent, icon: "arrow.up.circle.fill")
+            }
+            .padding(.vertical, 16)
         }
-        .padding(24)
-        .background(Color.walletPrimary, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .background(
+            LinearGradient(
+                colors: [Color.walletPrimary, Color.walletAccent.opacity(0.85)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            ),
+            in: RoundedRectangle(cornerRadius: 24, style: .continuous)
+        )
         .frame(maxWidth: .infinity)
         .padding(.horizontal, -16)
     }
 
-    private func statBadge(label: String, amount: Double, color: Color, icon: String) -> some View {
-        HStack(spacing: 6) {
-            Image(systemName: icon)
-                .foregroundStyle(.white)
-            VStack(alignment: .leading, spacing: 1) {
+    private func statBadge(label: String, amount: Double, icon: String) -> some View {
+        HStack(spacing: 10) {
+            ZStack {
+                Circle()
+                    .fill(.white.opacity(0.2))
+                    .frame(width: 38, height: 38)
+                Image(systemName: icon)
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(.white)
+            }
+            VStack(alignment: .leading, spacing: 2) {
                 Text(label)
                     .font(.caption)
                     .foregroundStyle(.white.opacity(0.7))
@@ -156,8 +184,11 @@ struct DashboardView: View {
                     .font(.subheadline.bold())
                     .foregroundStyle(.white)
                     .contentTransition(.numericText())
+                    .minimumScaleFactor(0.7)
+                    .lineLimit(1)
             }
         }
+        .frame(maxWidth: .infinity)
     }
 
     private var periodSelector: some View {
@@ -189,29 +220,88 @@ struct DashboardView: View {
 
     private func budgetSection(budget: Budget) -> some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Monthly Budget")
-                .font(.headline)
-                .padding(.horizontal, 4)
+            HStack {
+                Text("Monthly Budget")
+                    .font(.headline)
+                Spacer()
+                let pct = Int(min(budgetProgress, 1.0) * 100)
+                Text("\(pct)% used")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(budgetProgress > 0.9 ? .red : Color.walletPrimary)
+            }
+            .padding(.horizontal, 4)
 
-            HStack(spacing: 20) {
-                BudgetProgressRing(
-                    progress: budgetProgress,
-                    spent: totalSpent,
-                    total: budget.totalMonthlyLimit,
-                    currency: currency,
-                    size: 140
-                )
+            VStack(spacing: 16) {
+                // Overall progress bar
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        Text("Total Spent")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        Text(totalSpent.currencyFormatted(currency: currency))
+                            .font(.subheadline.bold())
+                        Text("/ \(budget.totalMonthlyLimit.currencyFormatted(currency: currency))")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
+                    GeometryReader { geo in
+                        ZStack(alignment: .leading) {
+                            Capsule().fill(Color.secondary.opacity(0.15)).frame(height: 10)
+                            Capsule()
+                                .fill(budgetProgress > 0.9 ? Color.red : Color.walletPrimary)
+                                .frame(width: geo.size.width * min(budgetProgress, 1.0), height: 10)
+                                .animation(.springy, value: budgetProgress)
+                        }
+                    }
+                    .frame(height: 10)
+                }
 
-                VStack(alignment: .leading, spacing: 12) {
-                    ForEach(categories.filter { $0.monthlyBudget != nil }.prefix(3), id: \.id) { cat in
-                        if let prog = cat.budgetProgress() {
-                            LinearBudgetBar(progress: prog, category: cat)
+                // Per-category rows
+                let catsWithBudget = categories.filter { $0.monthlyBudget != nil }
+                if !catsWithBudget.isEmpty {
+                    Divider()
+                    VStack(spacing: 14) {
+                        ForEach(catsWithBudget, id: \.id) { cat in
+                            categoryBudgetRow(cat: cat)
                         }
                     }
                 }
             }
             .padding(20)
             .glassCard()
+        }
+    }
+
+    private func categoryBudgetRow(cat: Category) -> some View {
+        let catSpent = filteredTransactions
+            .filter { $0.category?.id == cat.id && $0.isExpense }
+            .reduce(0.0) { $0 + $1.amount }
+        let limit = cat.monthlyBudget ?? 1
+        let prog = min(catSpent / limit, 1.0)
+        return VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 6) {
+                Text(cat.iconName).font(.body)
+                Text(cat.name)
+                    .font(.subheadline.weight(.medium))
+                Spacer()
+                Text(catSpent.currencyFormatted(currency: currency))
+                    .font(.caption.bold())
+                    .foregroundStyle(catSpent > limit ? .red : .primary)
+                Text("/ \(limit.currencyFormatted(currency: currency))")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            GeometryReader { geo in
+                ZStack(alignment: .leading) {
+                    Capsule().fill(Color.secondary.opacity(0.12)).frame(height: 5)
+                    Capsule()
+                        .fill(catSpent > limit ? Color.red : cat.color)
+                        .frame(width: geo.size.width * prog, height: 5)
+                        .animation(.springy, value: prog)
+                }
+            }
+            .frame(height: 5)
         }
     }
 

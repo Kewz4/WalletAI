@@ -80,10 +80,13 @@ extension AuthService: ASAuthorizationControllerDelegate {
 
 extension AuthService: ASAuthorizationControllerPresentationContextProviding {
     nonisolated func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
-        UIApplication.shared.connectedScenes
-            .compactMap { $0 as? UIWindowScene }
-            .flatMap { $0.windows }
-            .first { $0.isKeyWindow } ?? UIWindow()
+        // Apple calls this on the main thread; assumeIsolated is safe here
+        MainActor.assumeIsolated {
+            UIApplication.shared.connectedScenes
+                .compactMap { $0 as? UIWindowScene }
+                .compactMap { $0.keyWindow }
+                .first ?? UIWindow()
+        }
     }
 }
 

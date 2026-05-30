@@ -117,11 +117,14 @@ struct CategoriesView: View {
 
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                 ForEach(categories) { cat in
-                    CategoryCard(category: cat, currency: currency, onEdit: {
-                        editingCategory = cat
-                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                    })
-                    .frame(maxHeight: .infinity)
+                    NavigationLink(destination: CategoryTransactionsView(category: cat)) {
+                        CategoryCard(category: cat, currency: currency, onEdit: {
+                            editingCategory = cat
+                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                        })
+                        .frame(maxHeight: .infinity)
+                    }
+                    .buttonStyle(.plain)
                     .contextMenu {
                         Button { editingCategory = cat } label: {
                             Label(L("common.edit"), systemImage: "pencil")
@@ -219,5 +222,120 @@ struct CategoryCard: View {
                 )
         )
         .onAppear { appear = true }
+    }
+}
+
+// MARK: - Category Transactions
+
+struct CategoryTransactionsView: View {
+    let category: Category
+    @Query(sort: \Transaction.date, order: .reverse) private var allTransactions: [Transaction]
+    @Query private var budgets: [Budget]
+    @Environment(\.modelContext) private var context
+    @State private var editingTransaction: Transaction? = nil
+
+    private var currency: String { budgets.first?.currency ?? "USD" }
+
+    private var transactions: [Transaction] {
+        allTransactions.filter { $0.category?.id == category.id }
+    }
+
+    private var totalSpent: Double {
+        transactions.filter { $0.isExpense }.reduce(0) { $0 + $1.amount }
+    }
+    private var totalIncome: Double {
+        transactions.filter { !$0.isExpense }.reduce(0) { $0 + $1.amount }
+    }
+
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 16) {
+                // Summary bar
+                HStack(spacing: 12) {
+                    summaryTile(
+                        label: L("tx.expenses"),
+                        value: totalSpent.currencyFormatted(currency: currency),
+                        color: .red
+                    )
+                    summaryTile(
+                        label: L("tx.income"),
+                        value: totalIncome.currencyFormatted(currency: currency),
+                        color: .green
+                    )
+                    summaryTile(
+                        label: L("common.transactions"),
+                        value: "\(transactions.count)",
+                        color: category.color
+                    )
+                }
+
+                if transactions.isEmpty {
+                    VStack(spacing: 12) {
+                        Image(systemName: "tray")
+                            .font(.system(size: 44))
+                            .foregroundStyle(.secondary)
+                        Text(L("tx.empty"))
+                            .font(.headline)
+                    }
+                    .padding(40)
+                } else {
+                    List {
+                        ForEach(transactions) { tx in
+                            TransactionRowView(transaction: tx)
+                                .listRowBackground(Color.clear)
+                                .listRowInsets(EdgeInsets())
+                                .listRowSeparatorTint(Color.secondary.opacity(0.2))
+                                .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                                    Button { editingTransaction = tx } label: {
+                                        Label(L("tx.edit"), systemImage: "pencil")
+                                    }
+                                    .tint(.blue)
+                                }
+                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                    Button(role: .destructive) {
+                                        withAnimation { context.delete(tx) }
+                                    } label: {
+                                        Label(L("tx.delete"), systemImage: "trash")
+                                    }
+                                }
+                        }
+                    }
+                    .listStyle(.plain)
+                    .scrollDisabled(true)
+                    .scrollContentBackground(.hidden)
+                    .frame(minHeight: CGFloat(transactions.count) * 70)
+                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.bottom, 100)
+        }
+        .background(Color.walletBackground.ignoresSafeArea())
+        .navigationTitle(category.name)
+        .navigationBarTitleDisplayMode(.large)
+        .sheet(item: $editingTransaction) { tx in
+            AddTransactionView(editing: tx)
+        }
+    }
+
+    private func summaryTile(label: String, value: String, color: Color) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(value)
+                .font(.subheadline.bold())
+                .foregroundStyle(color)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+            Text(label)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(color.opacity(0.08))
+                .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .strokeBorder(color.opacity(0.18), lineWidth: 1))
+        )
     }
 }

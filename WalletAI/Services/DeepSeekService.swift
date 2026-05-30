@@ -112,8 +112,9 @@ final class DeepSeekService {
             ? "Respond in Spanish. Use 'vos' or 'usted' naturally. The user is from El Salvador."
             : "Respond in English."
 
+        let botName = AppPersonality.current.botName
         return """
-        You are WalletAI, a personal finance assistant for users in El Salvador. \
+        You are \(botName), a personal finance assistant for users in El Salvador. \
         The primary currency context is USD (El Salvador uses the US dollar). \
         Be aware of local context: pupusas, mercado, transporte, remesas, etc.
 

@@ -38,6 +38,13 @@ enum AppPersonality: String, CaseIterable, Identifiable {
         }
     }
 
+    var botName: String {
+        switch self {
+        case .chill: return "Wall-ie"
+        case .girly: return "Girl-ie"
+        }
+    }
+
     var isGirly: Bool { self == .girly }
 
     static var current: AppPersonality {

@@ -3,7 +3,6 @@ import SwiftUI
 struct OnboardingView: View {
     @Binding var isComplete: Bool
     @State private var currentPage = 0
-    @Namespace private var glassNS
 
     let pages: [OnboardingPage] = [
         OnboardingPage(
@@ -19,10 +18,10 @@ struct OnboardingView: View {
             color: Color(hex: "#00B894")!
         ),
         OnboardingPage(
-            emoji: "✨",
+            emoji: "🤖",
             title: "AI Financial Insights",
             subtitle: "Free Groq AI analyzes your spending and gives you personalized tips to save more money.",
-            color: Color(hex: "#FDCB6E")!
+            color: Color(hex: "#E17055")!
         ),
         OnboardingPage(
             emoji: "📲",
@@ -34,13 +33,13 @@ struct OnboardingView: View {
             emoji: "📊",
             title: "Beautiful Analytics",
             subtitle: "See where your money goes with gorgeous charts and budget tracking, all in one place.",
-            color: Color(hex: "#45B7D1")!
+            color: Color(hex: "#0984E3")!
         ),
     ]
 
     var body: some View {
         ZStack {
-            // Animated background
+            // Full-bleed animated gradient background
             AnimatedMeshBackground(color: pages[currentPage].color)
                 .ignoresSafeArea()
 
@@ -67,24 +66,27 @@ struct OnboardingView: View {
 
             ZStack {
                 Circle()
-                    .fill(page.color.opacity(0.2))
-                    .frame(width: 140, height: 140)
-                    .glassEffect(.regular.tint(page.color), in: .circle)
-
+                    .fill(.white.opacity(0.2))
+                    .frame(width: 150, height: 150)
+                Circle()
+                    .strokeBorder(.white.opacity(0.3), lineWidth: 1.5)
+                    .frame(width: 150, height: 150)
                 Text(page.emoji)
-                    .font(.system(size: 64))
+                    .font(.system(size: 72))
             }
 
             VStack(spacing: 16) {
                 Text(page.title)
                     .font(.largeTitle.bold())
+                    .foregroundStyle(.white)
                     .multilineTextAlignment(.center)
+                    .shadow(color: .black.opacity(0.15), radius: 4)
 
                 Text(page.subtitle)
                     .font(.body)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.white.opacity(0.88))
                     .multilineTextAlignment(.center)
-                    .padding(.horizontal, 32)
+                    .padding(.horizontal, 36)
             }
 
             Spacer()
@@ -95,17 +97,17 @@ struct OnboardingView: View {
 
     private var bottomControls: some View {
         VStack(spacing: 24) {
-            // Dots
+            // Page dots
             HStack(spacing: 8) {
                 ForEach(pages.indices, id: \.self) { i in
                     Capsule()
-                        .fill(i == currentPage ? pages[currentPage].color : Color.secondary.opacity(0.3))
+                        .fill(i == currentPage ? .white : .white.opacity(0.4))
                         .frame(width: i == currentPage ? 24 : 8, height: 8)
                         .animation(.springy, value: currentPage)
                 }
             }
 
-            // Action button
+            // Next / Get Started button
             Button {
                 UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                 if currentPage < pages.count - 1 {
@@ -117,18 +119,18 @@ struct OnboardingView: View {
                 HStack(spacing: 10) {
                     Text(currentPage == pages.count - 1 ? "Get Started" : "Next")
                         .font(.headline.bold())
-                    Text(currentPage == pages.count - 1 ? "✅" : "➡️")
-                        .font(.body)
+                    Image(systemName: currentPage == pages.count - 1 ? "checkmark" : "arrow.right")
+                        .font(.headline)
                 }
                 .frame(maxWidth: .infinity)
                 .padding(18)
-                .background(pages[currentPage].color.opacity(0.15))
+                .background(.white.opacity(0.22))
                 .overlay(
                     RoundedRectangle(cornerRadius: 20)
-                        .strokeBorder(pages[currentPage].color.opacity(0.4), lineWidth: 1.5)
+                        .strokeBorder(.white.opacity(0.5), lineWidth: 1.5)
                 )
                 .clipShape(RoundedRectangle(cornerRadius: 20))
-                .foregroundStyle(pages[currentPage].color)
+                .foregroundStyle(.white)
                 .animation(.springy, value: currentPage)
             }
             .buttonStyle(.plain)
@@ -139,10 +141,12 @@ struct OnboardingView: View {
                     withAnimation(.springy) { currentPage -= 1 }
                 }
                 .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(.white.opacity(0.7))
+            } else {
+                Color.clear.frame(height: 20)
             }
         }
-        .padding(.bottom, 48)
+        .padding(.bottom, 52)
     }
 }
 
@@ -159,25 +163,29 @@ struct AnimatedMeshBackground: View {
 
     var body: some View {
         ZStack {
-            Color(.systemBackground)
-            RadialGradient(
-                colors: [color.opacity(0.3), color.opacity(0.0)],
-                center: .init(x: 0.3 + 0.1 * sin(phase), y: 0.3 + 0.1 * cos(phase)),
-                startRadius: 0,
-                endRadius: 400
+            LinearGradient(
+                colors: [color, color.opacity(0.65)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
             )
             RadialGradient(
-                colors: [color.opacity(0.2), color.opacity(0.0)],
-                center: .init(x: 0.7 + 0.1 * cos(phase), y: 0.7 + 0.1 * sin(phase)),
+                colors: [.white.opacity(0.18), .clear],
+                center: .init(x: 0.25 + 0.12 * sin(phase), y: 0.25 + 0.12 * cos(phase)),
                 startRadius: 0,
-                endRadius: 300
+                endRadius: 320
+            )
+            RadialGradient(
+                colors: [.black.opacity(0.12), .clear],
+                center: .init(x: 0.75 + 0.1 * cos(phase), y: 0.75 + 0.1 * sin(phase)),
+                startRadius: 0,
+                endRadius: 280
             )
         }
         .onAppear {
-            withAnimation(.linear(duration: 4).repeatForever(autoreverses: false)) {
+            withAnimation(.linear(duration: 5).repeatForever(autoreverses: false)) {
                 phase = .pi * 2
             }
         }
-        .animation(.easeInOut(duration: 0.5), value: color)
+        .animation(.easeInOut(duration: 0.6), value: color)
     }
 }

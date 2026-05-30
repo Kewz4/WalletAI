@@ -86,15 +86,15 @@ struct SettingsView: View {
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(authService.isSignedIn
-                         ? (authService.userName.isEmpty ? "WalletAI User" : authService.userName)
-                         : "Set up your profile")
+                         ? (authService.userName.isEmpty ? L("settings.walletaiUser") : authService.userName)
+                         : L("settings.setupProfileHint"))
                         .font(.title3.bold())
                     if authService.isSignedIn && !authService.userEmail.isEmpty {
                         Text(authService.userEmail)
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
-                    Text("\(transactions.count) transactions tracked")
+                    Text("\(transactions.count) \(L("settings.txTracked"))")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
@@ -107,7 +107,7 @@ struct SettingsView: View {
                         profileNameInput = ""
                         profileEmailInput = ""
                     } label: {
-                        Text("Edit")
+                        Text(L("common.edit"))
                             .font(.caption)
                             .foregroundStyle(Color.walletPrimary)
                     }
@@ -116,12 +116,12 @@ struct SettingsView: View {
 
             if !authService.isSignedIn {
                 VStack(spacing: 10) {
-                    TextField("Your name", text: $profileNameInput)
+                    TextField(L("settings.yourName"), text: $profileNameInput)
                         .textContentType(.name)
                         .padding(12)
                         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
 
-                    TextField("Email (optional)", text: $profileEmailInput)
+                    TextField(L("settings.yourEmail"), text: $profileEmailInput)
                         .textContentType(.emailAddress)
                         .keyboardType(.emailAddress)
                         .autocorrectionDisabled()
@@ -132,7 +132,7 @@ struct SettingsView: View {
                     Button {
                         authService.setProfile(name: profileNameInput, email: profileEmailInput)
                     } label: {
-                        Text("Save Profile")
+                        Text(L("settings.saveProfile"))
                             .font(.headline)
                             .frame(maxWidth: .infinity)
                             .padding(13)
@@ -155,20 +155,20 @@ struct SettingsView: View {
     }
 
     private var budgetSection: some View {
-        settingsSection(title: "Budget", icon: "banknote.fill", color: .green) {
-            settingsRow(icon: "chart.line.uptrend.xyaxis", title: "Monthly Limit") {
+        settingsSection(title: L("settings.budget"), icon: "banknote.fill", color: .green) {
+            settingsRow(icon: "chart.line.uptrend.xyaxis", title: L("settings.monthlyLimitRow")) {
                 Button {
                     budgetAmount = currentBudget?.totalMonthlyLimit ?? 2500
                     showBudgetEdit = true
                 } label: {
-                    Text(currentBudget?.totalMonthlyLimit.currencyFormatted(currency: preferredCurrency) ?? "Set limit")
+                    Text(currentBudget?.totalMonthlyLimit.currencyFormatted(currency: preferredCurrency) ?? L("settings.setLimit"))
                         .foregroundStyle(Color.walletPrimary)
                 }
             }
 
             Divider().padding(.horizontal)
 
-            settingsRow(icon: "globe", title: "Currency") {
+            settingsRow(icon: "globe", title: L("settings.currency")) {
                 Picker("Currency", selection: $preferredCurrency) {
                     ForEach(supportedCurrencies, id: \.self) { c in
                         Text(c).tag(c)
@@ -184,19 +184,19 @@ struct SettingsView: View {
     }
 
     private var aiSection: some View {
-        settingsSection(title: "AI Assistant", icon: "sparkles", color: .walletPrimary) {
-            settingsRow(icon: "key.fill", title: "Groq API Key") {
+        settingsSection(title: L("settings.aiSection"), icon: "sparkles", color: .walletPrimary) {
+            settingsRow(icon: "key.fill", title: L("settings.groqKey")) {
                 Button {
                     showAPIKey = true
                 } label: {
-                    Text(deepSeekService.hasAPIKey ? "Configured ✓" : "Add Key")
+                    Text(deepSeekService.hasAPIKey ? L("settings.configured") : L("settings.addKey"))
                         .foregroundStyle(deepSeekService.hasAPIKey ? Color.green : Color.walletPrimary)
                 }
             }
 
             Divider().padding(.horizontal)
 
-            settingsRow(icon: "cpu", title: "Model") {
+            settingsRow(icon: "cpu", title: L("settings.modelRow")) {
                 Text("Llama 3.3 70B")
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -221,7 +221,7 @@ struct SettingsView: View {
                     .frame(width: 24)
                     .foregroundStyle(Color.walletPrimary)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Re-analyze Transactions")
+                    Text(L("settings.reAnalyze"))
                         .font(.body)
                     if let msg = categorizationService.completionMessage {
                         Text(msg)
@@ -232,7 +232,7 @@ struct SettingsView: View {
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     } else {
-                        Text("AI will sort every transaction into the right category")
+                        Text(L("settings.reAnalyzeHint"))
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -258,7 +258,7 @@ struct SettingsView: View {
                         }
                         UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                     } label: {
-                        Text("Analyze")
+                        Text(L("settings.analyze"))
                             .font(.subheadline.weight(.semibold))
                             .foregroundStyle(.white)
                             .padding(.horizontal, 14)
@@ -275,20 +275,20 @@ struct SettingsView: View {
     }
 
     private var automationSection: some View {
-        settingsSection(title: "Automation", icon: "bolt.fill", color: .orange) {
-            settingsRow(icon: "apple.logo", title: "Apple Pay Auto-Log") {
+        settingsSection(title: L("settings.automation"), icon: "bolt.fill", color: .orange) {
+            settingsRow(icon: "apple.logo", title: L("settings.applePay")) {
                 Button {
                     showApplePayInfo = true
                 } label: {
-                    Text("Setup →")
+                    Text(L("settings.setup"))
                         .foregroundStyle(.orange)
                 }
             }
 
             Divider().padding(.horizontal)
 
-            settingsRow(icon: "mic.fill", title: "Voice Recognition") {
-                Text("Always On")
+            settingsRow(icon: "mic.fill", title: L("settings.voice")) {
+                Text(L("settings.alwaysOn"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -400,11 +400,11 @@ struct SettingsView: View {
             Divider().padding(.horizontal)
 
             // Color scheme (light/dark/system)
-            settingsRow(icon: "circle.lefthalf.filled", title: L("settings.appearance")) {
+            settingsRow(icon: "circle.lefthalf.filled", title: L("settings.colorSchemeRow")) {
                 Picker("", selection: $colorSchemeRaw) {
-                    Text("System").tag("system")
-                    Text("Light").tag("light")
-                    Text("Dark").tag("dark")
+                    Text(L("settings.systemScheme")).tag("system")
+                    Text(L("settings.lightScheme")).tag("light")
+                    Text(L("settings.darkScheme")).tag("dark")
                 }
                 .pickerStyle(.menu)
                 .tint(Color.walletPrimary)
@@ -413,7 +413,7 @@ struct SettingsView: View {
     }
 
     private var preferencesSection: some View {
-        settingsSection(title: "Preferences", icon: "gearshape.fill", color: .secondary) {
+        settingsSection(title: L("settings.preferences"), icon: "gearshape.fill", color: .secondary) {
             settingsRow(icon: "bell.fill", title: L("settings.budgetAlerts")) {
                 Toggle("", isOn: $notificationsEnabled)
                     .tint(Color.walletPrimary)
@@ -442,29 +442,29 @@ struct SettingsView: View {
     }
 
     private var dataSection: some View {
-        settingsSection(title: "Data", icon: "externaldrive.fill", color: .blue) {
-            settingsRow(icon: "square.and.arrow.up", title: "Export CSV") {
+        settingsSection(title: L("settings.data"), icon: "externaldrive.fill", color: .blue) {
+            settingsRow(icon: "square.and.arrow.up", title: L("settings.exportCSV")) {
                 Button {
                     exportCSV()
                 } label: {
-                    Text("Export")
+                    Text(L("settings.export"))
                         .foregroundStyle(.blue)
                 }
             }
 
             Divider().padding(.horizontal)
 
-            settingsRow(icon: "trash.fill", title: "Delete All Data") {
+            settingsRow(icon: "trash.fill", title: L("settings.deleteAll")) {
                 Button(role: .destructive) {
                     showDeleteConfirm = true
                 } label: {
-                    Text("Delete")
+                    Text(L("settings.delete"))
                         .foregroundStyle(.red)
                 }
             }
         }
-        .confirmationDialog("Delete all data?", isPresented: $showDeleteConfirm, titleVisibility: .visible) {
-            Button("Delete Everything", role: .destructive) { deleteAll() }
+        .confirmationDialog(L("settings.deleteAll"), isPresented: $showDeleteConfirm, titleVisibility: .visible) {
+            Button(L("settings.deleteEverything"), role: .destructive) { deleteAll() }
         }
     }
 
@@ -552,14 +552,14 @@ struct BudgetEditSheet: View {
         NavigationStack {
             VStack(spacing: 24) {
                 VStack(spacing: 8) {
-                    Text("Monthly Budget Limit")
+                    Text(L("settings.monthlyLimit"))
                         .font(.headline)
                     AmountTextField(amount: $amount, currency: "USD")
                         .padding(20)
                         .glassCard()
                 }
 
-                Button("Save") {
+                Button(L("common.save")) {
                     if let b = budget {
                         b.totalMonthlyLimit = amount
                     } else {
@@ -577,12 +577,12 @@ struct BudgetEditSheet: View {
             }
             .padding(16)
             .background(Color.walletBackground.ignoresSafeArea())
-            .navigationTitle("Set Budget")
+            .navigationTitle(L("settings.setBudget"))
             .navigationBarTitleDisplayMode(.inline)
             .keyboardDoneButton()
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("Cancel") { dismiss() }
+                    Button(L("common.cancel")) { dismiss() }
                 }
             }
             .onAppear { amount = initialAmount }

@@ -141,6 +141,26 @@ private let _lEN: [String: String] = [
     "common.spanish":    "🇸🇻 Español",
     "common.personality.chill":  "Chill",
     "common.personality.girly":  "Girlie 🎀",
+    "common.copy":       "Copy",
+    "common.transactions": "Transactions",
+
+    // Settings extras
+    "settings.monthlyLimitRow":  "Monthly Limit",
+    "settings.setLimit":         "Set limit",
+    "settings.aiSection":        "AI Assistant",
+    "settings.groqKey":          "Groq API Key",
+    "settings.configured":       "Configured ✓",
+    "settings.addKey":           "Add Key",
+    "settings.modelRow":         "Model",
+    "settings.colorSchemeRow":   "Color Scheme",
+    "settings.systemScheme":     "System",
+    "settings.lightScheme":      "Light",
+    "settings.darkScheme":       "Dark",
+    "settings.deleteEverything": "Delete Everything",
+    "settings.walletaiUser":     "WalletAI User",
+    "settings.setupProfileHint": "Set up your profile",
+    "settings.txTracked":        "transactions tracked",
+    "settings.setBudget":        "Set Budget",
 ]
 
 private let _lES: [String: String] = [
@@ -277,4 +297,24 @@ private let _lES: [String: String] = [
     "common.spanish":    "🇸🇻 Español",
     "common.personality.chill":  "Tranquilo",
     "common.personality.girly":  "Girlie 🎀",
+    "common.copy":       "Copiar",
+    "common.transactions": "Transacciones",
+
+    // Settings extras
+    "settings.monthlyLimitRow":  "Límite Mensual",
+    "settings.setLimit":         "Establecer límite",
+    "settings.aiSection":        "Asistente IA",
+    "settings.groqKey":          "Groq API Key",
+    "settings.configured":       "Configurado ✓",
+    "settings.addKey":           "Agregar Clave",
+    "settings.modelRow":         "Modelo",
+    "settings.colorSchemeRow":   "Esquema de Color",
+    "settings.systemScheme":     "Sistema",
+    "settings.lightScheme":      "Claro",
+    "settings.darkScheme":       "Oscuro",
+    "settings.deleteEverything": "Eliminar Todo",
+    "settings.walletaiUser":     "Usuario WalletAI",
+    "settings.setupProfileHint": "Configura tu perfil",
+    "settings.txTracked":        "transacciones registradas",
+    "settings.setBudget":        "Establecer Presupuesto",
 ]

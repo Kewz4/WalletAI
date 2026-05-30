@@ -14,6 +14,8 @@ struct AIChatView: View {
     @State private var showAPIKeyPrompt = false
     @Namespace private var bottomID
 
+    @AppStorage(Constants.Storage.personalityKey) private var personalityKey = "chill"
+    private var botName: String { AppPersonality(rawValue: personalityKey)?.botName ?? "Wall-ie" }
     private var currency: String { budgets.first?.currency ?? "USD" }
 
     var body: some View {
@@ -43,7 +45,7 @@ struct AIChatView: View {
                 inputBar
             }
             .background(Color.walletBackground.ignoresSafeArea())
-            .navigationTitle(L("ai.title"))
+            .navigationTitle(botName)
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -83,16 +85,20 @@ struct AIChatView: View {
         VStack(spacing: 20) {
             ZStack {
                 Circle()
-                    .fill(Color.walletPrimary.opacity(0.15))
-                    .frame(width: 80, height: 80)
+                    .fill(
+                        LinearGradient(colors: [Color.walletPrimary, Color.walletAccent],
+                                       startPoint: .topLeading, endPoint: .bottomTrailing)
+                    )
+                    .frame(width: 88, height: 88)
+                    .shadow(color: Color.walletPrimary.opacity(0.4), radius: 12, y: 6)
                 Image(systemName: "sparkles")
-                    .font(.system(size: 36, weight: .semibold))
-                    .foregroundStyle(Color.walletPrimary)
+                    .font(.system(size: 38, weight: .semibold))
+                    .foregroundStyle(.white)
             }
 
             VStack(spacing: 8) {
-                Text(L("ai.welcome"))
-                    .font(.title2.bold())
+                Text(botName)
+                    .font(.title.bold())
                     .multilineTextAlignment(.center)
                 Text(L("ai.welcomeHint"))
                     .font(.subheadline)
@@ -198,10 +204,8 @@ struct AIChatView: View {
     // MARK: - Actions
 
     private func sendWelcomeMessage() {
-        let welcome = AIMessage(
-            role: .assistant,
-            content: "Hi! I'm your WalletAI assistant. I can see your transactions and help with spending insights. What would you like to know?"
-        )
+        let name = botName
+        let welcome = AIMessage(role: .assistant, content: "Hi! I'm \(name), your finance assistant. I can see your transactions and help with spending insights. What would you like to know?")
         messages = [welcome]
     }
 
@@ -314,6 +318,14 @@ struct MessageBubble: View {
                         topTrailingRadius: 18
                     )
                 )
+                .contextMenu {
+                    Button {
+                        UIPasteboard.general.string = message.content
+                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                    } label: {
+                        Label(L("common.copy"), systemImage: "doc.on.doc")
+                    }
+                }
 
                 Text(message.timestamp.formatted(.dateTime.hour().minute()))
                     .font(.caption2)

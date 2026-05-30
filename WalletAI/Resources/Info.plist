@@ -47,6 +47,8 @@
     <string>WalletAI uses Face ID to protect your financial data.</string>
     <key>NSCameraUsageDescription</key>
     <string>WalletAI uses the camera to scan receipts.</string>
+    <key>NSContactsUsageDescription</key>
+    <string>WalletAI accesses your contact card to show your Memoji as a profile picture.</string>
     <key>NSPhotoLibraryUsageDescription</key>
     <string>WalletAI reads photos to import receipt images.</string>
 

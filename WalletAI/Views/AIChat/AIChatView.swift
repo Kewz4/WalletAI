@@ -7,6 +7,7 @@ struct AIChatView: View {
     @Query private var budgets: [Budget]
 
     @State private var deepSeekService = DeepSeekService()
+    @State private var speechService = SpeechRecognitionService()
     @State private var messages: [AIMessage] = []
     @State private var inputText: String = ""
     @State private var scrollProxy: ScrollViewProxy? = nil
@@ -162,13 +163,18 @@ struct AIChatView: View {
                     .background(.regularMaterial, in: Capsule())
 
                 Button {
-                    send()
+                    if inputText.isEmpty || speechService.isListening {
+                        handleMicTap()
+                    } else {
+                        send()
+                    }
                 } label: {
-                    Image(systemName: inputText.isEmpty ? "mic.fill" : "arrow.up.circle.fill")
+                    Image(systemName: speechService.isListening ? "stop.circle.fill" : (inputText.isEmpty ? "mic.fill" : "arrow.up.circle.fill"))
                         .font(.system(size: 22, weight: .semibold))
                         .foregroundStyle(.white)
                         .frame(width: 40, height: 40)
-                        .background(Color.walletPrimary, in: Circle())
+                        .background(speechService.isListening ? Color.red : Color.walletPrimary, in: Circle())
+                        .animation(.springy, value: speechService.isListening)
                 }
                 .disabled(deepSeekService.isLoading)
                 .buttonStyle(.plain)
@@ -279,6 +285,27 @@ struct AIChatView: View {
         withAnimation(.smooth) {
             scrollProxy?.scrollTo("bottom", anchor: .bottom)
         }
+    }
+
+    private func handleMicTap() {
+        if speechService.isListening {
+            speechService.stopListening()
+            if !speechService.transcript.isEmpty {
+                inputText = speechService.transcript
+            }
+        } else {
+            Task { try? await speechService.startListening() }
+            // Watch transcript and auto-update text field while listening
+            Task {
+                while speechService.isListening {
+                    try? await Task.sleep(nanoseconds: 200_000_000)
+                    if !speechService.transcript.isEmpty {
+                        inputText = speechService.transcript
+                    }
+                }
+            }
+        }
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
     }
 }
 

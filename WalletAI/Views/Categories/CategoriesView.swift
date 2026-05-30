@@ -172,6 +172,8 @@ struct CategoryCard: View {
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
 
+            Spacer(minLength: 0)
+
             if let budget = category.monthlyBudget, let progress = category.budgetProgress() {
                 GeometryReader { geo in
                     ZStack(alignment: .leading) {
@@ -189,6 +191,10 @@ struct CategoryCard: View {
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
+            } else {
+                // Placeholder to keep all cards the same height
+                Color.clear.frame(height: 3)
+                Text(" ").font(.caption2)
             }
         }
         .padding(14)

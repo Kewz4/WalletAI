@@ -12,6 +12,7 @@ struct TransactionListView: View {
     @State private var showVoiceInput = false
 
     @State private var speechService = SpeechRecognitionService()
+    @State private var editingTransaction: Transaction? = nil
 
     enum FilterType: String, CaseIterable {
         case all = "All"
@@ -90,6 +91,9 @@ struct TransactionListView: View {
             .sheet(isPresented: $showVoiceInput) {
                 VoiceTransactionSheet()
             }
+            .sheet(item: $editingTransaction) { tx in
+                AddTransactionView(editing: tx)
+            }
         }
     }
 
@@ -157,12 +161,20 @@ struct TransactionListView: View {
             VStack(spacing: 0) {
                 ForEach(transactions) { tx in
                     TransactionRowView(transaction: tx)
-                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                        .swipeActions(edge: .leading, allowsFullSwipe: true) {
                             Button(role: .destructive) {
                                 withAnimation { context.delete(tx) }
                             } label: {
                                 Label("Delete", systemImage: "trash")
                             }
+                        }
+                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                            Button {
+                                editingTransaction = tx
+                            } label: {
+                                Label("Edit", systemImage: "pencil")
+                            }
+                            .tint(.blue)
                         }
                     if tx.id != transactions.last?.id {
                         Divider().padding(.leading, 74)

@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import AuthenticationServices
 
 struct SettingsView: View {
     @Environment(\.modelContext) private var context
@@ -13,6 +14,7 @@ struct SettingsView: View {
     @AppStorage(Constants.Storage.colorSchemeKey)        private var colorSchemeRaw         = "system"
 
     @State private var deepSeekService = DeepSeekService()
+    @State private var authService = AuthService.shared
     @State private var showAPIKey = false
     @State private var showBudgetEdit = false
     @State private var showExport = false
@@ -62,31 +64,62 @@ struct SettingsView: View {
     // MARK: - Sections
 
     private var profileHeader: some View {
-        HStack(spacing: 16) {
-            ZStack {
-                Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: [.walletPrimary.opacity(0.8), .walletAccent],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                    .frame(width: 72, height: 72)
-                Image(systemName: "person.fill")
-                    .font(.system(size: 32))
-                    .foregroundStyle(.white)
+        VStack(spacing: 16) {
+            HStack(spacing: 16) {
+                ProfileImageView(image: authService.profileImage, size: 72)
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(authService.isSignedIn ? (authService.userName.isEmpty ? "WalletAI User" : authService.userName) : "WalletAI")
+                        .font(.title3.bold())
+                    if authService.isSignedIn && !authService.userEmail.isEmpty {
+                        Text(authService.userEmail)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    Text("\(transactions.count) transactions tracked")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+
+                Spacer()
+
+                if authService.isSignedIn {
+                    Button {
+                        authService.signOut()
+                    } label: {
+                        Text("Sign Out")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
             }
 
-            VStack(alignment: .leading, spacing: 4) {
-                Text("WalletAI")
-                    .font(.title3.bold())
-                Text("\(transactions.count) transactions tracked")
-                    .font(.subheadline)
+            if !authService.isSignedIn {
+                Button {
+                    authService.signInWithApple()
+                } label: {
+                    HStack(spacing: 8) {
+                        if authService.isLoading {
+                            ProgressView().tint(.white)
+                        } else {
+                            Image(systemName: "apple.logo")
+                            Text("Sign in with Apple")
+                                .font(.body.weight(.semibold))
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(14)
+                    .background(Color.primary, in: RoundedRectangle(cornerRadius: 14))
+                    .foregroundStyle(Color(UIColor.systemBackground))
+                }
+                .buttonStyle(.plain)
+                .disabled(authService.isLoading)
+
+                Text("Sign in to sync your data across devices")
+                    .font(.caption)
                     .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
             }
-
-            Spacer()
         }
         .padding(20)
         .glassCard()

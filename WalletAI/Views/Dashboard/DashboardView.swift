@@ -141,12 +141,13 @@ struct DashboardView: View {
         .padding(24)
         .background(Color.walletPrimary, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
         .frame(maxWidth: .infinity)
+        .padding(.horizontal, -16)
     }
 
     private func statBadge(label: String, amount: Double, color: Color, icon: String) -> some View {
         HStack(spacing: 6) {
             Image(systemName: icon)
-                .foregroundStyle(color)
+                .foregroundStyle(.white)
             VStack(alignment: .leading, spacing: 1) {
                 Text(label)
                     .font(.caption)

@@ -118,8 +118,9 @@ final class DeepSeekService {
 
         let prompt = """
         Extract transaction details from: "\(text)"
-        Respond ONLY with JSON: {"title": "...", "amount": 0.0, "isExpense": true}
-        If no transaction detected, respond: null
+        Respond ONLY with JSON: {"title": "...", "amount": 0.0, "isExpense": true, "category": "Food"}
+        Category must be one of: Food, Transport, Shopping, Entertainment, Health, Home, Bills, Education, Other
+        Pick the best match based on the merchant or description. If no transaction detected, respond: null
         """
 
         let body: [String: Any] = [
@@ -137,12 +138,13 @@ final class DeepSeekService {
               let parsed = try? JSONDecoder().decode(ParsedTransactionDTO.self, from: jsonData)
         else { return nil }
 
-        return ParsedTransaction(title: parsed.title, amount: parsed.amount, isExpense: parsed.isExpense)
+        return ParsedTransaction(title: parsed.title, amount: parsed.amount, isExpense: parsed.isExpense, suggestedCategoryName: parsed.category)
     }
 
     private struct ParsedTransactionDTO: Decodable {
         let title: String
         let amount: Double
         let isExpense: Bool
+        let category: String?
     }
 }

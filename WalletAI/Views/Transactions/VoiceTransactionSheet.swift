@@ -200,11 +200,11 @@ struct VoiceTransactionSheet: View {
         // First try local parse, then AI enhance
         if let local = speechService.parseTransactionFromSpeech(speechService.transcript) {
             Task {
-                // Optionally refine via AI
                 let aiResult = await deepSeekService.parseTransactionIntent(from: speechService.transcript)
                 await MainActor.run {
-                    parsedTransaction = aiResult ?? local
-                    selectedCategory = categories.first { $0.name == "Other" }
+                    let tx = aiResult ?? local
+                    parsedTransaction = tx
+                    selectedCategory = bestCategory(for: tx.suggestedCategoryName)
                     withAnimation(.springy) { status = .confirming }
                 }
             }
@@ -214,7 +214,7 @@ struct VoiceTransactionSheet: View {
                 await MainActor.run {
                     if let tx = result {
                         parsedTransaction = tx
-                        selectedCategory = categories.first { $0.name == "Other" }
+                        selectedCategory = bestCategory(for: tx.suggestedCategoryName)
                         withAnimation(.springy) { status = .confirming }
                     } else {
                         withAnimation(.springy) { status = .idle }
@@ -222,6 +222,12 @@ struct VoiceTransactionSheet: View {
                 }
             }
         }
+    }
+
+    private func bestCategory(for name: String?) -> Category? {
+        guard let name else { return categories.first { $0.name == "Other" } }
+        return categories.first { $0.name.localizedCaseInsensitiveContains(name) }
+            ?? categories.first { $0.name == "Other" }
     }
 
     private func saveTransaction(_ parsed: ParsedTransaction) {

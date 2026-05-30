@@ -126,4 +126,5 @@ struct ParsedTransaction {
     var title: String
     var amount: Double
     var isExpense: Bool
+    var suggestedCategoryName: String? = nil
 }
